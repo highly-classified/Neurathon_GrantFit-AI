@@ -86,8 +86,12 @@ const LoginPage = () => {
                 className="sm:mx-auto sm:w-full sm:max-w-md relative z-10"
             >
                 <div className="flex justify-center">
-                    <div className="bg-[var(--color-primary)] p-3 rounded-xl shadow-lg shadow-[var(--color-primary)]/20">
-                         <CircleDashed className="h-10 w-10 text-white animate-spin-slow" />
+                    <div className="bg-[var(--color-primary)] p-3 rounded-xl shadow-lg shadow-[var(--color-primary)]/20 flex items-center justify-center">
+                         <img 
+                            src="/logo-white.png" 
+                            alt="GrantFit AI Logo" 
+                            className="h-14 w-auto" 
+                        />
                     </div>
                 </div>
                 <h2 className="mt-6 text-center text-3xl font-extrabold text-[var(--color-text-main)]">

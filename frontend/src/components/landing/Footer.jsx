@@ -6,10 +6,20 @@ const Footer = () => {
     <footer className="bg-white border-t border-[var(--color-primary)]/10">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+
           <div className="col-span-1 md:col-span-2">
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">
-              GrantFit AI
-            </span>
+          <div className="col-span-1 md:col-span-2">
+            <div className="flex items-center mb-4">
+              <img 
+                src="/logo-white.png" 
+                alt="GrantFit AI Logo" 
+                className="h-10 w-auto mr-2" 
+                style={{ filter: 'invert(16%) sepia(32%) saturate(3000%) hue-rotate(200deg) brightness(95%) contrast(90%)' }} 
+              />
+              <span className="text-3xl text-[var(--color-primary)]" style={{ fontFamily: '"Gravitas One", serif' }}>
+                GrantFit AI
+              </span>
+            </div>
             <p className="mt-4 text-[var(--color-primary)]/80 max-w-md">
               Empowering researchers and founders with AI-driven grant matching and pitch readiness tools. Turn your vision into funded reality.
             </p>
@@ -19,6 +29,7 @@ const Footer = () => {
               <SocialLink href="#" icon={<Linkedin className="h-6 w-6" />} />
               <SocialLink href="mailto:contact@grantfit.ai" icon={<Mail className="h-6 w-6" />} />
             </div>
+          </div>
           </div>
           
           <div>

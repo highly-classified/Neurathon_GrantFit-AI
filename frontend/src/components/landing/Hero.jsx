@@ -36,7 +36,7 @@ const Hero = () => {
             </h1>
           </div>
           
-          <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-400 mb-10">
+          <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-200 mb-10">
             Stop searching, start applying. Our two-layer matching system connects you with the right funding opportunities and perfects your pitch with AI-driven feedback.
           </p>
           
