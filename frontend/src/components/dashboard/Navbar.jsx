@@ -1,7 +1,18 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
+  const location = useLocation();
+  const isActive = (path) => location.pathname === path;
+
+  const getLinkClass = (path) => {
+    const baseClass = "text-sm font-medium py-5 transition-colors";
+    const activeClass = "text-[#0f172a] border-b-2 border-[#1e293b]";
+    const inactiveClass = "text-gray-500 hover:text-[#0f172a]";
+    
+    return `${baseClass} ${isActive(path) ? activeClass : inactiveClass}`;
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 z-50">
       <div className="flex items-center gap-8">
@@ -10,23 +21,14 @@ const Navbar = () => {
           <span className="text-xl text-[#0f172a]" style={{ fontFamily: '"Gravitas One", serif' }}>GrantFit AI</span>
         </div>
 
-        <div className="hidden md:flex items-center bg-gray-50 border border-gray-200 rounded-full px-4 py-1.5 w-80">
-          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search grants, agencies, or ke..."
-            className="ml-2 bg-transparent border-none outline-none text-sm text-gray-600 placeholder-gray-400 w-full"
-          />
-        </div>
+
       </div>
 
       <div className="flex items-center gap-8">
         <div className="hidden lg:flex items-center gap-6">
-          <Link to="/dashboard" className="text-sm font-medium text-[#0f172a] border-b-2 border-[#1e293b] py-5">Dashboard</Link>
-          <Link to="/tracking" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">Tracking</Link>
-          <Link to="/credits" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">Credits</Link>
+          <Link to="/dashboard" className={getLinkClass('/dashboard')}>Dashboard</Link>
+          <Link to="/tracking" className={getLinkClass('/tracking')}>Tracking</Link>
+          <Link to="/credits" className={getLinkClass('/credits')}>Credits</Link>
           <Link to="#" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">Settings</Link>
         </div>
 

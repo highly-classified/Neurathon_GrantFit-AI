@@ -106,10 +106,10 @@ const RegistrationPage = () => {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 pt-12">
-        <div className="flex flex-col md:flex-row gap-10">
+      <main className="max-w-7xl mx-auto px-6 pt-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Left Column: Form */}
-          <div className="flex-[2]">
+          <div className="lg:col-span-7">
             <div className="mb-10">
               <h1 className="text-4xl font-black tracking-tight text-[#0e121b] mb-4">Event Registration</h1>
               <p className="text-slate-500 font-medium">Please fill out the details below to register for the {grant.org} funding program.</p>
@@ -211,42 +211,47 @@ const RegistrationPage = () => {
           </div>
 
           {/* Right Column: Sidebar */}
-          <div className="flex-1 space-y-6">
-            <div className="bg-[#1347ae] rounded-3xl p-8 text-white shadow-xl shadow-[#1347ae]/20 sticky top-28">
+          <div className="lg:col-span-5 space-y-6">
+            {/* Selected Grant Card - Horizontal Grid */}
+            <div className="bg-[#40484f] rounded-3xl p-8 text-white shadow-xl shadow-[#40484f]/20">
               <div className="flex items-center gap-2 text-blue-200 text-xs font-black uppercase tracking-[0.2em] mb-4">
                 <Globe size={14} />
                 Selected Grant
               </div>
               <h2 className="text-2xl font-black leading-tight mb-6">{grant.title}</h2>
 
-              <div className="space-y-4 mb-8">
-                <div className="flex justify-between items-center py-3 border-b border-white/10">
-                  <span className="text-blue-100/70 text-sm">Organizer</span>
-                  <span className="font-bold text-sm text-white">{grant.org}</span>
-                </div>
-                <div className="flex justify-between items-center py-3 border-b border-white/10">
-                  <span className="text-blue-100/70 text-sm">Funding Amount</span>
-                  <span className="font-bold text-sm text-white">{grant.funding}</span>
-                </div>
-                <div className="flex justify-between items-center py-3 border-b border-white/10">
-                  <span className="text-blue-100/70 text-sm">Deadline</span>
-                  <span className="font-bold text-sm text-white tracking-tight">{grant.deadline}</span>
-                </div>
-              </div>
-
-              <div className="bg-white/10 rounded-2xl p-5 border border-white/10">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="size-8 bg-amber-400 rounded-lg flex items-center justify-center text-[#1347ae]">
-                    <span className="material-symbols-outlined text-[20px]">lightbulb</span>
+              <div className="grid grid-cols-1 gap-4">
+                {/* Stats Row */}
+                <div className="bg-white/5 rounded-2xl p-5 border border-white/10 space-y-3">
+                  <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                    <span className="text-blue-100/70 text-sm">Organizer</span>
+                    <span className="font-bold text-sm text-white text-right">{grant.org}</span>
                   </div>
-                  <h4 className="font-black text-sm uppercase tracking-wider">AI Insight</h4>
+                  <div className="flex justify-between items-center border-b border-white/10 py-2">
+                    <span className="text-blue-100/70 text-sm">Funding Amount</span>
+                    <span className="font-bold text-sm text-white text-right">{grant.funding}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2">
+                    <span className="text-blue-100/70 text-sm">Deadline</span>
+                    <span className="font-bold text-sm text-white text-right tracking-tight">{grant.deadline}</span>
+                  </div>
                 </div>
-                <p className="text-xs leading-relaxed text-blue-50 font-medium">
-                  This grant has a high alignment (94%) with your profile. Ensure your proposal emphasizes the "Quantum Scalability" section as prioritized by {grant.org}.
-                </p>
+
+                {/* AI Insight Row */}
+                <div className="bg-white/10 rounded-2xl p-5 border border-white/10">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="size-8 bg-amber-400 rounded-lg flex items-center justify-center text-[#1347ae]">
+                      <span className="material-symbols-outlined text-[20px]">lightbulb</span>
+                    </div>
+                    <h4 className="font-black text-sm uppercase tracking-wider">AI Insight</h4>
+                  </div>
+                  <p className="text-xs leading-relaxed text-blue-50 font-medium">
+                    This grant has a high alignment (94%) with your profile. Ensure your proposal emphasizes the "Quantum Scalability" section as prioritized by {grant.org}.
+                  </p>
+                </div>
               </div>
             </div>
-
+            
             <div className="bg-white rounded-3xl p-6 border border-slate-200">
               <h4 className="font-bold text-slate-700 mb-4 text-sm">Need Help?</h4>
               <div className="flex items-center gap-4 text-slate-500 hover:text-[#1347ae] cursor-pointer transition-colors">

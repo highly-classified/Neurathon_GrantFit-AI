@@ -3,6 +3,9 @@ import Navbar from './Navbar';
 import GrantCard from './GrantCard';
 
 const Dashboard = () => {
+  const [eligibleSearch, setEligibleSearch] = React.useState('');
+  const [maybeSearch, setMaybeSearch] = React.useState('');
+
   const eligibleGrants = [
     {
       id: "DOE-EERE-2024",
@@ -54,19 +57,22 @@ const Dashboard = () => {
     }
   ];
 
+  const filteredEligible = eligibleGrants.filter(g => 
+    g.title.toLowerCase().includes(eligibleSearch.toLowerCase()) || 
+    g.org.toLowerCase().includes(eligibleSearch.toLowerCase())
+  );
+
+  const filteredMaybe = mayBeEligible.filter(g => 
+    g.title.toLowerCase().includes(maybeSearch.toLowerCase()) || 
+    g.org.toLowerCase().includes(maybeSearch.toLowerCase())
+  );
+
   return (
-    <div className="min-h-screen bg-[#fafafa] font-['Inter',_sans-serif]">
+    <div className="min-h-screen bg-slate-300 font-['Inter',_sans-serif]">
       <Navbar />
 
-      <main className="max-w-[1400px] mx-auto pt-24 pb-32 px-6">
-        {/* Breadcrumbs */}
-        <div className="flex items-center gap-2 text-xs font-medium text-gray-400 mb-6">
-          <span>Home</span>
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M9 5l7 7-7 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span className="text-gray-500">Grant Discovery</span>
-        </div>
+      <main className="max-w-[1600px] mx-auto pt-24 pb-32 px-6">
+
 
         {/* Page Header */}
         <div className="flex items-end justify-between mb-8">
@@ -88,64 +94,80 @@ const Dashboard = () => {
               </svg>
               Refresh Matches
             </button>
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-[#1e293b] border border-[#1e293b] text-white text-sm font-bold rounded-xl hover:bg-[#0f172a] shadow-md shadow-slate-200 transition-all focus:ring-4 focus:ring-slate-100">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Custom Search
-            </button>
+
           </div>
         </div>
 
 
 
         {/* Dashboard Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
           {/* Main Eligible Column */}
-          <div className="lg:col-span-8">
-            <div className="flex items-center justify-between mb-6 px-2">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-blue-100">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h2 className="text-lg font-bold text-[#0f172a]">Eligible Grants</h2>
-                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 font-bold text-[10px] rounded-md uppercase tracking-tight">18 Matches</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {eligibleGrants.map((grant, idx) => (
-                <GrantCard key={idx} {...grant} />
-              ))}
-            </div>
-          </div>
-
-          {/* Side Potentially Eligible Column */}
-          <div className="lg:col-span-4 rounded-3xl bg-gray-50/50 border border-gray-100 p-2">
+          <div className="col-span-1 rounded-3xl bg-gray-100 border border-gray-200 p-2">
             <div className="p-4">
-              <div className="flex items-center justify-between mb-4 px-2">
+              <div className="flex items-center justify-between mb-6 px-2">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
-                    <span className="text-xl font-bold">?</span>
+                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white shadow-lg shadow-green-100">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                    </svg>
                   </div>
-                  <div>
-                    <h2 className="text-sm font-bold text-[#0f172a]">May Be Eligible</h2>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase">24 Potential</span>
-                  </div>
+                  <h2 className="text-lg font-bold text-[#0f172a]">Eligible Grants</h2>
+                  <span className="px-2 py-0.5 bg-green-50 text-green-600 font-bold text-[10px] rounded-md uppercase tracking-tight">{filteredEligible.length} Matches</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Show Ineligible</span>
-                  <div className="w-8 h-4 bg-gray-200 rounded-full relative cursor-pointer overflow-hidden">
-                    <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow-sm"></div>
-                  </div>
+                <div className="flex items-center gap-2 px-3 py-2 bg-[#1e293b] border border-[#1e293b] rounded-lg shadow-md shadow-slate-200 transition-all focus-within:ring-2 focus-within:ring-slate-100">
+                  <svg className="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    className="bg-transparent border-none outline-none text-xs font-bold text-white placeholder-gray-400 w-20 focus:w-32 transition-all"
+                    value={eligibleSearch}
+                    onChange={(e) => setEligibleSearch(e.target.value)}
+                  />
                 </div>
               </div>
 
               <div className="space-y-4">
-                {mayBeEligible.map((grant, idx) => (
+                {filteredEligible.map((grant, idx) => (
+                  <GrantCard key={idx} {...grant} />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Side Potentially Eligible Column */}
+          <div className="col-span-1 rounded-3xl bg-gray-100 border border-gray-200 p-2">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-4 px-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                    <span className="text-xl font-bold">?</span>
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-bold text-[#0f172a]">May Be Eligible</h2>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase">{filteredMaybe.length} Potential</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 bg-[#1e293b] border border-[#1e293b] rounded-lg shadow-md shadow-slate-200 transition-all focus-within:ring-2 focus-within:ring-slate-100">
+                  <svg className="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    className="bg-transparent border-none outline-none text-xs font-bold text-white placeholder-gray-400 w-20 focus:w-32 transition-all"
+                    value={maybeSearch}
+                    onChange={(e) => setMaybeSearch(e.target.value)}
+                  />
+                </div>
+
+              </div>
+
+              <div className="space-y-4">
+                {filteredMaybe.map((grant, idx) => (
                   <GrantCard key={idx} {...grant} />
                 ))}
               </div>

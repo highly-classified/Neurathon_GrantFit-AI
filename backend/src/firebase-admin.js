@@ -1,18 +1,22 @@
 import admin from "firebase-admin";
 import "dotenv/config";
 
-const projectId = process.env.VITE_FIREBASE_PROJECT_ID;
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 if (!admin.apps.length) {
     try {
-        // In a real production environment, you would use a service account key JSON.
-        // For now, we'll try to initialize with the project ID.
-        // NOTE: This requires the machine to be authenticated via Google Cloud CLI 
-        // or have GOOGLE_APPLICATION_CREDENTIALS set.
+        const serviceAccountPath = path.join(__dirname, "../service-account.json");
+        const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
+
         admin.initializeApp({
-            credential: admin.credential.cert("./service-account.json"),
-            projectId: projectId
+            credential: admin.credential.cert(serviceAccount)
         });
+        console.log("Firebase Admin initialized for project:", serviceAccount.project_id);
     } catch (error) {
         console.error("Firebase Admin initialization failed:", error);
     }
