@@ -71,11 +71,13 @@ async function runAdminTests() {
         console.log(`   Needs Improvement: ${evaluation.improvement_needed}`);
         console.log(`   Worse Part: ${evaluation.worse_part}\n`);
 
-        // 5. Test Pitch Improvement
-        console.log("🛠️ Running Pitch Improvement...");
-        const improvement = await improvePitchWithAI(testUserId, testGrantId, pitchText, evaluation);
-        console.log(`✅ Pitch Improved! New Score: ${improvement.score}`);
-        console.log(`   Improved Pitch: ${improvement.improved_pitch.substring(0, 50)}...\n`);
+        // 5. Test Pitch Improvement (Manual Refinement Simulation)
+        console.log("🛠️ Running Pitch Improvement (Manual Refinement)...");
+        const manualEdit = pitchText + " Our platform now includes a specific module for NOAA grant compliance.";
+        const improvement = await improvePitchWithAI(testUserId, testGrantId, manualEdit, evaluation);
+        console.log(`✅ Pitch Re-evaluated! New Score: ${improvement.score}`);
+        console.log(`   Best Part: ${improvement.best_part.substring(0, 50)}...`);
+        console.log(`   Next Area for Development: ${improvement.improvement_needed.substring(0, 50)}...\n`);
 
         if (improvement.score <= evaluation.score) {
             throw new Error("Improvement did not increase score!");

@@ -30,7 +30,8 @@ export async function analyzeAndRecordPitch(userId, grantId, pitchText) {
 }
 
 /**
- * Iteratively improves a pitch based on previous analysis.
+ * Re-evaluates a pitch after user manual improvements.
+ * AI identifies specific sentences or sections that still need work.
  */
 export async function improvePitchWithAI(userId, grantId, pitchText, previousAnalysis) {
     const hasCredits = await hasSufficientCredits(userId, "analyze_credits");
@@ -40,31 +41,33 @@ export async function improvePitchWithAI(userId, grantId, pitchText, previousAna
     const grantData = grantDoc.exists ? grantDoc.data() : { org_name: "Target Grant" };
 
     const prompt = `
-    You are an AI Pitch Improver. Based on the previous evaluation, rewrite the following pitch to be better.
-    The goal is to increase the Readiness Score. 
-    Focus especially on fixing the "Worse Part" and "Needs Improvement" sections.
+    You are an AI Pitch Evaluator. The user has manually edited their pitch based on your previous feedback.
+    Analyze the CURRENT PITCH and determine if it has improved.
     
     CURRENT PITCH:
     "${pitchText}"
     
     PREVIOUS EVALUATION:
-    - Current Score: ${previousAnalysis.score}
-    - Best Part: ${previousAnalysis.best_part}
-    - Needs Improvement: ${previousAnalysis.improvement_needed}
-    - Worse Part: ${previousAnalysis.worse_part}
+    - Previous Score: ${previousAnalysis.score}
     
     GRANT CONTEXT:
     - Organization: ${grantData.org_name}
     - Event: ${grantData.event_name}
     
     INSTRUCTIONS:
-    1. Rewrite the pitch for maximum impact and alignment.
-    2. Ensure the new score is HIGHER than ${previousAnalysis.score}, but do not exceed 100.
-    3. Respond ONLY in a valid JSON format:
-       { "improved_pitch": "...", "new_score": 88, "best_part": "...", "improvement_needed": "...", "worse_part": "..." }
+    1. Re-analyze the pitch for impact, clarity, and alignment.
+    2. Provide a NEW score based ON THE CURRENT TEXT.
+    3. Identify the BEST PART of the current text.
+    4. Highlight specific SENTENCES or AREAS that still need development (be very precise).
+    5. Identify the WORSE PART (remaining critical weakness).
+    6. Respond ONLY in valid JSON:
+       { "new_score": 75, "best_part": "...", "improvement_needed": "In the paragraph about X, the sentence '...' is still vague; try adding Y.", "worse_part": "..." }
     `;
 
-    const cacheKey = `improve_${grantId}_${pitchText.substring(0, 30).replace(/[^a-zA-Z]/g, "")}`;
+    // Use a unique cache key based on the new text to avoid returning the old AI-rewritten cached values
+    const textHash = pitchText.substring(0, 30).replace(/[^a-zA-Z]/g, "");
+    const cacheKey = `manual_v1_${grantId}_${textHash}`;
+
     const response = await callGemini(prompt, cacheKey);
     const cleanResponse = response.replace(/```json/g, "").replace(/```/g, "").trim();
     const result = JSON.parse(cleanResponse);
@@ -72,7 +75,6 @@ export async function improvePitchWithAI(userId, grantId, pitchText, previousAna
     await deductCredits(userId, "analyze_credits");
 
     return {
-        improved_pitch: result.improved_pitch,
         score: result.new_score,
         best_part: result.best_part,
         improvement_needed: result.improvement_needed,
