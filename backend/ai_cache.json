@@ -1,4 +1,5 @@
 {
   "match_test_test-grant-1770661975132": "0.90",
-  "pitch_general_We_are_building_a_revolutionary_AI_platform_that_c": "```json\n{\n  \"score\": 65,\n  \"feedback\": \"Your pitch presents an exciting and impactful concept, leveraging AI to address a significant student need. To strengthen your application, elaborate on the specific machine learning methodologies, data sources, and your team's qualifications to execute this 'revolutionary' platform. Furthermore, include details on your operational plan, timeline, and how you will measure global impact and ensure long-term sustainability.\"\n}\n```"
+  "pitch_general_We_are_building_a_revolutionary_AI_platform_that_c": "```json\n{\n  \"score\": 65,\n  \"feedback\": \"Your pitch presents an exciting and impactful concept, leveraging AI to address a significant student need. To strengthen your application, elaborate on the specific machine learning methodologies, data sources, and your team's qualifications to execute this 'revolutionary' platform. Furthermore, include details on your operational plan, timeline, and how you will measure global impact and ensure long-term sustainability.\"\n}\n```",
+  "match_test_test-grant-1770663340757": "0.85"
 }
