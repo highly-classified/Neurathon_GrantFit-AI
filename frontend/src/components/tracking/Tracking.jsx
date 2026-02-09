@@ -1,6 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../dashboard/Navbar';
+import {
+  Filter,
+  Plus,
+  BarChart3,
+  TrendingUp,
+  FileEdit,
+  CheckCircle2,
+  MoreVertical,
+  FileText,
+  ChevronLeft,
+  ChevronRight,
+  Brain
+} from 'lucide-react';
 
 const Tracking = () => {
   const [dynamicApps, setDynamicApps] = React.useState([]);
@@ -95,16 +108,53 @@ const Tracking = () => {
 
           </div>
           <div className="flex gap-3">
-
-            <button className="flex items-center gap-2 rounded-lg bg-[#40484f] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#40484f]/20 hover:bg-[#40484f]/90 transition-all">
-              <span className="material-symbols-outlined text-[20px]">add</span>
+            <button className="flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+              <Filter className="size-5" />
+              Filter
+            </button>
+            <button className="flex items-center gap-2 rounded-lg bg-[#1347ae] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#1347ae]/20 hover:bg-[#1347ae]/90 transition-all">
+              <Plus className="size-5" />
               New Application
             </button>
           </div>
         </div>
 
         {/* Metrics Overview */}
-
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="flex flex-col gap-1 rounded-xl bg-white p-6 border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between text-slate-500">
+              <span className="text-sm font-medium">Total Active</span>
+              <BarChart3 className="size-5 text-[#1347ae]" />
+            </div>
+            <p className="text-3xl font-bold text-[#0e121b]">{applications.length}</p>
+            <div className="mt-2 flex items-center gap-1 text-xs font-bold text-[#07883b]">
+              <TrendingUp className="size-3.5" />
+              <span>+12% from last month</span>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1 rounded-xl bg-white p-6 border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between text-slate-500">
+              <span className="text-sm font-medium">In Progress</span>
+              <FileEdit className="size-5 text-amber-500" />
+            </div>
+            <p className="text-3xl font-bold text-[#0e121b]">{applications.filter(a => a.status === 'In Progress').length}</p>
+            <div className="mt-2 flex items-center gap-1 text-xs font-bold text-[#07883b]">
+              <TrendingUp className="size-3.5" />
+              <span>+5% from last month</span>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1 rounded-xl bg-white p-6 border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between text-slate-500">
+              <span className="text-sm font-medium">Successfully Submitted</span>
+              <CheckCircle2 className="size-5 text-[#07883b]" />
+            </div>
+            <p className="text-3xl font-bold text-[#0e121b]">{applications.filter(a => a.status === 'Submitted' || a.status === 'Applied').length}</p>
+            <div className="mt-2 flex items-center gap-1 text-xs font-bold text-[#07883b]">
+              <TrendingUp className="size-3.5" />
+              <span>+8% from last month</span>
+            </div>
+          </div>
+        </div>
 
         {/* Main Data Grid */}
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -144,6 +194,20 @@ const Tracking = () => {
                           {app.status}
                         </span>
                       </td>
+                      <td className="px-6 py-5 text-right">
+                        {app.action === 'more_vert' ? (
+                          <button className="text-slate-400 hover:text-[#1347ae] transition-colors ml-auto flex justify-end">
+                            <MoreVertical className="size-5" />
+                          </button>
+                        ) : app.action === 'picture_as_pdf' ? (
+                          <button className="flex items-center gap-1 ml-auto text-sm font-bold text-slate-500 hover:text-slate-700">
+                            <FileText className="size-4.5" />
+                            View PDF
+                          </button>
+                        ) : (
+                          <button className="text-sm font-bold text-[#1347ae] hover:underline">{app.action}</button>
+                        )}
+                      </td>
                     </tr>
                   );
                 })}
@@ -155,7 +219,7 @@ const Tracking = () => {
             <p className="text-sm text-slate-500 font-medium">Showing 1 to 5 of 24 applications</p>
             <div className="flex items-center gap-1">
               <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50">
-                <span className="material-symbols-outlined">chevron_left</span>
+                <ChevronLeft className="size-5" />
               </button>
               <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#40484f] text-sm font-bold text-white shadow-md shadow-[#40484f]/20">1</button>
               <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-sm font-bold text-slate-600 hover:bg-slate-100">2</button>
@@ -163,7 +227,7 @@ const Tracking = () => {
               <span className="px-1 text-slate-400">...</span>
               <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-sm font-bold text-slate-600 hover:bg-slate-100">5</button>
               <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50">
-                <span className="material-symbols-outlined">chevron_right</span>
+                <ChevronRight className="size-5" />
               </button>
             </div>
           </div>
@@ -173,7 +237,7 @@ const Tracking = () => {
         <div className="flex items-center justify-between rounded-xl bg-[#40484f] px-8 py-6 text-white shadow-xl shadow-[#40484f]/30">
           <div className="flex items-center gap-6">
             <div className="rounded-full bg-white/20 p-3">
-              <span className="material-symbols-outlined text-3xl">psychology</span>
+              <Brain className="size-8" />
             </div>
             <div className="flex flex-col">
               <h3 className="text-xl font-bold">Find more matches with AI</h3>
