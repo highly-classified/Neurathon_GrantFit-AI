@@ -15,11 +15,21 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleSmoothScroll = (e, href) => {
+    e.preventDefault();
+    const targetId = href.replace('#', '');
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
+
   const navLinks = [
     { name: 'Features', href: '#features' },
     { name: 'How It Works', href: '#how-it-works' },
-    { name: 'Pitch AI', href: '#pitch-ai' },
-    { name: 'Grants', href: '#grants' },
   ];
 
   return (
@@ -27,15 +37,15 @@ const Navbar = () => {
       className={clsx(
         'fixed w-full z-50 transition-all duration-300',
         scrolled
-          ? 'bg-transparent backdrop-blur-lg border-b border-gray-100/10'
-          : 'bg-transparent'
+          ? 'bg-white/10 backdrop-blur-md border-b border-white/10 shadow-sm'
+          : 'bg-white/10 backdrop-blur-sm'
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <div className="flex-shrink-0 flex items-center">
-            <CircleDashed className="h-8 w-8 text-[var(--color-primary)] animate-spin-slow" />
-            <span className="ml-2 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">
+            <img src="/logo-white.png" alt="GrantFit AI Logo" className="h-14 w-auto" />
+            <span className="ml-2 text-3xl text-white" style={{ fontFamily: '"Gravitas One", serif' }}>
               GrantFit AI
             </span>
           </div>
@@ -46,13 +56,16 @@ const Navbar = () => {
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-gray-300 hover:text-white hover:scale-105 transition-all duration-300 px-3 py-2 rounded-md text-sm font-medium"
+                  onClick={(e) => handleSmoothScroll(e, link.href)}
+                  className={clsx(
+                    "hover:scale-105 transition-all duration-300 px-3 py-2 rounded-md text-sm font-medium text-white hover:text-white/80"
+                  )}
                 >
                   {link.name}
                 </a>
               ))}
-              <button onClick={() => window.location.href = '/login'} className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-[0_0_15px_rgba(15,23,42,0.3)] hover:shadow-[0_0_25px_rgba(15,23,42,0.5)] cursor-pointer">
-                Get Started
+              <button onClick={() => window.location.href = '/login'} className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-[0_0_15px_rgba(15,23,42,0.3)] hover:shadow-[0_0_25px_rgba(15,23,42,0.5)] cursor-pointer text-sm">
+                SIGN IN / SIGN UP
               </button>
             </div>
           </div>
@@ -82,13 +95,16 @@ const Navbar = () => {
                   key={link.name}
                   href={link.href}
                   className="text-gray-600 hover:text-[var(--color-primary)] block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={() => setIsOpen(false)}
+                  onClick={(e) => {
+                    handleSmoothScroll(e, link.href);
+                    setIsOpen(false);
+                  }}
                 >
                   {link.name}
                 </a>
               ))}
-              <button onClick={() => window.location.href = '/login'} className="w-full mt-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white px-6 py-2 rounded-full font-medium transition-all">
-                Get Started
+              <button onClick={() => window.location.href = '/login'} className="w-full mt-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white px-6 py-2 rounded-full font-medium transition-all text-sm">
+                SIGN IN / SIGN UP
               </button>
             </div>
           </motion.div>

@@ -1,0 +1,72 @@
+
+.focus-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1em;
+  position: relative;
+  /* Ensure container doesn't overflow unnecessarily */
+  width: max-content;
+  margin: 0 auto;
+}
+
+.focus-word {
+  position: relative;
+  cursor: pointer;
+  z-index: 1;
+  /* Smooth filter transition is handled inline in JSX, but here for backup */
+  transition: all 0.3s ease;
+  color: white; /* Ensure text matches the requested white color globally or inherit */
+}
+
+/* 
+   The frame that moves around the focused word.
+   It's an absolute div with 4 corners made of spans.
+*/
+.focus-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none; /* Let clicks pass through to words if needed */
+  z-index: 0; 
+  /* The border color and glow are passed as vars */
+}
+
+/* Corner Styles */
+.corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--border-color);
+  border-style: solid;
+  /* Optional: Box shadow/glow */
+  filter: drop-shadow(0 0 2px var(--glow-color));
+}
+
+.top-left {
+  top: -4px;
+  left: -4px;
+  border-width: 2px 0 0 2px;
+  border-top-left-radius: 4px;
+}
+
+.top-right {
+  top: -4px;
+  right: -4px;
+  border-width: 2px 2px 0 0;
+  border-top-right-radius: 4px;
+}
+
+.bottom-left {
+  bottom: -4px;
+  left: -4px;
+  border-width: 0 0 2px 2px;
+  border-bottom-left-radius: 4px;
+}
+
+.bottom-right {
+  bottom: -4px;
+  right: -4px;
+  border-width: 0 2px 2px 0;
+  border-bottom-right-radius: 4px;
+}

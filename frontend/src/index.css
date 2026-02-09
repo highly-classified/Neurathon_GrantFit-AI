@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Gravitas+One&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -35,4 +36,13 @@ body {
   background-color: var(--color-background);
   color: var(--color-text-main);
   font-family: var(--font-sans);
+}
+
+.landing-page-bg {
+  background-image: url('/bg-landing.png');
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
 }

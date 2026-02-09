@@ -3,23 +3,56 @@ import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { motion } from 'framer-motion';
-import { User, Briefcase, Globe, DollarSign, Flag, Calendar, ArrowRight } from 'lucide-react';
+import { User, Briefcase, Globe, DollarSign, Flag, Calendar, ArrowRight, Search, ChevronDown, Check } from 'lucide-react';
+import { countries } from '../../constants/countries';
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isCountryOpen, setIsCountryOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
+  
   const [formData, setFormData] = useState({
     domain: '',
     fundingRequirement: '',
     gender: '',
     age: '',
+    dob: '',
     role: 'Founder',
-    citizenship: ''
+    citizenship: '',
+    idea: ''
   });
 
+  const calculateAge = (dob) => {
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    
+    // Prevent negative values for funding
+    if (name === 'fundingRequirement' && value < 0) return;
+
+    if (name === 'dob') {
+        const age = calculateAge(value);
+        if (age < 0) return; // Prevent future dates resulting in negative age
+        setFormData({ ...formData, dob: value, age: age });
+    } else if (name === 'idea') {
+        const wordCount = value.trim().split(/\s+/).length;
+        if (wordCount <= 300) {
+            setFormData({ ...formData, [name]: value });
+        }
+    } else {
+        setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -93,7 +126,12 @@ const ProfileSetup = () => {
           transition={{ duration: 0.5 }}
           className="w-full max-w-2xl"
         >
-          <div className="mb-10">
+          <div className="mb-10 text-center">
+             <div className="flex justify-center mb-6">
+                <div className="bg-[var(--color-primary)] p-3 rounded-xl shadow-lg shadow-[var(--color-primary)]/20 flex items-center justify-center inline-block">
+                    <img src="/logo-white.png" alt="GrantFit AI Logo" className="h-14 w-auto" />
+                </div>
+            </div>
             <h1 className="text-3xl font-bold text-[var(--color-text-main)] mb-2">Build Your Profile</h1>
             <p className="text-[var(--color-text-muted)]">Tell us about yourself to unlock tailored grant matches.</p>
           </div>
@@ -107,6 +145,26 @@ const ProfileSetup = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Idea Section */}
+            <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 flex items-center">
+                    <Briefcase className="w-4 h-4 mr-2 text-[var(--color-secondary)]" />
+                    Your Big Idea (Max 300 words)
+                </label>
+                <textarea
+                    name="idea"
+                    required
+                    value={formData.idea}
+                    onChange={handleChange}
+                    rows="4"
+                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all outline-none resize-none"
+                    placeholder="Describe your startup idea or project..."
+                ></textarea>
+                <p className="text-xs text-gray-400 text-right">
+                    {formData.idea.trim().split(/\s+/).filter(w => w.length > 0).length}/300 words
+                </p>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Domain */}
               <div className="space-y-2">
@@ -137,16 +195,24 @@ const ProfileSetup = () => {
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 flex items-center">
                   <DollarSign className="w-4 h-4 mr-2 text-[var(--color-secondary)]" />
-                  Funding Requirement (USD)
+                  Funding Requirement ({(() => {
+                    const country = countries.find(c => c.name === formData.citizenship);
+                    // Only show currency code, e.g., USD, EUR
+                    return country ? country.currency : 'USD';
+                  })()})
                 </label>
                 <input
                   type="number"
                   name="fundingRequirement"
                   required
-                  placeholder="e.g. 50000"
+                  min="0"
+                  placeholder={`e.g. ${(() => {
+                    const country = countries.find(c => c.name === formData.citizenship);
+                    return country ? country.symbol : '';
+                  })()} 50000`}
                   value={formData.fundingRequirement}
                   onChange={handleChange}
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all outline-none"
+                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
 
@@ -173,21 +239,96 @@ const ProfileSetup = () => {
                 </div>
               </div>
 
-              {/* Citizenship */}
-              <div className="space-y-2">
+              {/* Citizenship (Custom Dropdown) */}
+              <div className="space-y-2 relative">
                 <label className="text-sm font-medium text-gray-700 flex items-center">
                   <Flag className="w-4 h-4 mr-2 text-[var(--color-secondary)]" />
                   Citizenship
                 </label>
-                <input
-                  type="text"
-                  name="citizenship"
-                  required
-                  placeholder="e.g. United States"
-                  value={formData.citizenship}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all outline-none"
-                />
+                
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsCountryOpen(!isCountryOpen)}
+                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all outline-none flex items-center justify-between text-left"
+                  >
+                    {formData.citizenship ? (
+                      <span className="flex items-center gap-2">
+                         {(() => {
+                            const c = countries.find(C => C.name === formData.citizenship);
+                            return c ? (
+                                <>
+                                  <img 
+                                    src={`https://flagcdn.com/w20/${c.code.toLowerCase()}.png`} 
+                                    srcSet={`https://flagcdn.com/w40/${c.code.toLowerCase()}.png 2x`}
+                                    width="20" 
+                                    alt={c.name} 
+                                    className="rounded-sm object-cover"
+                                  />
+                                  <span className="text-[#0f172a] font-medium">{c.name}</span>
+                                </>
+                            ) : formData.citizenship;
+                         })()}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">Select Citizenship</span>
+                    )}
+                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isCountryOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {isCountryOpen && (
+                    <div className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+                      {/* Search */}
+                      <div className="p-2 border-b border-gray-100 sticky top-0 bg-white">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <input 
+                            type="text" 
+                            placeholder="Search countries..."
+                            className="w-full pl-9 pr-4 py-2 bg-gray-50 rounded-lg text-sm border-none focus:ring-0 text-gray-700 placeholder-gray-400"
+                            value={countrySearch}
+                            onChange={(e) => setCountrySearch(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+
+                      {/* List */}
+                      <div className="overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-gray-200">
+                        {countries.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase())).map((country) => (
+                          <button
+                            key={country.name}
+                            type="button"
+                            onClick={() => {
+                              setFormData({ ...formData, citizenship: country.name });
+                              setIsCountryOpen(false);
+                              setCountrySearch('');
+                            }}
+                            className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-lg transition-colors group"
+                          >
+                            <div className="flex items-center gap-3">
+                              <img 
+                                src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`} 
+                                srcSet={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png 2x`}
+                                width="20" 
+                                alt={country.name} 
+                                className="rounded-sm object-cover shadow-sm"
+                              />
+                              <span className="text-sm text-gray-600 group-hover:text-[#0f172a] font-medium">{country.name}</span>
+                            </div>
+                            {formData.citizenship === country.name && (
+                              <Check className="w-4 h-4 text-[var(--color-primary)]" />
+                            )}
+                          </button>
+                        ))}
+                        {countries.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase())).length === 0 && (
+                             <div className="p-4 text-center text-sm text-gray-400">No countries found</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Gender */}
@@ -211,21 +352,24 @@ const ProfileSetup = () => {
                 </select>
               </div>
 
-              {/* Age */}
+              {/* Date of Birth/Age */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 flex items-center">
                   <Calendar className="w-4 h-4 mr-2 text-[var(--color-secondary)]" />
-                  Age
+                  Date of Birth
                 </label>
                 <input
-                  type="number"
-                  name="age"
+                  type="date"
+                  name="dob"
                   required
-                  placeholder="e.g. 25"
-                  value={formData.age}
+                  value={formData.dob}
+                  max={new Date().toISOString().split("T")[0]}
                   onChange={handleChange}
                   className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all outline-none"
                 />
+                {formData.age !== '' && (
+                    <p className="text-xs text-gray-500 text-right">Age: {formData.age} years</p>
+                )}
               </div>
             </div>
 

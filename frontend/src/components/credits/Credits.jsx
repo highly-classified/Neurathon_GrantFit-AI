@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Navbar from '../dashboard/Navbar';
 import {
   Search,
   RefreshCw,
@@ -52,43 +53,9 @@ const Credits = () => {
 
   return (
     <div className="min-h-screen bg-[#f6f6f8] text-slate-900 font-['Public Sans',_sans-serif]">
-      {/* Top Navigation Bar */}
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 bg-white px-10 py-3 sticky top-0 z-50">
-        <div className="flex items-center gap-8">
-          <Link to="/dashboard" className="flex items-center gap-4 text-[#1347ae] hover:opacity-80 transition-opacity">
-            <div className="size-6">
-              <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                <path clipRule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fillRule="evenodd"></path>
-                <path clipRule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fillRule="evenodd"></path>
-              </svg>
-            </div>
-            <h2 className="text-[#1347ae] text-lg font-bold leading-tight tracking-tight">GranFit AI</h2>
-          </Link>
-          <div className="flex w-64 items-center rounded-lg bg-slate-100 px-4 py-2 border-none">
-            <Search className="text-slate-500 size-5 mr-2" />
-            <input
-              className="w-full bg-transparent text-sm text-slate-900 focus:outline-none placeholder:text-slate-500"
-              placeholder="Search usage logs..."
-              type="text"
-            />
-          </div>
-        </div>
-        <div className="flex flex-1 justify-end gap-8">
-          <nav className="flex items-center gap-6">
-            <Link className="text-slate-600 hover:text-[#1347ae] text-sm font-medium transition-colors" to="/dashboard">Dashboard</Link>
-            <Link className="text-slate-600 hover:text-[#1347ae] text-sm font-medium transition-colors" to="/tracking">My Projects</Link>
-            <Link className="text-[#1347ae] text-sm font-bold border-b-2 border-[#1347ae] py-4 h-full flex items-center" to="/credits">Credits</Link>
-            <Link className="text-slate-600 hover:text-[#1347ae] text-sm font-medium transition-colors" to="#">Settings</Link>
-          </nav>
-          <Link
-            to="/profile"
-            className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8 border border-slate-200 cursor-pointer hover:ring-2 hover:ring-[#1347ae]/20 transition-all"
-            style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBe7pIRXg1CGFXzfuvu12iJGLr7ik1N-7vOEu8NRIlQr-ISUym2Ta9P9Y8xlWrTSaGdjnECOnnowrv72_m3lVXwBrKmLAKNPShdDFa3-ANHiESfhJsO0GoViB9-VY7a30APUm6nhaq2C8YfgWsGX-Ygg8wTR9OMPztNmWXb-J1TUDBtDhK2tjSpQFI_a3qVJDkl9Q_zsxWa-IV3MaGTg7LKc_DLrZdJUfS--SgTlNWlyTmbafQ_Dm8Uas_zdyj3YaBAFxT4Et0ppOY")' }}
-          ></Link>
-        </div>
-      </header>
+      <Navbar />
 
-      <main className="px-10 flex flex-col items-center py-12 max-w-[1280px] mx-auto">
+      <main className="px-10 flex flex-col items-center pt-24 pb-12 max-w-[1280px] mx-auto">
         <div className="w-full max-w-[1120px]">
           {/* Page Header */}
           <div className="flex flex-wrap justify-between items-end gap-3 mb-8">
@@ -177,7 +144,7 @@ const Credits = () => {
               <h2 className="text-slate-900 text-xl font-black mb-8">Resource Consumption Breakdown</h2>
               <div className="space-y-10">
                 {/* AI Pitch Analysis */}
-                <div className="space-y-3">
+                <div className="space-y-6">
                   <div className="flex justify-between items-end">
                     <div className="flex items-center gap-3">
                       <span className="font-bold text-slate-800 text-lg">AI Pitch Analysis</span>

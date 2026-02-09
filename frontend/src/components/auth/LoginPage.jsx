@@ -74,7 +74,7 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[var(--color-background)] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="min-h-screen bg-[#40484F] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
              {/* Background Elements */}
             <div className="absolute top-0 left-0 w-96 h-96 bg-[var(--color-secondary)]/10 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-[float_6s_ease-in-out_infinite]" />
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-[var(--color-primary)]/10 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-[float_6s_ease-in-out_infinite_reverse]" />
@@ -86,14 +86,18 @@ const LoginPage = () => {
                 className="sm:mx-auto sm:w-full sm:max-w-md relative z-10"
             >
                 <div className="flex justify-center">
-                    <div className="bg-[var(--color-primary)] p-3 rounded-xl shadow-lg shadow-[var(--color-primary)]/20">
-                         <CircleDashed className="h-10 w-10 text-white animate-spin-slow" />
+                    <div className="bg-[var(--color-primary)] p-3 rounded-xl shadow-lg shadow-[var(--color-primary)]/20 flex items-center justify-center">
+                         <img 
+                            src="/logo-white.png" 
+                            alt="GrantFit AI Logo" 
+                            className="h-14 w-auto" 
+                        />
                     </div>
                 </div>
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-[var(--color-text-main)]">
+                <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
                     {isSignUp ? 'Create your account' : 'Sign in to GrantFit AI'}
                 </h2>
-                <p className="mt-2 text-center text-sm text-[var(--color-text-muted)]">
+                <p className="mt-2 text-center text-sm text-gray-200">
                     Access AI-powered grant matching and pitch tools
                 </p>
             </motion.div>

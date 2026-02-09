@@ -15,16 +15,24 @@ import Credits from './components/credits/Credits';
 import ProfileView from './components/profile/ProfileView';
 import PitchModule from './components/pitch/PitchModule';
 
-const LandingPage = () => (
-  <>
-    <Navbar />
-    <Hero />
-    <Features />
-    <HowItWorks />
-    <PitchPractice />
-    <Footer />
-  </>
-);
+const LandingPage = () => {
+  React.useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+    const timer = setTimeout(() => window.scrollTo(0, 0), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div className="landing-page-bg">
+      <Navbar />
+      <Hero />
+      <Features />
+      <HowItWorks />
+      <PitchPractice />
+      <Footer />
+    </div>
+  );
+};
 
 function App() {
   return (
