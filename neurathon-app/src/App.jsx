@@ -8,6 +8,7 @@ import PitchPractice from './components/landing/PitchPractice';
 import Footer from './components/landing/Footer';
 import LoginPage from './components/auth/LoginPage';
 import Dashboard from './components/dashboard/Dashboard';
+import ProfileSetup from './components/profile/ProfileSetup';
 
 const LandingPage = () => (
   <>
@@ -27,6 +28,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/profile-setup" element={<ProfileSetup />} />
           <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </div>
