@@ -1,5 +1,5 @@
 import { db } from "./firebase-admin.js";
-import { createPitchSession } from "./firestore/pitchSessions.js";
+import { createPitchSessionAdmin } from "./pitchSessionService.js";
 import { deductCredits, hasSufficientCredits } from "./creditService.js";
 
 /**
@@ -20,15 +20,11 @@ export async function analyzeAndRecordPitch(userId, grantId, pitchText) {
     // 3. Deduct Credits
     await deductCredits(userId, "analyze_credits");
 
-    // 4. Record the session
-    // Note: createPitchSession currently uses the client SDK 'auth' and 'db' 
-    // We'll call a version compatible with our admin flow or update the existing one.
-    const result = await createPitchSession({
+    // 4. Record the session using Admin SDK
+    const result = await createPitchSessionAdmin(userId, {
         grant_id: grantId,
         readiness_score: analysis.score,
         feedback: analysis.feedback,
-        // We pass userId because the admin SDK handles it differently than client SDK auth.currentUser
-        user_id_override: userId
     });
 
     return {
