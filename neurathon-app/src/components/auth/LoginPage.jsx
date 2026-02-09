@@ -1,21 +1,36 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, googleProvider } from '../../firebase';
+import { auth, googleProvider, db } from '../../firebase';
 import { signInWithPopup } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { AlertCircle, CircleDashed } from 'lucide-react';
 
 const LoginPage = () => {
     const navigate = useNavigate();
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleGoogleSignIn = async () => {
+        setLoading(true);
+        setError('');
         try {
-            await signInWithPopup(auth, googleProvider);
-            navigate('/dashboard'); // or wherever you want them to go
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            
+            // Check if user profile exists
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            
+            if (userDoc.exists()) {
+                navigate('/dashboard');
+            } else {
+                navigate('/profile-setup');
+            }
         } catch (err) {
             console.error("Error signing in with Google", err);
             setError("Failed to sign in. Please try again.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -62,14 +77,21 @@ const LoginPage = () => {
                     <div>
                         <button
                             onClick={handleGoogleSignIn}
-                            className="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary)] transition-all"
+                            disabled={loading}
+                            className="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary)] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            <img 
-                                className="h-5 w-5 mr-3" 
-                                src="https://www.svgrepo.com/show/475656/google-color.svg" 
-                                alt="Google logo" 
-                            />
-                            Sign in with Google
+                            {loading ? (
+                                <div className="h-5 w-5 border-2 border-gray-400 border-t-[var(--color-primary)] rounded-full animate-spin" />
+                            ) : (
+                                <>
+                                    <img 
+                                        className="h-5 w-5 mr-3" 
+                                        src="https://www.svgrepo.com/show/475656/google-color.svg" 
+                                        alt="Google logo" 
+                                    />
+                                    Sign in with Google
+                                </>
+                            )}
                         </button>
                     </div>
 

@@ -7,6 +7,7 @@ import HowItWorks from './components/landing/HowItWorks';
 import PitchPractice from './components/landing/PitchPractice';
 import Footer from './components/landing/Footer';
 import LoginPage from './components/auth/LoginPage';
+import ProfileSetup from './components/profile/ProfileSetup';
 
 const LandingPage = () => (
   <>
@@ -19,6 +20,12 @@ const LandingPage = () => (
   </>
 );
 
+const Dashboard = () => (
+  <div className="min-h-screen flex items-center justify-center text-3xl font-bold bg-[var(--color-background)] text-[var(--color-text-main)]">
+    Dashboard Coming Soon...
+  </div>
+);
+
 function App() {
   return (
     <Router>
@@ -26,7 +33,8 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
-          {/* Add Dashboard route later */}
+          <Route path="/profile-setup" element={<ProfileSetup />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </div>
     </Router>
