@@ -1,20 +1,35 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/landing/Navbar';
+import Hero from './components/landing/Hero';
+import Features from './components/landing/Features';
+import HowItWorks from './components/landing/HowItWorks';
+import PitchPractice from './components/landing/PitchPractice';
+import Footer from './components/landing/Footer';
+import LoginPage from './components/auth/LoginPage';
+
+const LandingPage = () => (
+  <>
+    <Navbar />
+    <Hero />
+    <Features />
+    <HowItWorks />
+    <PitchPractice />
+    <Footer />
+  </>
+);
+
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-900">
-      <div className="p-8 rounded-2xl bg-slate-800 shadow-xl text-center">
-        <h1 className="text-4xl font-bold text-purple-400 mb-4">
-          Tailwind is Working 🚀
-        </h1>
-
-        <p className="text-slate-300">
-          If this text is styled, your setup is correct.
-        </p>
-
-        <button className="mt-6 px-6 py-3 rounded-xl bg-purple-500 text-white font-semibold hover:bg-purple-600 transition">
-          Test Button
-        </button>
+    <Router>
+      <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text-main)] font-sans selection:bg-[var(--color-primary)] selection:text-white">
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          {/* Add Dashboard route later */}
+        </Routes>
       </div>
-    </div>
+    </Router>
   );
 }
 
