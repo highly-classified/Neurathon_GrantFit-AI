@@ -97,10 +97,10 @@ const RegistrationPage = () => {
             Back to Dashboard
           </Link>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#1347ae] rounded-lg flex items-center justify-center text-white">
-              <span className="material-symbols-outlined text-[20px]">description</span>
+            <div className="w-8 h-8 bg-[var(--color-primary)] rounded-lg flex items-center justify-center">
+               <img src="/logo-white.png" alt="Logo" className="h-5 w-auto" />
             </div>
-            <span className="font-black text-[#0e121b]">Registration</span>
+            <span className="text-lg text-[var(--color-text-main)]" style={{ fontFamily: '"Gravitas One", serif' }}>GrantFit AI</span>
           </div>
           <div className="w-20"></div> {/* Spacer */}
         </div>

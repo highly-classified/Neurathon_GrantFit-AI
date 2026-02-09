@@ -4,7 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 const PitchModule = () => {
     const { grantId } = useParams();
     const [pitchText, setPitchText] = useState("Our innovative Bio-Tech solution targets the metabolic signaling pathways in specific rare diseases. By leveraging our proprietary CRISPR-based delivery mechanism, we can achieve high-fidelity cellular updates with minimal off-target effects. This NSF Phase I proposal focuses on the commercial feasibility of the platform within clinical trials over the next 18 months...");
-    
+
     // In a real app, you'd fetch the grant details based on grantId
     const grantDetails = {
         name: "NSF Phase I",
@@ -40,8 +40,8 @@ const PitchModule = () => {
                                 <span className="material-symbols-outlined">help</span>
                             </button>
                         </div>
-                        <div 
-                            className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-slate-200" 
+                        <div
+                            className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-slate-200"
                             style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuARWEBSXE4d4NnCbHDsj329Dg6_L9A1ETnSMq-XolAmQ22OVRZGe-55iQcmkM2VwpcP4w0SZfBbgKKvjSnviKW1G7SrOi0uTP187O5kIVdEJdbZVnXQkR1KvFlaSgA-oFrrGSW0XTUfj47u6Flhlfmslm_CEr7oXg86Bp67VPMzuDkxV0s6sKLb7M4PI-76rvAE1rJ7_Gdk56HqJwBo4g79hH7ZuiC2MOZUK9M4SbshANRwBw8k-kRNIdHTQQIxC8H21mevqjjx4oo")' }}
                         ></div>
                     </div>
@@ -139,8 +139,8 @@ const PitchModule = () => {
                                 </div>
                                 {/* Editor */}
                                 <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
-                                    <textarea 
-                                        className="w-full h-full border-none focus:ring-0 text-slate-800 text-lg leading-relaxed placeholder:text-slate-300 resize-none font-sans" 
+                                    <textarea
+                                        className="w-full h-full border-none focus:ring-0 text-slate-800 text-lg leading-relaxed placeholder:text-slate-300 resize-none font-sans"
                                         placeholder="Start typing your pitch here or click the microphone to dictate..."
                                         value={pitchText}
                                         onChange={(e) => setPitchText(e.target.value)}
@@ -148,8 +148,8 @@ const PitchModule = () => {
                                 </div>
                                 {/* Footer Info */}
                                 <div className="px-6 py-3 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-                                    <span className="text-xs font-medium text-slate-400">Words: <span className="text-slate-700">{pitchText.split(/\s+/).filter(w=>w).length} / 500</span></span>
-                                    <button 
+                                    <span className="text-xs font-medium text-slate-400">Words: <span className="text-slate-700">{pitchText.split(/\s+/).filter(w => w).length} / 500</span></span>
+                                    <button
                                         onClick={() => setPitchText('')}
                                         className="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1"
                                     >
@@ -252,7 +252,7 @@ const PitchModule = () => {
                     </div>
                 </main>
             </div>
-            
+
             <style>{`
                 .custom-scrollbar::-webkit-scrollbar {
                     width: 6px;
