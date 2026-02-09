@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const GrantCard = ({
+  id,
   title,
   org,
   tags,
@@ -10,6 +12,7 @@ const GrantCard = ({
   type = 'eligible',
   warning
 }) => {
+  const navigate = useNavigate();
   const isEligible = type === 'eligible';
   const isIneligible = type === 'ineligible';
 
@@ -62,10 +65,12 @@ const GrantCard = ({
           </div>
         </div>
 
-        <button className={`px-5 py-2 whitespace-nowrap text-sm font-bold rounded-xl transition-all ${isEligible
-          ? 'bg-[#1e293b] text-white hover:bg-[#0f172a] shadow-sm hover:shadow-md'
-          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-          }`}>
+        <button
+          onClick={() => isEligible && navigate(`/register/${id}`)}
+          className={`px-5 py-2 whitespace-nowrap text-sm font-bold rounded-xl transition-all ${isEligible
+            ? 'bg-[#1e293b] text-white hover:bg-[#0f172a] shadow-sm hover:shadow-md'
+            : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+            }`}>
           {isEligible ? (title.includes('Draft') ? 'Start Draft' : 'Apply Now') : 'View Criteria'}
         </button>
       </div>

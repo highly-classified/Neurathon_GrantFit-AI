@@ -6,6 +6,7 @@ import BottomBar from './BottomBar';
 const Dashboard = () => {
   const eligibleGrants = [
     {
+      id: "DOE-EERE-2024",
       title: "Clean Energy Innovation Grant",
       org: "Department of Energy (DOE)",
       tags: ["Federal", "Energy"],
@@ -14,6 +15,7 @@ const Dashboard = () => {
       deadlineUrgent: true
     },
     {
+      id: "NSF-2023-AI-042",
       title: "NSF SBIR Phase I: AI & Quantum Tech",
       org: "National Science Foundation",
       tags: ["Federal", "Technology", "Priority Application"],
@@ -21,6 +23,7 @@ const Dashboard = () => {
       deadline: "Oct 24, 2024"
     },
     {
+      id: "BMGF-GH-9912",
       title: "Future of Work Accelerator",
       org: "Gates Foundation x Tech",
       tags: ["Foundation", "Social Impact"],
@@ -31,6 +34,7 @@ const Dashboard = () => {
 
   const mayBeEligible = [
     {
+      id: "UNI-RD-2024",
       title: "University R&D Commercialization",
       org: "Academic Innovation Hub",
       tags: ["Research", "Academic"],
@@ -40,6 +44,7 @@ const Dashboard = () => {
       type: "maybe"
     },
     {
+      id: "GHA-2025",
       title: "Global Health AI Challenge",
       org: "World Health Partners",
       tags: ["Healthcare", "AI"],

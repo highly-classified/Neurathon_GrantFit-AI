@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   return (
@@ -27,10 +28,11 @@ const Navbar = () => {
 
       <div className="flex items-center gap-8">
         <div className="hidden lg:flex items-center gap-6">
-          <a href="#" className="text-sm font-medium text-[#0f172a] border-b-2 border-[#1e293b] py-5">Dashboard</a>
-          <a href="#" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">Applications</a>
-          <a href="#" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">AI Matching</a>
-          <a href="#" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">Archive</a>
+          <Link to="/dashboard" className="text-sm font-medium text-[#0f172a] border-b-2 border-[#1e293b] py-5">Dashboard</Link>
+          <Link to="#" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">Grant Match</Link>
+          <Link to="/tracking" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">Tracking</Link>
+          <Link to="#" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">Analytics</Link>
+          <Link to="#" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">Settings</Link>
         </div>
 
         <div className="flex items-center gap-4 border-l border-gray-100 pl-6 ml-2">

@@ -9,6 +9,8 @@ import Footer from './components/landing/Footer';
 import LoginPage from './components/auth/LoginPage';
 import Dashboard from './components/dashboard/Dashboard';
 import ProfileSetup from './components/profile/ProfileSetup';
+import Tracking from './components/tracking/Tracking';
+import RegistrationPage from './components/dashboard/RegistrationPage';
 
 const LandingPage = () => (
   <>
@@ -30,6 +32,8 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/profile-setup" element={<ProfileSetup />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/tracking" element={<Tracking />} />
+          <Route path="/register/:id" element={<RegistrationPage />} />
         </Routes>
       </div>
     </Router>
