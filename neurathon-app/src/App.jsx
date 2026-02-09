@@ -13,6 +13,7 @@ import Tracking from './components/tracking/Tracking';
 import RegistrationPage from './components/dashboard/RegistrationPage';
 import Credits from './components/credits/Credits';
 import ProfileView from './components/profile/ProfileView';
+import PitchModule from './components/pitch/PitchModule';
 
 const LandingPage = () => (
   <>
@@ -38,6 +39,7 @@ function App() {
           <Route path="/register/:id" element={<RegistrationPage />} />
           <Route path="/credits" element={<Credits />} />
           <Route path="/profile" element={<ProfileView />} />
+          <Route path="/pitch/:grantId" element={<PitchModule />} />
         </Routes>
       </div>
     </Router>

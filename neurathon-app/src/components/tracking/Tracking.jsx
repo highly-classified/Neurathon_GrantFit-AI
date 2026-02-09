@@ -192,10 +192,10 @@ const Tracking = () => {
                   return (
                     <tr key={app.id} className="hover:bg-slate-50 transition-colors group">
                       <td className="px-6 py-5">
-                        <div className="flex flex-col">
+                        <Link to={`/pitch/${app.id}`} className="flex flex-col group-hover:opacity-80 transition-opacity">
                           <span className="text-sm font-bold text-[#0e121b]">{app.name}</span>
                           <span className="text-xs text-slate-400">ID: {app.id}</span>
-                        </div>
+                        </Link>
                       </td>
                       <td className="px-6 py-5 text-sm text-slate-600 font-medium">{app.organizer}</td>
                       <td className="px-6 py-5">
