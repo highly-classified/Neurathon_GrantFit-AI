@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "node src/test-admin-services.js"
+    "test": "node src/test-admin-services.js",
+    "ingest:grants": "node src/scripts/ingestGrants.js",
+    "ingest:enrich": "node src/scripts/enrichOrganisers.js",
+    "ingest:force-enrich": "node src/scripts/forceEnrichOrganisers.js",
+    "ingest:normalize": "node src/scripts/normalizeFunding.js",
+    "ingest:eligibility": "node src/scripts/enrichEligibility.js"
   },
   "dependencies": {
     "@google-cloud/vertexai": "^1.10.0",
