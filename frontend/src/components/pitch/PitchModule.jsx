@@ -4,8 +4,65 @@ import { useParams, Link } from 'react-router-dom';
 const PitchModule = () => {
     const { grantId } = useParams();
     const [pitchText, setPitchText] = useState("Our innovative Bio-Tech solution targets the metabolic signaling pathways in specific rare diseases. By leveraging our proprietary CRISPR-based delivery mechanism, we can achieve high-fidelity cellular updates with minimal off-target effects. This NSF Phase I proposal focuses on the commercial feasibility of the platform within clinical trials over the next 18 months...");
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [hasEvaluated, setHasEvaluated] = useState(false);
+    const [evaluation, setEvaluation] = useState({
+        score: 0,
+        best_part: "Not evaluated yet.",
+        improvement_needed: "Submit your pitch to get feedback.",
+        worse_part: "Critical areas will appear here.",
+    });
 
-    // In a real app, you'd fetch the grant details based on grantId
+    // In a real app, this would be a fetch() call to the backend
+    const simulateBackendAnalysis = async (text) => {
+        setIsAnalyzing(true);
+        // Simulate network delay
+        await new Promise(r => setTimeout(r, 2000));
+
+        // This simulates the analyzePitchWithAI logic
+        const score = 65 + Math.floor(Math.random() * 10);
+        setIsAnalyzing(false);
+        return {
+            score,
+            best_part: "The problem statement is clear and the technical approach is innovative.",
+            improvement_needed: "Need more focus on market size and commercialization path.",
+            worse_part: "The impact metrics are currently too vague for a Phase I proposal.",
+        };
+    };
+
+    const simulateBackendImprovement = async (text, prev) => {
+        setIsAnalyzing(true);
+        await new Promise(r => setTimeout(r, 2000));
+
+        const newScore = Math.min(prev.score + 10, 95);
+        setIsAnalyzing(false);
+        return {
+            improved_pitch: text + "\n\n[AI UPDATED]: We have now quantified our target market as $2.4B and established a clear Phase II roadmap with 3 specific clinical partners.",
+            score: newScore,
+            best_part: "The commercialization potential is now much stronger.",
+            improvement_needed: "Fine-tune the budget allocation.",
+            worse_part: "Minor clarity issues in the methodology section.",
+        };
+    };
+
+    const handleEvaluate = async () => {
+        const result = await simulateBackendAnalysis(pitchText);
+        setEvaluation(result);
+        setHasEvaluated(true);
+    };
+
+    const handleImprove = async () => {
+        if (evaluation.score >= 95) return;
+        const result = await simulateBackendImprovement(pitchText, evaluation);
+        setPitchText(result.improved_pitch);
+        setEvaluation({
+            score: result.score,
+            best_part: result.best_part,
+            improvement_needed: result.improvement_needed,
+            worse_part: result.worse_part,
+        });
+    };
+
     const grantDetails = {
         name: "NSF Phase I",
         org: "Bio-Tech Solutions"
@@ -28,62 +85,36 @@ const PitchModule = () => {
                     <div className="flex flex-1 justify-end gap-8">
                         <nav className="flex items-center gap-9">
                             <Link className="text-slate-600 hover:text-[#1347ae] text-sm font-medium transition-colors" to="/dashboard">Dashboard</Link>
-                            <a className="text-slate-600 hover:text-[#1347ae] text-sm font-medium transition-colors" href="#">Grant Search</a>
                             <Link className="text-slate-600 hover:text-[#1347ae] text-sm font-medium transition-colors" to="/tracking">My Proposals</Link>
-                            <a className="text-slate-600 hover:text-[#1347ae] text-sm font-medium transition-colors" href="#">Resources</a>
                         </nav>
-                        <div className="flex gap-2">
-                            <button className="flex size-10 cursor-pointer items-center justify-center rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
-                                <span className="material-symbols-outlined">notifications</span>
-                            </button>
-                            <button className="flex size-10 cursor-pointer items-center justify-center rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
-                                <span className="material-symbols-outlined">help</span>
-                            </button>
-                        </div>
                         <div
                             className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-slate-200"
-                            style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuARWEBSXE4d4NnCbHDsj329Dg6_L9A1ETnSMq-XolAmQ22OVRZGe-55iQcmkM2VwpcP4w0SZfBbgKKvjSnviKW1G7SrOi0uTP187O5kIVdEJdbZVnXQkR1KvFlaSgA-oFrrGSW0XTUfj47u6Flhlfmslm_CEr7oXg86Bp67VPMzuDkxV0s6sKLb7M4PI-76rvAE1rJ7_Gdk56HqJwBo4g79hH7ZuiC2MOZUK9M4SbshANRwBw8k-kRNIdHTQQIxC8H21mevqjjx4oo")' }}
+                            style={{ backgroundImage: 'url("https://api.dicebear.com/7.x/avataaars/svg?seed=Felix")' }}
                         ></div>
                     </div>
                 </header>
 
                 {/* Main Content Area */}
                 <main className="flex flex-1 overflow-hidden">
-                    {/* Left Sidebar Navigation (Contextual) */}
+                    {/* Left Sidebar Navigation */}
                     <aside className="w-64 border-r border-slate-200 bg-white p-4 flex flex-col gap-6">
                         <div>
                             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Grant Context</h3>
                             <div className="p-3 bg-[#1347ae]/5 rounded-lg border border-[#1347ae]/10">
-                                <h4 className="text-sm font-bold text-[#1347ae]">{grantId || "Grant Details"}</h4>
+                                <h4 className="text-sm font-bold text-[#1347ae]">{grantId || "NSF Phase I"}</h4>
                                 <p className="text-xs text-slate-500 mt-1">{grantDetails.org}</p>
                             </div>
                         </div>
                         <nav className="flex flex-col gap-1">
-                            <a className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
-                                <span className="material-symbols-outlined text-xl">dashboard</span>
-                                <span className="text-sm font-medium">Overview</span>
-                            </a>
                             <a className="flex items-center gap-3 px-3 py-2 bg-[#1347ae] text-white rounded-lg transition-colors shadow-sm shadow-[#1347ae]/20" href="#">
                                 <span className="material-symbols-outlined text-xl">mic</span>
                                 <span className="text-sm font-medium">Practice Pitch</span>
                             </a>
-                            <a className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
-                                <span className="material-symbols-outlined text-xl">description</span>
-                                <span className="text-sm font-medium">Guidelines</span>
-                            </a>
-                            <a className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
-                                <span className="material-symbols-outlined text-xl">group</span>
-                                <span className="text-sm font-medium">Collaborators</span>
-                            </a>
-                            <a className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
-                                <span className="material-symbols-outlined text-xl">history</span>
-                                <span className="text-sm font-medium">History</span>
-                            </a>
                         </nav>
                         <div className="mt-auto border-t border-slate-100 pt-4">
-                            <Link to="/tracking" className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-100 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-200 transition-colors">
+                            <Link to="/dashboard" className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-100 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-200 transition-colors">
                                 <span className="material-symbols-outlined text-lg">arrow_back</span>
-                                Back to Details
+                                Back to Dashboard
                             </Link>
                         </div>
                     </aside>
@@ -94,156 +125,139 @@ const PitchModule = () => {
                         <div className="p-8 pb-4 flex items-end justify-between">
                             <div>
                                 <div className="flex items-center gap-2 mb-2">
-                                    <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded uppercase tracking-wider">In Progress</span>
+                                    <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded uppercase tracking-wider">{isAnalyzing ? "Analyzing..." : "In Progress"}</span>
                                     <span className="text-slate-400 text-sm">/ Practice Pitch Module</span>
                                 </div>
                                 <h1 className="text-3xl font-black text-slate-900 tracking-tight">Refine Your Pitch</h1>
-                                <p className="text-slate-500 mt-1 max-w-xl">Use AI-driven insights to polish your narrative and increase your chances of securing the {grantId} grant.</p>
+                                <p className="text-slate-500 mt-1 max-w-xl">Use AI-driven insights to polish your narrative and increase your chances of success.</p>
                             </div>
                             <div className="flex gap-3">
-                                <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 font-semibold text-sm hover:bg-slate-50 transition-colors">
-                                    <span className="material-symbols-outlined text-lg">save</span> Save Draft
-                                </button>
-                                <button className="flex items-center gap-2 px-4 py-2 bg-[#1347ae] text-white rounded-lg font-bold text-sm hover:bg-[#1347ae]/90 transition-colors shadow-lg shadow-[#1347ae]/10">
-                                    Finalize Pitch
-                                </button>
+                                {!hasEvaluated ? (
+                                    <button
+                                        onClick={handleEvaluate}
+                                        disabled={isAnalyzing}
+                                        className="flex items-center gap-2 px-6 py-2.5 bg-[#1347ae] text-white rounded-xl font-bold text-sm hover:bg-[#1347ae]/90 transition-all shadow-lg shadow-[#1347ae]/20 disabled:opacity-50"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">analytics</span>
+                                        Evaluate Pitch
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={handleImprove}
+                                        disabled={isAnalyzing || evaluation.score >= 95}
+                                        className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-sm hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50 disabled:bg-slate-400 disabled:shadow-none"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">auto_fix_high</span>
+                                        {evaluation.score >= 95 ? "Perfect Pitch (95+)" : "Improve with AI"}
+                                    </button>
+                                )}
                             </div>
                         </div>
 
                         {/* Two-Column Layout */}
                         <div className="flex flex-1 p-8 pt-4 gap-8 overflow-hidden">
-                            {/* Column 1: Pitch Drafting (Input) */}
+                            {/* Column 1: Pitch Drafting */}
                             <div className="flex-[3] flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
-                                {/* Toolbar */}
                                 <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/50">
-                                    <div className="flex items-center gap-4">
-                                        <span className="text-sm font-bold text-slate-900">Drafting Zone</span>
-                                        <div className="h-4 w-px bg-slate-200"></div>
+                                    <span className="text-sm font-bold text-slate-900">Drafting Zone</span>
+                                    {isAnalyzing && (
                                         <div className="flex items-center gap-2">
-                                            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                                            <span className="text-xs text-slate-400 font-medium">Auto-saving...</span>
+                                            <div className="size-2 rounded-full bg-blue-500 animate-ping"></div>
+                                            <span className="text-xs text-blue-600 font-bold uppercase tracking-wider">AI is thinking...</span>
                                         </div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <button className="flex items-center justify-center size-9 rounded-lg hover:bg-slate-200 text-slate-600" title="Format Bold">
-                                            <span className="material-symbols-outlined text-xl">format_bold</span>
-                                        </button>
-                                        <button className="flex items-center justify-center size-9 rounded-lg hover:bg-slate-200 text-slate-600" title="Add List">
-                                            <span className="material-symbols-outlined text-xl">format_list_bulleted</span>
-                                        </button>
-                                        <div className="h-6 w-px bg-slate-200 mx-1"></div>
-                                        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1347ae]/10 text-[#1347ae] font-bold text-xs hover:bg-[#1347ae]/20 transition-colors">
-                                            <span className="material-symbols-outlined text-lg">mic</span> Voice Input
-                                        </button>
-                                    </div>
+                                    )}
                                 </div>
-                                {/* Editor */}
                                 <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
                                     <textarea
                                         className="w-full h-full border-none focus:ring-0 text-slate-800 text-lg leading-relaxed placeholder:text-slate-300 resize-none font-sans"
-                                        placeholder="Start typing your pitch here or click the microphone to dictate..."
+                                        placeholder="Start typing your pitch here..."
                                         value={pitchText}
                                         onChange={(e) => setPitchText(e.target.value)}
                                     ></textarea>
                                 </div>
-                                {/* Footer Info */}
                                 <div className="px-6 py-3 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-                                    <span className="text-xs font-medium text-slate-400">Words: <span className="text-slate-700">{pitchText.split(/\s+/).filter(w => w).length} / 500</span></span>
+                                    <span className="text-xs font-medium text-slate-400">Words: <span className="text-slate-700">{pitchText.split(/\s+/).filter(w => w).length}</span></span>
                                     <button
-                                        onClick={() => setPitchText('')}
+                                        onClick={() => { setPitchText(''); setHasEvaluated(false); setEvaluation({ score: 0, best_part: "Not evaluated yet.", improvement_needed: "Submit your pitch to get feedback.", worse_part: "Critical areas will appear here." }); }}
                                         className="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1"
                                     >
-                                        <span className="material-symbols-outlined text-base">restart_alt</span> Reset Pitch
+                                        <span className="material-symbols-outlined text-base">restart_alt</span> Reset All
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Column 2: AI Feedback & Readiness (Analysis) */}
+                            {/* Column 2: AI Feedback & Readiness */}
                             <div className="flex-[2] flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-2">
                                 {/* Readiness Dashboard */}
                                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                                     <div className="flex items-center justify-between mb-4">
                                         <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Readiness Score</h3>
-                                        <span className="px-2 py-0.5 bg-[#1347ae]/10 text-[#1347ae] text-[10px] font-bold rounded">LEVEL 3</span>
+                                        <span className={`px-2 py-0.5 ${evaluation.score >= 80 ? 'bg-emerald-100 text-emerald-700' : 'bg-[#1347ae]/10 text-[#1347ae]'} text-[10px] font-bold rounded`}>
+                                            {evaluation.score >= 90 ? 'ELITE' : evaluation.score >= 70 ? 'STRONG' : 'DRAFT'}
+                                        </span>
                                     </div>
                                     <div className="flex flex-col items-center gap-4">
                                         <div className="relative flex items-center justify-center size-32">
                                             <svg className="size-full transform -rotate-90">
                                                 <circle className="text-slate-100" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" strokeWidth="8"></circle>
-                                                <circle className="text-[#1347ae]" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" strokeDasharray="351.8" strokeDashoffset="77.4" strokeLinecap="round" strokeWidth="8"></circle>
+                                                <circle
+                                                    className="text-[#1347ae] transition-all duration-1000"
+                                                    cx="64" cy="64" fill="transparent" r="56"
+                                                    stroke="currentColor"
+                                                    strokeDasharray="351.8"
+                                                    strokeDashoffset={351.8 - (351.8 * evaluation.score / 100)}
+                                                    strokeLinecap="round" strokeWidth="8"
+                                                ></circle>
                                             </svg>
                                             <div className="absolute flex flex-col items-center">
-                                                <span className="text-3xl font-black text-slate-900">78%</span>
-                                                <span className="text-[10px] text-slate-400 font-bold uppercase">Strong</span>
+                                                <span className="text-3xl font-black text-slate-900">{evaluation.score}%</span>
+                                                <span className="text-[10px] text-slate-400 font-bold uppercase">Ready</span>
                                             </div>
                                         </div>
-                                        <p className="text-center text-sm text-slate-500 font-medium">Almost there! Your pitch is well-aligned but needs more technical methodology detail.</p>
                                     </div>
                                 </div>
 
                                 {/* Analysis Sections */}
                                 <div className="space-y-4">
-                                    {/* Clarity Section */}
+                                    {/* Best Part */}
                                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100">
+                                        <div className="px-5 py-4 flex items-center justify-between border-b border-emerald-50 bg-emerald-50/30">
                                             <div className="flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-blue-500">visibility</span>
-                                                <h4 className="text-sm font-bold text-slate-900">Clarity &amp; Jargon</h4>
+                                                <span className="material-symbols-outlined text-emerald-500">stars</span>
+                                                <h4 className="text-sm font-bold text-emerald-900">Best Part</h4>
                                             </div>
-                                            <span className="material-symbols-outlined text-green-500">check_circle</span>
-                                        </div>
-                                        <div className="p-5 space-y-3">
-                                            <div className="flex gap-3">
-                                                <div className="size-1.5 rounded-full bg-slate-300 mt-1.5 shrink-0"></div>
-                                                <p className="text-sm text-slate-600 leading-relaxed">Language is accessible to generalist reviewers.</p>
-                                            </div>
-                                            <div className="flex gap-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
-                                                <span className="material-symbols-outlined text-amber-500 text-lg">lightbulb</span>
-                                                <p className="text-xs text-amber-800 font-medium italic">"High-fidelity cellular updates" might be too technical; consider "accurate cell modification."</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* Structure Section */}
-                                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100">
-                                            <div className="flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-purple-500">account_tree</span>
-                                                <h4 className="text-sm font-bold text-slate-900">Structure</h4>
-                                            </div>
-                                            <span className="text-xs font-bold text-amber-500">80% COMPLETE</span>
-                                        </div>
-                                        <div className="p-5 space-y-3">
-                                            <div className="flex items-center gap-3">
-                                                <span className="material-symbols-outlined text-green-500 text-lg">check_circle</span>
-                                                <span className="text-sm text-slate-600">Clear Problem Statement</span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <span className="material-symbols-outlined text-green-500 text-lg">check_circle</span>
-                                                <span className="text-sm text-slate-600">Target Market Identified</span>
-                                            </div>
-                                            <div className="flex items-center gap-3 opacity-50">
-                                                <span className="material-symbols-outlined text-slate-300 text-lg">circle</span>
-                                                <span className="text-sm text-slate-600">Explicit Impact Statement missing</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* Alignment Section */}
-                                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100">
-                                            <div className="flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-emerald-500">target</span>
-                                                <h4 className="text-sm font-bold text-slate-900">Grant Alignment</h4>
-                                            </div>
-                                            <span className="text-xs font-bold text-slate-400">KEYWORDS: 12/15</span>
+                                            <span className="material-symbols-outlined text-emerald-500 text-xs text-green-500">check_circle</span>
                                         </div>
                                         <div className="p-5">
-                                            <div className="flex flex-wrap gap-2">
-                                                <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase">Bio-Tech</span>
-                                                <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase">CRISPR</span>
-                                                <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase">Commercialization</span>
-                                                <span className="px-2 py-1 bg-slate-100 text-slate-400 text-[10px] font-bold rounded uppercase border border-dashed border-slate-300">Phase I Merit</span>
+                                            <p className="text-sm text-slate-600 leading-relaxed font-medium">{evaluation.best_part}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Improvement Needed */}
+                                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                        <div className="px-5 py-4 flex items-center justify-between border-b border-amber-50 bg-amber-50/30">
+                                            <div className="flex items-center gap-2">
+                                                <span className="material-symbols-outlined text-amber-500">trending_up</span>
+                                                <h4 className="text-sm font-bold text-amber-900">Needs Improvement</h4>
                                             </div>
-                                            <p className="text-xs text-slate-500 mt-4 leading-relaxed">Great match with NSF focus areas. Increase emphasis on "Commercialization Potential" to hit 100%.</p>
+                                            <span className="text-[10px] font-black text-amber-500">OPPORTUNITY</span>
+                                        </div>
+                                        <div className="p-5">
+                                            <p className="text-sm text-slate-600 leading-relaxed italic">{evaluation.improvement_needed}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Worse Part */}
+                                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                        <div className="px-5 py-4 flex items-center justify-between border-b border-red-50 bg-red-50/30">
+                                            <div className="flex items-center gap-2">
+                                                <span className="material-symbols-outlined text-red-500">warning</span>
+                                                <h4 className="text-sm font-bold text-red-900">Worse Part</h4>
+                                            </div>
+                                            <span className="text-[10px] font-black text-red-500 uppercase">Critical</span>
+                                        </div>
+                                        <div className="p-5">
+                                            <p className="text-sm text-red-700/80 leading-relaxed font-semibold">{evaluation.worse_part}</p>
                                         </div>
                                     </div>
                                 </div>
