@@ -1,4 +1,4 @@
-export { createGrant } from "./grants.js";
+export { createOrganizer } from "./grants.js";
 export { applyToGrant } from "./applications.js";
 export { createPitchSession, PitchLockedError } from "./pitchSessions.js";
 export {

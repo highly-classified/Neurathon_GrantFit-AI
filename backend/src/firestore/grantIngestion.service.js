@@ -142,10 +142,10 @@ function extractGrantList(payload) {
 function pickExternalId(grant) {
   return coerceString(
     grant.external_id ??
-      grant.id ??
-      grant.grant_id ??
-      grant.opportunity_id ??
-      grant.opportunityId
+    grant.id ??
+    grant.grant_id ??
+    grant.opportunity_id ??
+    grant.opportunityId
   );
 }
 
@@ -156,29 +156,36 @@ export function normalizeExternalGrant(grant) {
   }
 
   return {
-    source: coerceString(grant.source, "mygrants.gov"),
-    external_id: externalId,
-    organization_id: coerceString(
-      grant.organization_id ?? grant.org_id ?? grant.agency_id,
-      "unknown_org"
-    ),
-    org_name: coerceString(
-      grant.org_name ?? grant.organization_name ?? grant.agency_name,
-      "Unknown Organization"
-    ),
-    start_date: coerceDate(grant.start_date ?? grant.open_date ?? grant.openDate),
-    end_date: coerceDate(grant.end_date ?? grant.close_date ?? grant.closeDate),
-    max_amount: coerceNumber(
-      grant.max_amount ?? grant.maximum_amount ?? grant.award_ceiling,
-      0
-    ),
-    domain: normalizeDomain(grant.domain ?? grant.domains ?? grant.category),
-    eligibility: normalizeEligibility(grant.eligibility),
-    deadline: coerceDate(
-      grant.deadline ?? grant.application_deadline ?? grant.close_date
-    ),
-    verified: Boolean(grant.verified ?? false),
-    last_synced_at: serverTimestamp(),
+    source: coerceString(grant.source, "grants.gov_api"),
+    domain: coerceString(grant.domain ?? grant.domains ?? grant.category, "General"),
+    event_name: coerceString(grant.title ?? grant.opportunity_title ?? grant.event_name, "Funding Opportunity"),
+    org_id: coerceString(grant.organization_id ?? grant.org_id ?? grant.agency_id, "UNKNOWN"),
+    org_name: coerceString(grant.org_name ?? grant.organization_name ?? grant.agency_name, "Unknown Organization"),
+    reg_start_date: coerceString(grant.start_date ?? grant.open_date, "2024-01-01"),
+    reg_end_date: grant.deadline ?? grant.close_date ?? null,
+    eligibility_criteria: {
+      career_stage: Array.isArray(grant.eligibility?.role) ? grant.eligibility.role : ["any"],
+      citizenship: Array.isArray(grant.eligibility?.citizenship) ? grant.eligibility.citizenship : ["any"],
+      confidence: "medium",
+      source: "synthetic_enrichment",
+    },
+    funding_profile: {
+      basis: "estimated",
+      confidence: "medium",
+      max_amt: coerceNumber(grant.max_amount ?? grant.award_ceiling, 0),
+      max_amt_estimated: coerceNumber(grant.max_amount ?? grant.award_ceiling, 0),
+      min_amt_estimated: 0,
+    },
+    org_active_window: {
+      confidence: "medium",
+      start: coerceString(grant.start_date ?? grant.open_date, "2024-01-01"),
+      end: coerceString(grant.deadline ?? grant.close_date, "2026-12-31"),
+      source: "synthetic_enrichment",
+    },
+    prev_year_funded_projects: [],
+    tags: normalizeDomain(grant.domain ?? grant.category),
+    created_at: serverTimestamp(),
+    updated_at: serverTimestamp(),
   };
 }
 
@@ -217,7 +224,7 @@ export async function fetchMyGrantsGovGrants({
 
 export async function upsertGrantByExternalId(grantInput) {
   const normalizedGrant = normalizeExternalGrant(grantInput);
-  const grantsRef = collection(db, COLLECTIONS.GRANTS);
+  const grantsRef = collection(db, COLLECTIONS.ORGANIZERS);
   const existingQuery = query(
     grantsRef,
     where("external_id", "==", normalizedGrant.external_id),

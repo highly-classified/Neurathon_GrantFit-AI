@@ -68,42 +68,52 @@ export function normalizeGender(value, fieldName) {
   return normalized;
 }
 
-export function normalizeGrantInput(input) {
-  assert(input && typeof input === "object", "grant input is required");
-  assert(input.eligibility && typeof input.eligibility === "object", "eligibility is required");
+export function normalizeUserInput(input) {
+  assert(input && typeof input === "object", "user input is required");
+  return {
+    age: normalizeRequiredString(input.age, "age"),
+    citizenship: normalizeRequiredString(input.citizenship, "citizenship"),
+    displayName: normalizeRequiredString(input.displayName, "displayName"),
+    domain: normalizeRequiredString(input.domain, "domain"),
+    email: normalizeRequiredString(input.email, "email"),
+    fundingRequirement: normalizeRequiredString(input.fundingRequirement, "fundingRequirement"),
+    gender: normalizeRequiredString(input.gender, "gender"),
+    role: normalizeRequiredString(input.role, "role"),
+  };
+}
 
-  const startDate = ensureTimestampInput(input.start_date, "start_date");
-  const endDate = ensureTimestampInput(input.end_date, "end_date");
-  const deadline = ensureTimestampInput(input.deadline, "deadline");
-
-  const maxAmount = ensureFiniteNumber(input.max_amount, "max_amount");
-  assert(maxAmount >= 0, "max_amount must be greater than or equal to 0");
-
-  const minAge = ensureFiniteNumber(input.eligibility.min_age, "eligibility.min_age");
-  assert(minAge >= 0, "eligibility.min_age must be greater than or equal to 0");
+export function normalizeOrganizerInput(input) {
+  assert(input && typeof input === "object", "organizer input is required");
 
   return {
-    organization_id: normalizeRequiredString(input.organization_id, "organization_id"),
+    domain: normalizeRequiredString(input.domain, "domain"),
+    event_name: normalizeRequiredString(input.event_name, "event_name"),
+    org_id: normalizeRequiredString(input.org_id, "org_id"),
     org_name: normalizeRequiredString(input.org_name, "org_name"),
-    start_date: startDate,
-    end_date: endDate,
-    max_amount: maxAmount,
-    domain: normalizeStringArray(input.domain, "domain"),
-    eligibility: {
-      min_age: minAge,
-      citizenship: normalizeStringArray(
-        input.eligibility.citizenship,
-        "eligibility.citizenship"
-      ),
-      gender: normalizeGender(input.eligibility.gender, "eligibility.gender"),
-      role: normalizeStringArray(input.eligibility.role, "eligibility.role"),
+    source: normalizeRequiredString(input.source, "source"),
+    reg_start_date: normalizeRequiredString(input.reg_start_date, "reg_start_date"),
+    reg_end_date: input.reg_end_date || null,
+    eligibility_criteria: {
+      career_stage: Array.isArray(input.eligibility_criteria?.career_stage) ? input.eligibility_criteria.career_stage : [],
+      citizenship: Array.isArray(input.eligibility_criteria?.citizenship) ? input.eligibility_criteria.citizenship : [],
+      confidence: normalizeRequiredString(input.eligibility_criteria?.confidence || "low", "eligibility_criteria.confidence"),
+      source: normalizeRequiredString(input.eligibility_criteria?.source || "unknown", "eligibility_criteria.source"),
     },
-    deadline,
-    location: normalizeRequiredString(input.location, "location"),
-    verified:
-      input.verified === undefined
-        ? false
-        : ensureBoolean(input.verified, "verified"),
+    funding_profile: {
+      basis: normalizeRequiredString(input.funding_profile?.basis || "estimated", "funding_profile.basis"),
+      confidence: normalizeRequiredString(input.funding_profile?.confidence || "low", "funding_profile.confidence"),
+      max_amt_estimated: ensureFiniteNumber(input.funding_profile?.max_amt_estimated || 0, "funding_profile.max_amt_estimated"),
+      min_amt_estimated: ensureFiniteNumber(input.funding_profile?.min_amt_estimated || 0, "funding_profile.min_amt_estimated"),
+      max_amt: ensureFiniteNumber(input.funding_profile?.max_amt || 0, "funding_profile.max_amt"),
+    },
+    org_active_window: {
+      confidence: normalizeRequiredString(input.org_active_window?.confidence || "low", "org_active_window.confidence"),
+      end: normalizeRequiredString(input.org_active_window?.end || "", "org_active_window.end"),
+      source: normalizeRequiredString(input.org_active_window?.source || "unknown", "org_active_window.source"),
+      start: normalizeRequiredString(input.org_active_window?.start || "", "org_active_window.start"),
+    },
+    prev_year_funded_projects: Array.isArray(input.prev_year_funded_projects) ? input.prev_year_funded_projects : [],
+    tags: Array.isArray(input.tags) ? input.tags : [],
   };
 }
 

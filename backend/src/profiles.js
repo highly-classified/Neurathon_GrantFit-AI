@@ -8,12 +8,14 @@ import { COLLECTIONS } from "./firestore/collections.js";
 export async function upsertProfile(userId, profileData) {
     const profileRef = db.collection(COLLECTIONS.USERS).doc(userId);
 
-    const normalizedProfile = {
+    // Normalize based on user schema
+    const normalizedInput = {
         ...profileData,
         updated_at: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: profileData.createdAt || admin.firestore.FieldValue.serverTimestamp()
     };
 
-    await profileRef.set(normalizedProfile, { merge: true });
+    await profileRef.set(normalizedInput, { merge: true });
     return { user_id: userId, success: true };
 }
 
