@@ -6,12 +6,8 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 z-50">
       <div className="flex items-center gap-8">
         <div className="flex items-center gap-2 group cursor-pointer">
-          <div className="w-8 h-8 bg-[#1e293b] rounded-lg flex items-center justify-center text-white">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
-            </svg>
-          </div>
-          <span className="font-bold text-xl text-[#0f172a] tracking-tight">GranFit AI</span>
+          <img src="/logo-white.png" alt="GrantFit AI Logo" className="h-10 w-auto" style={{ filter: 'brightness(0) saturate(100%) invert(13%) sepia(30%) saturate(3860%) hue-rotate(211deg) brightness(93%) contrast(93%)' }} />
+          <span className="text-xl text-[#0f172a]" style={{ fontFamily: '"Gravitas One", serif' }}>GrantFit AI</span>
         </div>
 
         <div className="hidden md:flex items-center bg-gray-50 border border-gray-200 rounded-full px-4 py-1.5 w-80">

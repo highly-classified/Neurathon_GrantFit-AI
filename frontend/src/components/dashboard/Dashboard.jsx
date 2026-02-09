@@ -1,7 +1,6 @@
 import React from 'react';
 import Navbar from './Navbar';
 import GrantCard from './GrantCard';
-import BottomBar from './BottomBar';
 
 const Dashboard = () => {
   const eligibleGrants = [
@@ -155,8 +154,6 @@ const Dashboard = () => {
 
         </div>
       </main>
-
-      <BottomBar />
     </div>
   );
 };

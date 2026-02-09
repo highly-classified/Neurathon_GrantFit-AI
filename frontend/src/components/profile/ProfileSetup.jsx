@@ -93,7 +93,12 @@ const ProfileSetup = () => {
           transition={{ duration: 0.5 }}
           className="w-full max-w-2xl"
         >
-          <div className="mb-10">
+          <div className="mb-10 text-center">
+             <div className="flex justify-center mb-6">
+                <div className="bg-[var(--color-primary)] p-3 rounded-xl shadow-lg shadow-[var(--color-primary)]/20 flex items-center justify-center inline-block">
+                    <img src="/logo-white.png" alt="GrantFit AI Logo" className="h-14 w-auto" />
+                </div>
+            </div>
             <h1 className="text-3xl font-bold text-[var(--color-text-main)] mb-2">Build Your Profile</h1>
             <p className="text-[var(--color-text-muted)]">Tell us about yourself to unlock tailored grant matches.</p>
           </div>
