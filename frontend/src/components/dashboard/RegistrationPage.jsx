@@ -47,8 +47,8 @@ const RegistrationPage = () => {
         organizer: grant.org,
         deadline: grant.deadline,
         daysLeft: 'Recently Applied',
-        status: 'Submitted',
-        statusColor: 'emerald',
+        status: 'Applied',
+        statusColor: 'blue',
         action: 'picture_as_pdf',
         appliedAt: new Date().toISOString()
       };
@@ -67,7 +67,7 @@ const RegistrationPage = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-[#f6f6f8] flex items-center justify-center p-6 font-['Public Sans',_sans-serif]">
+      <div className="min-h-screen bg-slate-300 flex items-center justify-center p-6 font-['Public Sans',_sans-serif]">
         <div className="bg-white p-10 rounded-3xl shadow-2xl border border-slate-100 max-w-md w-full text-center">
           <div className="size-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle size={40} />
@@ -188,7 +188,7 @@ const RegistrationPage = () => {
                 <button
                   disabled={loading}
                   type="submit"
-                  className={`w-full py-4 rounded-2xl text-white font-black text-lg shadow-xl transition-all flex items-center justify-center gap-3 ${loading ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#1347ae] hover:bg-[#0f172a] shadow-[#1347ae]/20 hover:scale-[1.01]'}`}
+                  className={`w-full py-4 rounded-2xl text-white font-black text-lg shadow-xl transition-all flex items-center justify-center gap-3 ${loading ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-600 hover:bg-slate-700 shadow-slate-600/20 hover:scale-[1.01]'}`}
                 >
                   {loading ? (
                     <>

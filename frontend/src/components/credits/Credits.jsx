@@ -12,10 +12,14 @@ import {
   SearchCheck,
   PlusCircle,
   FileEdit,
-  ChevronDown
+  ChevronDown,
+  X,
+  Check
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Credits = () => {
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
   const usageLogs = [
     {
       date: 'Oct 26, 2024',
@@ -84,7 +88,10 @@ const Credits = () => {
                   <p className="text-amber-700 text-sm font-medium leading-normal">Your team has 12 credits remaining. Pitch analysis services may be interrupted once balance reaches zero.</p>
                 </div>
               </div>
-              <button className="px-6 py-2.5 rounded-xl bg-[#1347ae] text-white text-sm font-bold shadow-lg shadow-[#1347ae]/20 hover:bg-[#1347ae]/90 hover:scale-[1.02] transition-all whitespace-nowrap">
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="px-6 py-2.5 rounded-xl bg-[#40484f] text-white text-sm font-bold shadow-lg shadow-[#40484f]/20 hover:bg-[#40484f]/90 hover:scale-[1.02] transition-all whitespace-nowrap"
+              >
                 Manage Plan
               </button>
             </div>
@@ -95,7 +102,7 @@ const Credits = () => {
             <div className="flex flex-col gap-4 rounded-2xl p-6 bg-white border border-slate-200 shadow-sm">
               <div className="flex justify-between items-start">
                 <p className="text-slate-500 text-sm font-bold uppercase tracking-wider">Total Remaining Credits</p>
-                <div className="p-2 bg-blue-50 text-[#1347ae] rounded-lg">
+                <div className="p-2 bg-[#40484f]/10 text-[#40484f] rounded-lg">
                   <Wallet size={20} />
                 </div>
               </div>
@@ -138,61 +145,14 @@ const Credits = () => {
             </div>
           </div>
 
-          {/* Visual Usage Breakdown */}
-          <div className="mb-8">
-            <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
-              <h2 className="text-slate-900 text-xl font-black mb-8">Resource Consumption Breakdown</h2>
-              <div className="space-y-10">
-                {/* AI Pitch Analysis */}
-                <div className="space-y-6">
-                  <div className="flex justify-between items-end">
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold text-slate-800 text-lg">AI Pitch Analysis</span>
-                      <span className="text-[10px] px-2.5 py-1 bg-[#1347ae]/10 text-[#1347ae] rounded-full font-black uppercase tracking-wider">High Compute</span>
-                    </div>
-                    <span className="text-slate-600 font-bold">42 / 50 projects</span>
-                  </div>
-                  <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                    <div className="bg-[#1347ae] h-full rounded-full transition-all duration-1000" style={{ width: '84%' }}></div>
-                  </div>
-                  <p className="text-xs text-slate-400 font-medium italic">5 credits per deep analysis</p>
-                </div>
-                {/* Grant Matches */}
-                <div className="space-y-3">
-                  <div className="flex justify-between items-end">
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold text-slate-800 text-lg">Grant Matches Tracked</span>
-                      <span className="text-[10px] px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full font-black uppercase tracking-wider">Data Sync</span>
-                    </div>
-                    <span className="text-slate-600 font-bold">185 / 500 grants</span>
-                  </div>
-                  <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                    <div className="bg-[#1347ae]/60 h-full rounded-full transition-all duration-1000" style={{ width: '37%' }}></div>
-                  </div>
-                  <p className="text-xs text-slate-400 font-medium italic">1 credit per match monitoring</p>
-                </div>
-                {/* Export Operations */}
-                <div className="space-y-3">
-                  <div className="flex justify-between items-end">
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold text-slate-800 text-lg">Enterprise Exports</span>
-                    </div>
-                    <span className="text-slate-600 font-bold uppercase tracking-tighter">Unlimited</span>
-                  </div>
-                  <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                    <div className="bg-slate-300 h-full rounded-full w-full opacity-50"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+
 
           {/* Usage Logs Table */}
           <div className="pb-20">
             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
               <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
                 <h2 className="text-slate-900 text-xl font-black">Recent Activity Logs</h2>
-                <button className="text-[#1347ae] text-sm font-bold hover:underline">Download CSV</button>
+                <button className="text-[#40484f] text-sm font-bold hover:underline">Download CSV</button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
@@ -222,7 +182,7 @@ const Credits = () => {
                 </table>
               </div>
               <div className="px-8 py-6 bg-white border-t border-slate-100 flex justify-center">
-                <button className="text-slate-400 text-sm font-bold hover:text-[#1347ae] transition-colors flex items-center gap-2 group">
+                <button className="text-slate-400 text-sm font-bold hover:text-[#40484f] transition-colors flex items-center gap-2 group">
                   Load more history
                   <ChevronDown className="size-4 group-hover:translate-y-0.5 transition-transform" />
                 </button>
@@ -237,12 +197,121 @@ const Credits = () => {
         <div className="max-w-[1120px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-slate-400 text-xs font-bold tracking-tight">© 2024 GranFit AI Enterprise. All rights reserved.</p>
           <div className="flex gap-8">
-            <Link className="text-slate-400 hover:text-[#1347ae] text-xs font-bold transition-colors" to="#">Terms of Service</Link>
-            <Link className="text-slate-400 hover:text-[#1347ae] text-xs font-bold transition-colors" to="#">Privacy Policy</Link>
-            <Link className="text-slate-400 hover:text-[#1347ae] text-xs font-bold transition-colors" to="#">Compliance Audit</Link>
+            <Link className="text-slate-400 hover:text-[#40484f] text-xs font-bold transition-colors" to="#">Terms of Service</Link>
+            <Link className="text-slate-400 hover:text-[#40484f] text-xs font-bold transition-colors" to="#">Privacy Policy</Link>
+            <Link className="text-slate-400 hover:text-[#40484f] text-xs font-bold transition-colors" to="#">Compliance Audit</Link>
           </div>
         </div>
       </footer>
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-white w-full max-w-5xl rounded-[32px] shadow-2xl overflow-hidden flex flex-col md:flex-row"
+            >
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all z-10"
+              >
+                <X size={20} />
+              </button>
+
+              {/* Plans Grid */}
+              <div className="p-8 md:p-12 w-full">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-black text-slate-900 mb-3">Upgrade Your Compute Power</h2>
+                  <p className="text-slate-500">Choose a scale that matches your research ambitions</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {/* Free Plan */}
+                  <div className="flex flex-col p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-all group">
+                    <div className="mb-6">
+                      <p className="text-sm font-black text-[#40484f]/60 uppercase tracking-widest mb-1">Entry Level</p>
+                      <h3 className="text-2xl font-black text-slate-900">Free</h3>
+                    </div>
+                    <div className="mb-8">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-4xl font-black text-slate-900">$0</span>
+                        <span className="text-slate-400 font-bold">/mo</span>
+                      </div>
+                      <p className="mt-4 text-slate-600 font-medium">10 Compute Credits</p>
+                    </div>
+                    <ul className="space-y-4 mb-10 flex-grow">
+                      {['Basic Grant Match', 'Limited Pitch Analysis', 'Standard Support'].map(feat => (
+                        <li key={feat} className="flex items-center gap-3 text-sm text-slate-500 font-medium">
+                          <Check size={16} className="text-[#40484f]" />
+                          {feat}
+                        </li>
+                      ))}
+                    </ul>
+                    <button className="w-full py-4 rounded-2xl bg-white border border-slate-200 text-slate-900 font-black hover:bg-slate-50 transition-all">Current Plan</button>
+                  </div>
+
+                  {/* Pro Plan */}
+                  <div className="flex flex-col p-8 rounded-3xl bg-white border-2 border-[#40484f] shadow-xl relative scale-105 z-10">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#40484f] text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-tighter">Recommended</div>
+                    <div className="mb-6">
+                      <p className="text-sm font-black text-[#40484f] uppercase tracking-widest mb-1">Most Popular</p>
+                      <h3 className="text-2xl font-black text-slate-900">Pro</h3>
+                    </div>
+                    <div className="mb-8">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-4xl font-black text-slate-900">$29</span>
+                        <span className="text-slate-400 font-bold">/mo</span>
+                      </div>
+                      <p className="mt-4 text-slate-600 font-bold">100 Compute Credits</p>
+                    </div>
+                    <ul className="space-y-4 mb-10 flex-grow">
+                      {['Priority Match Engine', 'Deep Tech Analysis', '24/7 Priority Support', 'Export Analytics'].map(feat => (
+                        <li key={feat} className="flex items-center gap-3 text-sm text-slate-600 font-black">
+                          <Check size={16} className="text-[#40484f]" />
+                          {feat}
+                        </li>
+                      ))}
+                    </ul>
+                    <button className="w-full py-4 rounded-2xl bg-[#40484f] text-white font-black hover:bg-[#333a41] shadow-lg shadow-[#40484f]/20 transition-all">Upgrade to Pro</button>
+                  </div>
+
+                  {/* Plus Plan */}
+                  <div className="flex flex-col p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-all group">
+                    <div className="mb-6">
+                      <p className="text-sm font-black text-[#40484f]/60 uppercase tracking-widest mb-1">Scale Up</p>
+                      <h3 className="text-2xl font-black text-slate-900">Plus</h3>
+                    </div>
+                    <div className="mb-8">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-4xl font-black text-slate-900">$99</span>
+                        <span className="text-slate-400 font-bold">/mo</span>
+                      </div>
+                      <p className="mt-4 text-slate-600 font-medium">500 Compute Credits</p>
+                    </div>
+                    <ul className="space-y-4 mb-10 flex-grow">
+                      {['Unlimited Matching', 'Custom AI Training', 'Dedicated Account Mgr', 'API Access'].map(feat => (
+                        <li key={feat} className="flex items-center gap-3 text-sm text-slate-500 font-medium">
+                          <Check size={16} className="text-[#40484f]" />
+                          {feat}
+                        </li>
+                      ))}
+                    </ul>
+                    <button className="w-full py-4 rounded-2xl bg-white border border-slate-200 text-slate-900 font-black hover:bg-slate-50 transition-all">Select Plus</button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

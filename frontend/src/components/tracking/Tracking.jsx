@@ -17,8 +17,8 @@ const Tracking = () => {
       organizer: 'National Science Foundation',
       deadline: 'Oct 24, 2023',
       daysLeft: '12 days left',
-      status: 'In Progress',
-      statusColor: 'amber',
+      status: 'Applied',
+      statusColor: 'blue',
       action: 'Edit Draft'
     },
     {
@@ -37,8 +37,8 @@ const Tracking = () => {
       organizer: 'Department of Energy',
       deadline: 'Dec 01, 2023',
       daysLeft: '50 days left',
-      status: 'Submitted',
-      statusColor: 'emerald',
+      status: 'Applied',
+      statusColor: 'blue',
       action: 'picture_as_pdf'
     },
     {
@@ -47,8 +47,8 @@ const Tracking = () => {
       organizer: 'DARPA',
       deadline: 'Oct 30, 2023',
       daysLeft: '18 days left',
-      status: 'In Progress',
-      statusColor: 'amber',
+      status: 'Applied',
+      statusColor: 'blue',
       action: 'Edit Draft'
     },
     {
@@ -57,8 +57,8 @@ const Tracking = () => {
       organizer: 'USDA',
       deadline: 'Jan 12, 2024',
       daysLeft: '92 days left',
-      status: 'Submitted',
-      statusColor: 'emerald',
+      status: 'Applied',
+      statusColor: 'blue',
       action: 'picture_as_pdf'
     }
   ];
@@ -68,12 +68,12 @@ const Tracking = () => {
   const getStatusStyles = (status, color) => {
     const colors = {
       amber: 'bg-amber-50 text-amber-700',
-      blue: 'bg-blue-50 text-blue-700',
+      blue: 'bg-[#40484f]/10 text-[#40484f]',
       emerald: 'bg-emerald-50 text-emerald-700'
     };
     const dotColors = {
       amber: 'bg-amber-500',
-      blue: 'bg-blue-500',
+      blue: 'bg-[#40484f]',
       emerald: 'bg-emerald-500'
     };
     return {
@@ -92,14 +92,11 @@ const Tracking = () => {
         <div className="flex items-end justify-between">
           <div className="flex flex-col gap-2">
             <h1 className="text-4xl font-black tracking-tight text-[#0e121b]">Application Tracking</h1>
-            <p className="text-slate-500 text-base">Monitor your active research proposals and funding milestones.</p>
+
           </div>
           <div className="flex gap-3">
-            <button className="flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">
-              <span className="material-symbols-outlined text-[20px]">filter_list</span>
-              Filter
-            </button>
-            <button className="flex items-center gap-2 rounded-lg bg-[#1347ae] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#1347ae]/20 hover:bg-[#1347ae]/90 transition-all">
+
+            <button className="flex items-center gap-2 rounded-lg bg-[#40484f] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#40484f]/20 hover:bg-[#40484f]/90 transition-all">
               <span className="material-symbols-outlined text-[20px]">add</span>
               New Application
             </button>
@@ -107,41 +104,7 @@ const Tracking = () => {
         </div>
 
         {/* Metrics Overview */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <div className="flex flex-col gap-1 rounded-xl bg-white p-6 border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-sm font-medium">Total Active</span>
-              <span className="material-symbols-outlined text-[#1347ae]">analytics</span>
-            </div>
-            <p className="text-3xl font-bold text-[#0e121b]">{applications.length}</p>
-            <div className="mt-2 flex items-center gap-1 text-xs font-bold text-[#07883b]">
-              <span className="material-symbols-outlined text-[14px]">trending_up</span>
-              <span>+12% from last month</span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-1 rounded-xl bg-white p-6 border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-sm font-medium">In Progress</span>
-              <span className="material-symbols-outlined text-amber-500">edit_note</span>
-            </div>
-            <p className="text-3xl font-bold text-[#0e121b]">{applications.filter(a => a.status === 'In Progress').length}</p>
-            <div className="mt-2 flex items-center gap-1 text-xs font-bold text-[#07883b]">
-              <span className="material-symbols-outlined text-[14px]">trending_up</span>
-              <span>+5% from last month</span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-1 rounded-xl bg-white p-6 border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-sm font-medium">Successfully Submitted</span>
-              <span className="material-symbols-outlined text-[#07883b]">check_circle</span>
-            </div>
-            <p className="text-3xl font-bold text-[#0e121b]">{applications.filter(a => a.status === 'Submitted' || a.status === 'Applied').length}</p>
-            <div className="mt-2 flex items-center gap-1 text-xs font-bold text-[#07883b]">
-              <span className="material-symbols-outlined text-[14px]">trending_up</span>
-              <span>+8% from last month</span>
-            </div>
-          </div>
-        </div>
+
 
         {/* Main Data Grid */}
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -153,7 +116,6 @@ const Tracking = () => {
                   <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Organizer</th>
                   <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Deadline</th>
                   <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
-                  <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -182,18 +144,6 @@ const Tracking = () => {
                           {app.status}
                         </span>
                       </td>
-                      <td className="px-6 py-5 text-right">
-                        {app.action === 'more_vert' ? (
-                          <button className="material-symbols-outlined text-slate-400 hover:text-[#1347ae] transition-colors">more_vert</button>
-                        ) : app.action === 'picture_as_pdf' ? (
-                          <button className="flex items-center gap-1 ml-auto text-sm font-bold text-slate-500 hover:text-slate-700">
-                            <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-                            View PDF
-                          </button>
-                        ) : (
-                          <button className="text-sm font-bold text-[#1347ae] hover:underline">{app.action}</button>
-                        )}
-                      </td>
                     </tr>
                   );
                 })}
@@ -207,7 +157,7 @@ const Tracking = () => {
               <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50">
                 <span className="material-symbols-outlined">chevron_left</span>
               </button>
-              <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1347ae] text-sm font-bold text-white shadow-md shadow-[#1347ae]/20">1</button>
+              <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#40484f] text-sm font-bold text-white shadow-md shadow-[#40484f]/20">1</button>
               <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-sm font-bold text-slate-600 hover:bg-slate-100">2</button>
               <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-sm font-bold text-slate-600 hover:bg-slate-100">3</button>
               <span className="px-1 text-slate-400">...</span>
@@ -220,17 +170,17 @@ const Tracking = () => {
         </div>
 
         {/* Action Banner */}
-        <div className="flex items-center justify-between rounded-xl bg-[#1347ae] px-8 py-6 text-white shadow-xl shadow-[#1347ae]/30">
+        <div className="flex items-center justify-between rounded-xl bg-[#40484f] px-8 py-6 text-white shadow-xl shadow-[#40484f]/30">
           <div className="flex items-center gap-6">
             <div className="rounded-full bg-white/20 p-3">
               <span className="material-symbols-outlined text-3xl">psychology</span>
             </div>
             <div className="flex flex-col">
               <h3 className="text-xl font-bold">Find more matches with AI</h3>
-              <p className="text-blue-100 opacity-80">Our engine discovered 3 new grant opportunities matching your recent activity.</p>
+              <p className="text-slate-300 opacity-80">Our engine discovered 3 new grant opportunities matching your recent activity.</p>
             </div>
           </div>
-          <button className="rounded-lg bg-white px-6 py-3 text-sm font-black text-[#1347ae] hover:bg-slate-100 transition-colors">
+          <button className="rounded-lg bg-white px-6 py-3 text-sm font-black text-[#40484f] hover:bg-slate-100 transition-colors">
             View Recommendations
           </button>
         </div>
@@ -241,9 +191,9 @@ const Tracking = () => {
         <div className="flex justify-between items-center text-slate-400 text-xs font-medium">
           <p>© 2023 GranFit AI. All rights reserved.</p>
           <div className="flex gap-6">
-            <a className="hover:text-[#1347ae]" href="#">Privacy Policy</a>
-            <a className="hover:text-[#1347ae]" href="#">Terms of Service</a>
-            <a className="hover:text-[#1347ae]" href="#">Help Center</a>
+            <a className="hover:text-[#40484f]" href="#">Privacy Policy</a>
+            <a className="hover:text-[#40484f]" href="#">Terms of Service</a>
+            <a className="hover:text-[#40484f]" href="#">Help Center</a>
           </div>
         </div>
       </footer>
