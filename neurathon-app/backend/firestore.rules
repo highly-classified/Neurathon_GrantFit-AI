@@ -1,0 +1,172 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function verifiedEscalationBlocked() {
+      return !(request.resource.data.verified == true && (resource == null || resource.data.verified != true));
+    }
+
+    function isTimestampOrNull(value) {
+      return value is timestamp || value == null;
+    }
+
+    function validLegacyGrantWrite() {
+      return request.resource.data.organization_id is string
+        && request.resource.data.org_name is string
+        && request.resource.data.start_date is timestamp
+        && request.resource.data.end_date is timestamp
+        && request.resource.data.max_amount is number
+        && request.resource.data.domain is list
+        && request.resource.data.eligibility is map
+        && request.resource.data.eligibility.min_age is number
+        && request.resource.data.eligibility.citizenship is list
+        && request.resource.data.eligibility.gender in ["male", "female", "other", "any"]
+        && request.resource.data.eligibility.role is list
+        && request.resource.data.deadline is timestamp
+        && request.resource.data.location is string
+        && request.resource.data.verified is bool
+        && request.resource.data.created_at is timestamp;
+    }
+
+    function validIngestionGrantWrite() {
+      return request.resource.data.keys().hasOnly([
+          "source",
+          "external_id",
+          "organization_id",
+          "org_name",
+          "start_date",
+          "end_date",
+          "max_amount",
+          "domain",
+          "eligibility",
+          "deadline",
+          "verified",
+          "last_synced_at"
+        ])
+        && request.resource.data.source is string
+        && request.resource.data.external_id is string
+        && request.resource.data.organization_id is string
+        && request.resource.data.org_name is string
+        && isTimestampOrNull(request.resource.data.start_date)
+        && isTimestampOrNull(request.resource.data.end_date)
+        && request.resource.data.max_amount is number
+        && request.resource.data.domain is list
+        && request.resource.data.eligibility is map
+        && isTimestampOrNull(request.resource.data.deadline)
+        && request.resource.data.verified is bool
+        && request.resource.data.last_synced_at is timestamp;
+    }
+
+    function validGrantWrite() {
+      return validLegacyGrantWrite() || validIngestionGrantWrite();
+    }
+
+    function validOrganizationWrite() {
+      return request.resource.data.org_name is string
+        && request.resource.data.verified is bool
+        && request.resource.data.created_at is timestamp;
+    }
+
+    function validUserWrite(userId) {
+      return request.resource.data.role in ["researcher", "startup"]
+        && request.resource.data.domains is list
+        && request.resource.data.funding_required is number
+        && request.resource.data.gender is string
+        && request.resource.data.age is number
+        && request.resource.data.citizenship is string
+        && request.resource.data.has_idea is bool
+        && request.resource.data.created_at is timestamp;
+    }
+
+    function validApplicationWrite(userId) {
+      return request.resource.data.user_id == userId
+        && request.resource.data.grant_id is string
+        && request.resource.data.organization_id is string
+        && request.resource.data.eligibility_score is number
+        && request.resource.data.status in ["applied", "reviewed", "accepted", "rejected"]
+        && request.resource.data.applied_at is timestamp;
+    }
+
+    function validPitchSessionWrite(userId) {
+      return request.resource.data.user_id == userId
+        && request.resource.data.grant_id is string
+        && request.resource.data.attempt_number is int
+        && request.resource.data.attempt_number > 0
+        && request.resource.data.readiness_score is number
+        && request.resource.data.readiness_score >= 0
+        && request.resource.data.readiness_score <= 100
+        && request.resource.data.feedback is string
+        && request.resource.data.created_at is timestamp;
+    }
+
+    function validCreditWrite(userId) {
+      return request.resource.data.user_id == userId
+        && request.resource.data.analyze_credits is number
+        && request.resource.data.improve_credits is number
+        && request.resource.data.last_updated is timestamp;
+    }
+
+    function validPitchCounterWrite(userId) {
+      return request.resource.data.user_id == userId
+        && request.resource.data.grant_id is string
+        && request.resource.data.last_attempt is int
+        && request.resource.data.last_attempt >= 0
+        && request.resource.data.locked is bool
+        && request.resource.data.updated_at is timestamp;
+    }
+
+    match /organizations/{organizationId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && verifiedEscalationBlocked() && validOrganizationWrite();
+      allow delete: if false;
+    }
+
+    match /grants/{grantId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && verifiedEscalationBlocked() && validGrantWrite();
+      allow delete: if false;
+    }
+
+    match /users/{userId} {
+      allow read, create, update: if isOwner(userId) && validUserWrite(userId);
+      allow delete: if false;
+    }
+
+    match /applications/{applicationId} {
+      allow read: if isSignedIn() && resource.data.user_id == request.auth.uid;
+      allow create, update: if isSignedIn()
+        && request.resource.data.user_id == request.auth.uid
+        && applicationId.matches('^' + request.auth.uid + '_.*$')
+        && validApplicationWrite(request.auth.uid);
+      allow delete: if false;
+    }
+
+    match /pitch_sessions/{sessionId} {
+      allow read: if isSignedIn() && resource.data.user_id == request.auth.uid;
+      allow create: if isSignedIn()
+        && request.resource.data.user_id == request.auth.uid
+        && validPitchSessionWrite(request.auth.uid);
+      allow update, delete: if false;
+    }
+
+    match /credits/{userId} {
+      allow read, create, update: if isOwner(userId) && validCreditWrite(userId);
+      allow delete: if false;
+    }
+
+    match /pitch_attempt_counters/{counterId} {
+      allow read, create, update: if isSignedIn()
+        && request.resource.data.user_id == request.auth.uid
+        && counterId.matches('^' + request.auth.uid + '_.*$')
+        && validPitchCounterWrite(request.auth.uid);
+      allow delete: if false;
+    }
+  }
+}
