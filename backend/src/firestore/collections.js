@@ -1,6 +1,5 @@
 export const COLLECTIONS = {
-  ORGANIZATIONS: "organizations",
-  GRANTS: "grants",
+  ORGANIZERS: "organizers",
   USERS: "users",
   APPLICATIONS: "applications",
   PITCH_SESSIONS: "pitch_sessions",
