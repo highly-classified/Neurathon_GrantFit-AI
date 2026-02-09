@@ -14,11 +14,11 @@ const FeatureCard = ({ icon: Icon, title, description, delay, className }) => {
         className
       )}
     >
-      <div className="w-12 h-12 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform flex-shrink-0">
-        <Icon className="w-6 h-6 text-[var(--color-primary)]" />
+      <div className="w-12 h-12 rounded-lg bg-gray-700 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform flex-shrink-0">
+        <Icon className="w-6 h-6 text-white" />
       </div>
       <h3 className="text-xl font-semibold text-white mb-2 flex-shrink-0">{title}</h3>
-      <p className="text-gray-400 leading-relaxed flex-grow">
+      <p className="text-gray-200 leading-relaxed flex-grow">
         {description}
       </p>
     </motion.div>

@@ -144,7 +144,7 @@ const Credits = () => {
               <h2 className="text-slate-900 text-xl font-black mb-8">Resource Consumption Breakdown</h2>
               <div className="space-y-10">
                 {/* AI Pitch Analysis */}
-                <div className="space-y-3">
+                <div className="space-y-6">
                   <div className="flex justify-between items-end">
                     <div className="flex items-center gap-3">
                       <span className="font-bold text-slate-800 text-lg">AI Pitch Analysis</span>

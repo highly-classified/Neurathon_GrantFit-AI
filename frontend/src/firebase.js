@@ -5,13 +5,12 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyC-iN9-F0QLHlQln3mHBziTPvzf1VCxQFI",
-  authDomain: "grantfit-ai.firebaseapp.com",
-  databaseURL: "https://grantfit-ai-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "grantfit-ai",
-  storageBucket: "grantfit-ai.firebasestorage.app",
-  messagingSenderId: "495359929788",
-  appId: "1:495359929788:web:1bd3c458e48bf59b5b4fb9"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase

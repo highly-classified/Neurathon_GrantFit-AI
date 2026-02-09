@@ -72,10 +72,10 @@ const Features = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 mb-4">
+          <h2 className="text-3xl md:text-5xl font-bold text-gray-200 mb-4">
             Built for Founders & Researchers
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+          <p className="text-gray-200 max-w-2xl mx-auto text-lg">
             Everything you need to secure funding, from discovery to application mastery.
           </p>
         </div>
