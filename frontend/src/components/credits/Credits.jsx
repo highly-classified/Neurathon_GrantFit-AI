@@ -109,7 +109,7 @@ const Credits = () => {
               <p className="text-slate-900 text-4xl font-black">12</p>
               <div className="flex items-center gap-1.5">
                 <span className="text-red-500 text-xs font-black flex items-center">
-                  <span className="material-symbols-outlined text-[14px]">trending_down</span>
+                  <TrendingDown className="size-3.5" />
                   -85%
                 </span>
                 <span className="text-slate-400 text-xs font-bold">from last month</span>
@@ -125,7 +125,7 @@ const Credits = () => {
               <p className="text-slate-900 text-4xl font-black">488</p>
               <div className="flex items-center gap-1.5">
                 <span className="text-green-600 text-xs font-black flex items-center">
-                  <span className="material-symbols-outlined text-[14px]">trending_up</span>
+                  <TrendingUp className="size-3.5" />
                   +12%
                 </span>
                 <span className="text-slate-400 text-xs font-bold">vs baseline</span>

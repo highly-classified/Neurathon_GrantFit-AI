@@ -58,7 +58,7 @@ const Navbar = () => {
                   href={link.href}
                   onClick={(e) => handleSmoothScroll(e, link.href)}
                   className={clsx(
-                    "hover:scale-105 transition-all duration-300 px-3 py-2 rounded-md text-sm font-medium text-white hover:text-white/80"
+                    "hover:scale-105 transition-all duration-300 px-3 py-2 rounded-md text-lg font-semibold text-white hover:text-white/80"
                   )}
                 >
                   {link.name}
@@ -94,7 +94,7 @@ const Navbar = () => {
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-gray-600 hover:text-[var(--color-primary)] block px-3 py-2 rounded-md text-base font-medium"
+                  className="text-gray-600 hover:text-[var(--color-primary)] block px-3 py-2 rounded-md text-lg font-semibold"
                   onClick={(e) => {
                     handleSmoothScroll(e, link.href);
                     setIsOpen(false);

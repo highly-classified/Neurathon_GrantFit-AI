@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { CheckCircle, ArrowLeft, Upload, FileText, User, Mail, Building, Globe } from 'lucide-react';
+import { CheckCircle, ArrowLeft, Upload, FileText, User, Mail, Building, Globe, Lightbulb } from 'lucide-react';
 
 const RegistrationPage = () => {
   const { id } = useParams();
@@ -98,7 +98,7 @@ const RegistrationPage = () => {
           </Link>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-[var(--color-primary)] rounded-lg flex items-center justify-center">
-               <img src="/logo-white.png" alt="Logo" className="h-5 w-auto" />
+              <img src="/logo-white.png" alt="Logo" className="h-5 w-auto" />
             </div>
             <span className="text-lg text-[var(--color-text-main)]" style={{ fontFamily: '"Gravitas One", serif' }}>GrantFit AI</span>
           </div>
@@ -241,7 +241,7 @@ const RegistrationPage = () => {
                 <div className="bg-white/10 rounded-2xl p-5 border border-white/10">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="size-8 bg-amber-400 rounded-lg flex items-center justify-center text-[#1347ae]">
-                      <span className="material-symbols-outlined text-[20px]">lightbulb</span>
+                      <Lightbulb size={20} />
                     </div>
                     <h4 className="font-black text-sm uppercase tracking-wider">AI Insight</h4>
                   </div>
@@ -251,7 +251,7 @@ const RegistrationPage = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-white rounded-3xl p-6 border border-slate-200">
               <h4 className="font-bold text-slate-700 mb-4 text-sm">Need Help?</h4>
               <div className="flex items-center gap-4 text-slate-500 hover:text-[#1347ae] cursor-pointer transition-colors">
