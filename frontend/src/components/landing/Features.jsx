@@ -20,7 +20,9 @@ const Features = () => {
       icon: Target,
       title: "Smart Grant Matching",
       description: "Our two-layer matching system analyzes your profile against thousands of grants to find your perfect fit with binary precision. Includes advanced analytics and compatibility insights.",
-      height: 600 // Taller
+      height: 600, // Taller
+      textAlign: 'left',
+      verticalAlign: 'center'
     },
     // Right Top
     {

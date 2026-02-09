@@ -15,6 +15,18 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleSmoothScroll = (e, href) => {
+    e.preventDefault();
+    const targetId = href.replace('#', '');
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
+
   const navLinks = [
     { name: 'Features', href: '#features' },
     { name: 'How It Works', href: '#how-it-works' },
@@ -44,6 +56,7 @@ const Navbar = () => {
                 <a
                   key={link.name}
                   href={link.href}
+                  onClick={(e) => handleSmoothScroll(e, link.href)}
                   className={clsx(
                     "hover:scale-105 transition-all duration-300 px-3 py-2 rounded-md text-sm font-medium text-white hover:text-white/80"
                   )}
@@ -82,7 +95,10 @@ const Navbar = () => {
                   key={link.name}
                   href={link.href}
                   className="text-gray-600 hover:text-[var(--color-primary)] block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={() => setIsOpen(false)}
+                  onClick={(e) => {
+                    handleSmoothScroll(e, link.href);
+                    setIsOpen(false);
+                  }}
                 >
                   {link.name}
                 </a>
