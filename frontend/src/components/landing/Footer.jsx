@@ -3,14 +3,14 @@ import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-[var(--color-surface)] border-t border-gray-800">
+    <footer className="bg-white border-t border-[var(--color-primary)]/10">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">
               GrantFit AI
             </span>
-            <p className="mt-4 text-gray-400 max-w-md">
+            <p className="mt-4 text-[var(--color-primary)]/80 max-w-md">
               Empowering researchers and founders with AI-driven grant matching and pitch readiness tools. Turn your vision into funded reality.
             </p>
             <div className="flex space-x-6 mt-6">
@@ -22,7 +22,7 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="text-sm font-semibold text-gray-300 tracking-wider uppercase">Platform</h3>
+            <h3 className="text-sm font-bold text-[var(--color-primary)] tracking-wider uppercase">Platform</h3>
             <ul className="mt-4 space-y-4">
               <FooterLink href="#features">Features</FooterLink>
               <FooterLink href="#how-it-works">How it Works</FooterLink>
@@ -32,7 +32,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-gray-300 tracking-wider uppercase">Support</h3>
+            <h3 className="text-sm font-bold text-[var(--color-primary)] tracking-wider uppercase">Support</h3>
             <ul className="mt-4 space-y-4">
               <FooterLink href="#">Documentation</FooterLink>
               <FooterLink href="#">API Status</FooterLink>
@@ -41,7 +41,7 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        <div className="mt-8 border-t border-gray-800 pt-8 text-center text-gray-500">
+        <div className="mt-8 border-t border-[var(--color-primary)]/10 pt-8 text-center text-[var(--color-primary)]/60">
           <p>&copy; {new Date().getFullYear()} GrantFit AI. All rights reserved.</p>
         </div>
       </div>
@@ -50,14 +50,14 @@ const Footer = () => {
 };
 
 const SocialLink = ({ href, icon }) => (
-  <a href={href} className="text-gray-400 hover:text-[var(--color-primary)] transition-colors">
+  <a href={href} className="text-[var(--color-primary)]/80 hover:text-[var(--color-secondary)] transition-colors">
     {icon}
   </a>
 );
 
 const FooterLink = ({ href, children }) => (
   <li>
-    <a href={href} className="text-gray-400 hover:text-white transition-colors">
+    <a href={href} className="text-[var(--color-primary)]/80 hover:text-[var(--color-secondary)] transition-colors font-medium">
       {children}
     </a>
   </li>

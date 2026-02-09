@@ -16,14 +16,14 @@ import ProfileView from './components/profile/ProfileView';
 import PitchModule from './components/pitch/PitchModule';
 
 const LandingPage = () => (
-  <>
+  <div className="landing-page-bg">
     <Navbar />
     <Hero />
     <Features />
     <HowItWorks />
     <PitchPractice />
     <Footer />
-  </>
+  </div>
 );
 
 function App() {
