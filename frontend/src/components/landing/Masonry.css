@@ -1,0 +1,27 @@
+.list {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    /* Adjust based on needs, maybe min-height */
+    overflow: visible;
+}
+
+.item-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* width and height are set dynamically by inline styles from Masonry.jsx */
+    will-change: transform, opacity;
+    box-sizing: border-box;
+    padding: 10px;
+    /* Gap between items */
+}
+
+/* Ensure content fills the wrapper */
+.item-wrapper>* {
+    width: 100%;
+    height: 100%;
+}
