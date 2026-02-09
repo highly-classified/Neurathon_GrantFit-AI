@@ -7,6 +7,7 @@ import HowItWorks from './components/landing/HowItWorks';
 import PitchPractice from './components/landing/PitchPractice';
 import Footer from './components/landing/Footer';
 import LoginPage from './components/auth/LoginPage';
+import Dashboard from './components/dashboard/Dashboard';
 
 const LandingPage = () => (
   <>
@@ -26,7 +27,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
-          {/* Add Dashboard route later */}
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </div>
     </Router>
