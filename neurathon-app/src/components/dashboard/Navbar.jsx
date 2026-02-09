@@ -29,9 +29,8 @@ const Navbar = () => {
       <div className="flex items-center gap-8">
         <div className="hidden lg:flex items-center gap-6">
           <Link to="/dashboard" className="text-sm font-medium text-[#0f172a] border-b-2 border-[#1e293b] py-5">Dashboard</Link>
-          <Link to="#" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">Grant Match</Link>
           <Link to="/tracking" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">Tracking</Link>
-          <Link to="#" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">Analytics</Link>
+          <Link to="/credits" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">Credits</Link>
           <Link to="#" className="text-sm font-medium text-gray-500 hover:text-[#0f172a] transition-colors py-5">Settings</Link>
         </div>
 
@@ -50,9 +49,12 @@ const Navbar = () => {
             </svg>
           </button>
 
-          <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600 border border-blue-100 shadow-sm cursor-pointer">
+          <Link
+            to="/profile"
+            className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600 border border-blue-100 shadow-sm cursor-pointer hover:ring-2 hover:ring-blue-100 transition-all"
+          >
             JD
-          </div>
+          </Link>
         </div>
       </div>
     </nav>

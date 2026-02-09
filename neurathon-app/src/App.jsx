@@ -11,6 +11,8 @@ import Dashboard from './components/dashboard/Dashboard';
 import ProfileSetup from './components/profile/ProfileSetup';
 import Tracking from './components/tracking/Tracking';
 import RegistrationPage from './components/dashboard/RegistrationPage';
+import Credits from './components/credits/Credits';
+import ProfileView from './components/profile/ProfileView';
 
 const LandingPage = () => (
   <>
@@ -34,6 +36,8 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/tracking" element={<Tracking />} />
           <Route path="/register/:id" element={<RegistrationPage />} />
+          <Route path="/credits" element={<Credits />} />
+          <Route path="/profile" element={<ProfileView />} />
         </Routes>
       </div>
     </Router>

@@ -97,9 +97,8 @@ const Tracking = () => {
           </Link>
           <nav className="flex items-center gap-6">
             <Link className="text-sm font-semibold text-slate-500 hover:text-[#1347ae] transition-colors" to="/dashboard">Dashboard</Link>
-            <Link className="text-sm font-semibold text-slate-500 hover:text-[#1347ae] transition-colors" to="#">Grant Match</Link>
             <Link className="text-sm font-semibold text-[#1347ae] border-b-2 border-[#1347ae] pb-1" to="/tracking">Tracking</Link>
-            <Link className="text-sm font-semibold text-slate-500 hover:text-[#1347ae] transition-colors" to="#">Analytics</Link>
+            <Link className="text-sm font-semibold text-slate-500 hover:text-[#1347ae] transition-colors" to="/credits">Credits</Link>
             <Link className="text-sm font-semibold text-slate-500 hover:text-[#1347ae] transition-colors" to="#">Settings</Link>
           </nav>
         </div>
@@ -108,9 +107,12 @@ const Tracking = () => {
             <span className="material-symbols-outlined absolute left-3 text-slate-400">search</span>
             <input className="h-10 w-64 rounded-lg border-none bg-slate-100 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#1347ae]/20" placeholder="Search grants..." type="text" />
           </label>
-          <div className="h-10 w-10 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden cursor-pointer hover:ring-2 hover:ring-[#1347ae]/20 transition-all">
+          <Link
+            to="/profile"
+            className="h-10 w-10 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden cursor-pointer hover:ring-2 hover:ring-[#1347ae]/20 transition-all"
+          >
             <img alt="User Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARIGSgVmMQC1AxPKwUxtBs4vsAu7w4FMjJPE6FiNHEvxBO-HmOWv9gGvAejQYMTShgxE49SS4dKdqzqQMfS8ZkLiW8RRsTveVYPxYUO4QzdaGyQ5cOi6z2S_J3HOSuztBiBNW7DeiWJ5M_1rxcjhTknu09nn92-9B4WacP7FBRdkBDouUQ5hD7am0Rp1kwSFHCTlsGh2PJHugAXGqnsbn3VCnzGdYHDqYfoKjJOcIXj7evfjCwxw5JK95t0pD8smoxs87Iyb3zhaI" />
-          </div>
+          </Link>
         </div>
       </header>
 
