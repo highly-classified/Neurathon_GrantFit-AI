@@ -18,7 +18,9 @@ import {
     Lightbulb,
     Network,
     Circle,
-    Target
+    Target,
+    TrendingUp,
+    AlertTriangle
 } from 'lucide-react';
 
 const PitchModule = () => {
@@ -179,7 +181,10 @@ const PitchModule = () => {
                                 <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 font-semibold text-sm hover:bg-slate-50 transition-colors">
                                     <Save className="size-4" /> Save Draft
                                 </button>
-                                <button className="flex items-center gap-2 px-4 py-2 bg-[#1347ae] text-white rounded-lg font-bold text-sm hover:bg-[#1347ae]/90 transition-colors shadow-lg shadow-[#1347ae]/10">
+                                <button
+                                    onClick={handleEvaluate}
+                                    className="flex items-center gap-2 px-4 py-2 bg-[#1347ae] text-white rounded-lg font-bold text-sm hover:bg-[#1347ae]/90 transition-colors shadow-lg shadow-[#1347ae]/10"
+                                >
                                     Finalize Pitch
                                 </button>
                             </div>
@@ -190,13 +195,15 @@ const PitchModule = () => {
                             {/* Column 1: Pitch Drafting */}
                             <div className="flex-[3] flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
                                 <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/50">
-                                    <span className="text-sm font-bold text-slate-900">Drafting Zone</span>
-                                    {isAnalyzing && (
-                                        <div className="flex items-center gap-2">
-                                            <div className="size-2 rounded-full bg-blue-500 animate-ping"></div>
-                                            <span className="text-xs text-blue-600 font-bold uppercase tracking-wider">AI is thinking...</span>
-                                        </div>
-                                    )}
+                                    <div className="flex items-center gap-4">
+                                        <span className="text-sm font-bold text-slate-900">Drafting Zone</span>
+                                        {isAnalyzing && (
+                                            <div className="flex items-center gap-2">
+                                                <div className="size-2 rounded-full bg-blue-500 animate-ping"></div>
+                                                <span className="text-xs text-blue-600 font-bold uppercase tracking-wider">AI is thinking...</span>
+                                            </div>
+                                        )}
+                                    </div>
                                     <div className="flex items-center gap-2">
                                         <button className="flex items-center justify-center size-9 rounded-lg hover:bg-slate-200 text-slate-600" title="Format Bold">
                                             <Bold className="size-5" />
@@ -324,7 +331,7 @@ const PitchModule = () => {
                                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                                         <div className="px-5 py-4 flex items-center justify-between border-b border-amber-50 bg-amber-50/30">
                                             <div className="flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-amber-500">trending_up</span>
+                                                <TrendingUp className="size-5 text-amber-500" />
                                                 <h4 className="text-sm font-bold text-amber-900">Needs Improvement</h4>
                                             </div>
                                             <span className="text-[10px] font-black text-amber-500">OPPORTUNITY</span>
@@ -338,7 +345,7 @@ const PitchModule = () => {
                                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                                         <div className="px-5 py-4 flex items-center justify-between border-b border-red-50 bg-red-50/30">
                                             <div className="flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-red-500">warning</span>
+                                                <AlertTriangle className="size-5 text-red-500" />
                                                 <h4 className="text-sm font-bold text-red-900">Worse Part</h4>
                                             </div>
                                             <span className="text-[10px] font-black text-red-500 uppercase">Critical</span>
