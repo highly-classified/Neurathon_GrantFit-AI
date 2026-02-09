@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { auth, googleProvider } from '../../firebase';
 import { signInWithPopup } from 'firebase/auth';
 import { motion } from 'framer-motion';
-import { Rocket, LogIn, AlertCircle, CircleDashed } from 'lucide-react';
+import { AlertCircle, CircleDashed } from 'lucide-react';
 
 const LoginPage = () => {
     const navigate = useNavigate();
