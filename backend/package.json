@@ -8,7 +8,8 @@
     "ingest:enrich": "node src/scripts/enrichOrganisers.js",
     "ingest:force-enrich": "node src/scripts/forceEnrichOrganisers.js",
     "ingest:normalize": "node src/scripts/normalizeFunding.js",
-    "ingest:eligibility": "node src/scripts/enrichEligibility.js"
+    "ingest:eligibility": "node src/scripts/enrichEligibility.js",
+    "test:eligibility": "node src/test-eligibility.js"
   },
   "dependencies": {
     "@google-cloud/vertexai": "^1.10.0",
