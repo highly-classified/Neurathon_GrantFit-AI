@@ -20,7 +20,10 @@ export class PitchLockedError extends Error {
 }
 
 export async function createPitchSession(input) {
-  const user = ensureSignedInUser(auth);
+  const user = input.user_id_override
+    ? { uid: input.user_id_override }
+    : ensureSignedInUser(auth);
+
   const sessionInput = normalizePitchSessionInput(input);
   const userGrantKey = buildUserGrantKey(user.uid, sessionInput.grant_id);
   const counterRef = doc(db, COLLECTIONS.PITCH_ATTEMPT_COUNTERS, userGrantKey);

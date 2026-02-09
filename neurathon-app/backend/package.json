@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "node src/run-tests.js"
+    "test": "node src/test-admin-services.js"
   },
   "dependencies": {
     "dotenv": "^17.2.4",
