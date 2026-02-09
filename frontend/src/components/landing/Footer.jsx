@@ -8,13 +8,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
 
           <div className="col-span-1 md:col-span-2">
-          <div className="col-span-1 md:col-span-2">
             <div className="flex items-center mb-4">
-              <img 
-                src="/logo-white.png" 
-                alt="GrantFit AI Logo" 
-                className="h-10 w-auto mr-2" 
-                style={{ filter: 'invert(16%) sepia(32%) saturate(3000%) hue-rotate(200deg) brightness(95%) contrast(90%)' }} 
+              <img
+                src="/logo-white.png"
+                alt="GrantFit AI Logo"
+                className="h-14 w-auto mr-2"
+                style={{ filter: 'brightness(0)' }}
               />
               <span className="text-3xl text-[var(--color-primary)]" style={{ fontFamily: '"Gravitas One", serif' }}>
                 GrantFit AI
@@ -30,8 +29,7 @@ const Footer = () => {
               <SocialLink href="mailto:contact@grantfit.ai" icon={<Mail className="h-6 w-6" />} />
             </div>
           </div>
-          </div>
-          
+
           <div>
             <h3 className="text-sm font-bold text-[var(--color-primary)] tracking-wider uppercase">Platform</h3>
             <ul className="mt-4 space-y-4">

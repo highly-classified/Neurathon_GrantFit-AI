@@ -51,7 +51,7 @@ const Dashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-300 font-['Inter',_sans-serif]">
+    <div className="min-h-screen bg-[#f6f6f8] pb-20 font-['Public Sans',_sans-serif]">
       <Navbar />
 
       <main className="max-w-[1600px] mx-auto pt-24 pb-32 px-6">
@@ -60,7 +60,7 @@ const Dashboard = () => {
         {/* Page Header */}
         <div className="flex items-end justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-[#0f172a] mb-2 tracking-tight">Grant Discovery Dashboard</h1>
+            <h1 className="text-3xl font-bold text-[#0f172a] mb-2 tracking-tight">Grant Discovery</h1>
             <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>

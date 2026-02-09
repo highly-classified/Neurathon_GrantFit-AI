@@ -1,5 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import {
+    Bell,
+    HelpCircle,
+    LayoutDashboard,
+    Mic,
+    FileText,
+    Users,
+    History,
+    ArrowLeft,
+    Save,
+    Bold,
+    List,
+    RotateCcw,
+    Eye,
+    CheckCircle2,
+    Lightbulb,
+    Network,
+    Circle,
+    Target,
+    TrendingUp,
+    AlertTriangle
+} from 'lucide-react';
 
 const PitchModule = () => {
     const { grantId } = useParams();
@@ -88,6 +110,14 @@ const PitchModule = () => {
                             <Link className="text-slate-600 hover:text-[#1347ae] text-sm font-medium transition-colors" to="/dashboard">Dashboard</Link>
                             <Link className="text-slate-600 hover:text-[#1347ae] text-sm font-medium transition-colors" to="/tracking">My Proposals</Link>
                         </nav>
+                        <div className="flex gap-2">
+                            <button className="flex size-10 cursor-pointer items-center justify-center rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
+                                <Bell className="size-5" />
+                            </button>
+                            <button className="flex size-10 cursor-pointer items-center justify-center rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
+                                <HelpCircle className="size-5" />
+                            </button>
+                        </div>
                         <div
                             className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-slate-200"
                             style={{ backgroundImage: 'url("https://api.dicebear.com/7.x/avataaars/svg?seed=Felix")' }}
@@ -107,15 +137,31 @@ const PitchModule = () => {
                             </div>
                         </div>
                         <nav className="flex flex-col gap-1">
+                            <a className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
+                                <LayoutDashboard className="size-5" />
+                                <span className="text-sm font-medium">Overview</span>
+                            </a>
                             <a className="flex items-center gap-3 px-3 py-2 bg-[#1347ae] text-white rounded-lg transition-colors shadow-sm shadow-[#1347ae]/20" href="#">
-                                <span className="material-symbols-outlined text-xl">mic</span>
+                                <Mic className="size-5" />
                                 <span className="text-sm font-medium">Practice Pitch</span>
+                            </a>
+                            <a className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
+                                <FileText className="size-5" />
+                                <span className="text-sm font-medium">Guidelines</span>
+                            </a>
+                            <a className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
+                                <Users className="size-5" />
+                                <span className="text-sm font-medium">Collaborators</span>
+                            </a>
+                            <a className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
+                                <History className="size-5" />
+                                <span className="text-sm font-medium">History</span>
                             </a>
                         </nav>
                         <div className="mt-auto border-t border-slate-100 pt-4">
-                            <Link to="/dashboard" className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-100 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-200 transition-colors">
-                                <span className="material-symbols-outlined text-lg">arrow_back</span>
-                                Back to Dashboard
+                            <Link to="/tracking" className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-100 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-200 transition-colors">
+                                <ArrowLeft className="size-4" />
+                                Back to Details
                             </Link>
                         </div>
                     </aside>
@@ -133,6 +179,7 @@ const PitchModule = () => {
                                 <p className="text-slate-500 mt-1 max-w-xl">Use AI-driven insights to polish your narrative and increase your chances of success.</p>
                             </div>
                             <div className="flex gap-3">
+<<<<<<< HEAD
                                 {!hasEvaluated ? (
                                     <button
                                         onClick={handleEvaluate}
@@ -152,6 +199,17 @@ const PitchModule = () => {
                                         {evaluation.score >= 95 ? "Perfect Pitch (95+)" : "Check Improvement"}
                                     </button>
                                 )}
+=======
+                                <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 font-semibold text-sm hover:bg-slate-50 transition-colors">
+                                    <Save className="size-4" /> Save Draft
+                                </button>
+                                <button
+                                    onClick={handleEvaluate}
+                                    className="flex items-center gap-2 px-4 py-2 bg-[#1347ae] text-white rounded-lg font-bold text-sm hover:bg-[#1347ae]/90 transition-colors shadow-lg shadow-[#1347ae]/10"
+                                >
+                                    Finalize Pitch
+                                </button>
+>>>>>>> d842c6c4e76955578c062e7506952dcd5db7053f
                             </div>
                         </div>
 
@@ -160,13 +218,27 @@ const PitchModule = () => {
                             {/* Column 1: Pitch Drafting */}
                             <div className="flex-[3] flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
                                 <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/50">
-                                    <span className="text-sm font-bold text-slate-900">Drafting Zone</span>
-                                    {isAnalyzing && (
-                                        <div className="flex items-center gap-2">
-                                            <div className="size-2 rounded-full bg-blue-500 animate-ping"></div>
-                                            <span className="text-xs text-blue-600 font-bold uppercase tracking-wider">AI is thinking...</span>
-                                        </div>
-                                    )}
+                                    <div className="flex items-center gap-4">
+                                        <span className="text-sm font-bold text-slate-900">Drafting Zone</span>
+                                        {isAnalyzing && (
+                                            <div className="flex items-center gap-2">
+                                                <div className="size-2 rounded-full bg-blue-500 animate-ping"></div>
+                                                <span className="text-xs text-blue-600 font-bold uppercase tracking-wider">AI is thinking...</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button className="flex items-center justify-center size-9 rounded-lg hover:bg-slate-200 text-slate-600" title="Format Bold">
+                                            <Bold className="size-5" />
+                                        </button>
+                                        <button className="flex items-center justify-center size-9 rounded-lg hover:bg-slate-200 text-slate-600" title="Add List">
+                                            <List className="size-5" />
+                                        </button>
+                                        <div className="h-6 w-px bg-slate-200 mx-1"></div>
+                                        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1347ae]/10 text-[#1347ae] font-bold text-xs hover:bg-[#1347ae]/20 transition-colors">
+                                            <Mic className="size-4" /> Voice Input
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
                                     <textarea
@@ -182,7 +254,7 @@ const PitchModule = () => {
                                         onClick={() => { setPitchText(''); setHasEvaluated(false); setEvaluation({ score: 0, best_part: "Not evaluated yet.", improvement_needed: "Submit your pitch to get feedback.", worse_part: "Critical areas will appear here." }); }}
                                         className="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1"
                                     >
-                                        <span className="material-symbols-outlined text-base">restart_alt</span> Reset All
+                                        <RotateCcw className="size-3.5" /> Reset Pitch
                                     </button>
                                 </div>
                             </div>
@@ -224,10 +296,54 @@ const PitchModule = () => {
                                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                                         <div className="px-5 py-4 flex items-center justify-between border-b border-emerald-50 bg-emerald-50/30">
                                             <div className="flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-emerald-500">stars</span>
-                                                <h4 className="text-sm font-bold text-emerald-900">Best Part</h4>
+                                                <Eye className="size-5 text-blue-500" />
+                                                <h4 className="text-sm font-bold text-slate-900">Clarity &amp; Jargon</h4>
                                             </div>
-                                            <span className="material-symbols-outlined text-emerald-500 text-xs text-green-500">check_circle</span>
+                                            <CheckCircle2 className="size-5 text-green-500" />
+                                        </div>
+                                        <div className="p-5 space-y-3">
+                                            <div className="flex gap-3">
+                                                <div className="size-1.5 rounded-full bg-slate-300 mt-1.5 shrink-0"></div>
+                                                <p className="text-sm text-slate-600 leading-relaxed">Language is accessible to generalist reviewers.</p>
+                                            </div>
+                                            <div className="flex gap-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
+                                                <Lightbulb className="size-4.5 text-amber-500 shrink-0 mt-0.5" />
+                                                <p className="text-xs text-amber-800 font-medium italic">"High-fidelity cellular updates" might be too technical; consider "accurate cell modification."</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* Structure Section */}
+                                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100">
+                                            <div className="flex items-center gap-2">
+                                                <Network className="size-5 text-purple-500" />
+                                                <h4 className="text-sm font-bold text-slate-900">Structure</h4>
+                                            </div>
+                                            <span className="text-xs font-bold text-amber-500">80% COMPLETE</span>
+                                        </div>
+                                        <div className="p-5 space-y-3">
+                                            <div className="flex items-center gap-3">
+                                                <CheckCircle2 className="size-4.5 text-green-500" />
+                                                <span className="text-sm text-slate-600">Clear Problem Statement</span>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <CheckCircle2 className="size-4.5 text-green-500" />
+                                                <span className="text-sm text-slate-600">Target Market Identified</span>
+                                            </div>
+                                            <div className="flex items-center gap-3 opacity-50">
+                                                <Circle className="size-4.5 text-slate-300" />
+                                                <span className="text-sm text-slate-600">Explicit Impact Statement missing</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* Alignment Section */}
+                                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100">
+                                            <div className="flex items-center gap-2">
+                                                <Target className="size-5 text-emerald-500" />
+                                                <h4 className="text-sm font-bold text-slate-900">Grant Alignment</h4>
+                                            </div>
+                                            <span className="text-xs font-bold text-slate-400">KEYWORDS: 12/15</span>
                                         </div>
                                         <div className="p-5">
                                             <p className="text-sm text-slate-600 leading-relaxed font-medium">{evaluation.best_part}</p>
@@ -238,7 +354,7 @@ const PitchModule = () => {
                                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                                         <div className="px-5 py-4 flex items-center justify-between border-b border-amber-50 bg-amber-50/30">
                                             <div className="flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-amber-500">trending_up</span>
+                                                <TrendingUp className="size-5 text-amber-500" />
                                                 <h4 className="text-sm font-bold text-amber-900">Needs Improvement</h4>
                                             </div>
                                             <span className="text-[10px] font-black text-amber-500">OPPORTUNITY</span>
@@ -252,7 +368,7 @@ const PitchModule = () => {
                                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                                         <div className="px-5 py-4 flex items-center justify-between border-b border-red-50 bg-red-50/30">
                                             <div className="flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-red-500">warning</span>
+                                                <AlertTriangle className="size-5 text-red-500" />
                                                 <h4 className="text-sm font-bold text-red-900">Worse Part</h4>
                                             </div>
                                             <span className="text-[10px] font-black text-red-500 uppercase">Critical</span>
