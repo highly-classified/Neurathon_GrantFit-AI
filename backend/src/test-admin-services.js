@@ -55,12 +55,19 @@ async function runAdminTests() {
                 max_amt_estimated: 2440000,
                 min_amt_estimated: 518000
             },
+            prev_year_funded_projects: ["Coastal Resilience", "Ocean Acidification Modeling"],
             tags: ["climate", "synthetic"],
             created_at: new Date()
         });
 
         const categories = await getCategorizedGrants(testUserId);
-        console.log(`✅ Matching Complete! Found ${categories.eligible.length} eligible grants.\n`);
+        console.log(`✅ Matching Complete!`);
+        console.log(`   - Eligible: ${categories.eligible.length}`);
+        console.log(`   - Partially Eligible: ${categories.partially_eligible.length}\n`);
+
+        if (categories.ineligible) {
+            throw new Error("Ineligible items should not be in the final output!");
+        }
 
         // 4. Test Pitch Analysis (Structured Feedback)
         console.log("🎤 Running Structured Pitch Analysis...");

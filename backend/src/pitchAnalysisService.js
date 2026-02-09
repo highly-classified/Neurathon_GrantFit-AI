@@ -68,7 +68,12 @@ export async function improvePitchWithAI(userId, grantId, pitchText, previousAna
     const textHash = pitchText.substring(0, 30).replace(/[^a-zA-Z]/g, "");
     const cacheKey = `manual_v1_${grantId}_${textHash}`;
 
-    const response = await callGemini(prompt, cacheKey);
+    const response = await callGemini(prompt, cacheKey, JSON.stringify({
+        new_score: previousAnalysis.score + 5,
+        best_part: "Improved methodology.",
+        improvement_needed: "Work on budget.",
+        worse_part: "None"
+    }));
     const cleanResponse = response.replace(/```json/g, "").replace(/```/g, "").trim();
     const result = JSON.parse(cleanResponse);
 
@@ -105,7 +110,12 @@ async function analyzePitchWithAI(pitchText, grant) {
   `;
 
     try {
-        const response = await callGemini(prompt, cacheKey);
+        const response = await callGemini(prompt, cacheKey, JSON.stringify({
+            score: 75,
+            best_part: "Clear mission.",
+            improvement_needed: "Add data.",
+            worse_part: "Weak metrics."
+        }));
         const cleanResponse = response.replace(/```json/g, "").replace(/```/g, "").trim();
         const result = JSON.parse(cleanResponse);
 
