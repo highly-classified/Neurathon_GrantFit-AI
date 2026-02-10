@@ -82,7 +82,7 @@ const Tracking = () => {
   const getStatusStyles = (status, color) => {
     // Force emerald (green) for 'Applied' status
     const effectiveColor = status === 'Applied' ? 'emerald' : color;
-    
+
     const colors = {
       amber: 'bg-amber-50 text-amber-700',
       blue: 'bg-[#40484f]/10 text-[#40484f]',
@@ -106,7 +106,7 @@ const Tracking = () => {
       {/* Main Content Area */}
       <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 pt-32 px-10 pb-10">
         {/* Page Header */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
@@ -124,7 +124,7 @@ const Tracking = () => {
         </motion.div>
 
         {/* Column Headers as a Block */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: 'easeOut', delay: 0.04 }}
@@ -155,23 +155,23 @@ const Tracking = () => {
                     <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-1">ID: {app.id}</span>
                   </Link>
                 </div>
-                
+
                 <div className="text-sm text-slate-600 font-bold">{app.organizer}</div>
-                
+
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-slate-700">{app.deadline}</span>
                   <span className={`text-[11px] font-black uppercase tracking-tight mt-0.5 ${app.statusColor === 'amber' ? 'text-amber-500' : 'text-slate-400'}`}>
                     {app.daysLeft}
                   </span>
                 </div>
-                
+
                 <div>
                   <span className={styles.container}>
                     <span className={styles.dot}></span>
                     {app.status}
                   </span>
                 </div>
-                
+
                 <div className="flex justify-end">
                   <button className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-400 hover:text-slate-600 transition-colors p-2 hover:bg-slate-50 rounded-xl whitespace-nowrap">
                     <FileText className="size-4 text-red-500" />
@@ -183,28 +183,7 @@ const Tracking = () => {
           })}
         </div>
 
-        {/* Pagination Controls as a Block */}
-        <motion.div 
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: 'easeOut', delay: (applications.length + 2) * 0.04 }}
-          className="flex items-center justify-between px-8 py-5 bg-white rounded-3xl border border-slate-200/60 shadow-sm"
-        >
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Showing 1 to 5 of 24 applications</p>
-          <div className="flex items-center gap-2">
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:bg-slate-50 transition-colors">
-              <ChevronLeft className="size-5" />
-            </button>
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#40484f] text-sm font-bold text-white shadow-lg shadow-[#40484f]/20">1</button>
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-sm font-bold text-slate-400 hover:bg-slate-50 transition-colors">2</button>
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-sm font-bold text-slate-400 hover:bg-slate-50 transition-colors">3</button>
-            <span className="px-2 text-slate-300">...</span>
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-sm font-bold text-slate-400 hover:bg-slate-50 transition-colors">5</button>
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:bg-slate-50 transition-colors">
-              <ChevronRight className="size-5" />
-            </button>
-          </div>
-        </motion.div>
+
 
 
       </main>

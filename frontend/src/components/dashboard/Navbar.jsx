@@ -6,6 +6,31 @@ const Navbar = () => {
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
 
+  // Get user profile for avatar
+  const getUserProfile = () => {
+    try {
+      const saved = localStorage.getItem('userProfile');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error("Error parsing user profile", e);
+    }
+    return null;
+  };
+
+  const profile = getUserProfile();
+  const displayName = profile?.displayName || 'Guest User';
+
+  const getInitials = (name) => {
+    if (!name) return 'GU';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  const initials = getInitials(displayName);
+
   const getLinkClass = (path) => {
     const baseClass = "text-lg font-bold py-5 transition-colors tracking-tight";
     const activeClass = "text-[#0f172a] border-b-2 border-[#1e293b]";
@@ -33,9 +58,9 @@ const Navbar = () => {
         <div className="flex items-center gap-3 border-l border-gray-100 pl-6 ml-2">
           <Link
             to="/profile"
-            className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[11px] font-black text-slate-600 border border-slate-200 shadow-sm cursor-pointer hover:ring-4 hover:ring-slate-50 transition-all"
+            className="w-9 h-9 rounded-full bg-gradient-to-br from-[#40484f] to-slate-600 flex items-center justify-center text-xs font-black text-white border border-slate-200 shadow-md cursor-pointer hover:ring-4 hover:ring-slate-100 transition-all"
           >
-            JD
+            {initials}
           </Link>
           <Link
             to="/"

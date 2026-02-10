@@ -1,5 +1,18 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { auth, db } from '../../firebase';
+import { 
+  doc, 
+  onSnapshot, 
+  collection, 
+  query, 
+  where, 
+  orderBy, 
+  limit,
+  getDoc
+} from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 import Navbar from '../dashboard/Navbar';
 import {
   Search,
@@ -18,44 +31,113 @@ import {
   TrendingDown,
   TrendingUp
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const Credits = () => {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const usageLogs = [
-    {
-      date: 'Oct 26, 2024',
-      type: 'Deep AI Analysis',
-      icon: <Brain className="text-slate-400 size-5" />,
-      project: 'QuantumSensing PhII',
-      impact: '-10 credits',
-      impactColor: 'text-red-600'
-    },
-    {
-      date: 'Oct 25, 2024',
-      type: 'Grant Match Batch',
-      icon: <SearchCheck className="text-slate-400 size-5" />,
-      project: 'CleanEnergy Initiative',
-      impact: '-5 credits',
-      impactColor: 'text-red-600'
-    },
-    {
-      date: 'Oct 24, 2024',
-      type: 'Manual Credit Top-up',
-      icon: <PlusCircle className="text-slate-400 size-5" />,
-      project: 'Billing Reference #4412',
-      impact: '+100 credits',
-      impactColor: 'text-green-600'
-    },
-    {
-      date: 'Oct 22, 2024',
-      type: 'Pitch Deck Optimization',
-      icon: <FileEdit className="text-slate-400 size-5" />,
-      project: 'BioHealth Startup',
-      impact: '-15 credits',
-      impactColor: 'text-red-600'
-    }
-  ];
+  const [loading, setLoading] = React.useState(true);
+  const [credits, setCredits] = React.useState({ analyze_credits: 0, improve_credits: 0 });
+  const [usageLogs, setUsageLogs] = React.useState([]);
+  const [stats, setStats] = React.useState({
+    monthlyUsage: 0,
+    billingEnd: '...',
+    lastSynced: 'Just now'
+  });
+
+  React.useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
+      // 1. Listen to Credits
+      const creditsRef = doc(db, 'credits', user.uid);
+      const unsubCredits = onSnapshot(creditsRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setCredits(data);
+          
+          // Estimate billing end from last_updated or use fallback
+          const updatedTS = data.last_updated?.toDate() || new Date();
+          const nextBilling = new Date(updatedTS);
+          nextBilling.setDate(nextBilling.getDate() + 30);
+          
+          setStats(prev => ({
+            ...prev,
+            billingEnd: nextBilling.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          }));
+        } else {
+          // Fallback default for new users who haven't had credits record created yet
+          setCredits({ analyze_credits: 10, improve_credits: 0 });
+        }
+      }, (error) => {
+        console.error("Credits Listener Error:", error);
+        setLoading(false); // Stop spinner even if error
+      });
+
+      // 2. Fetch recent activity (Pitch Sessions)
+      const sessionsRef = collection(db, 'pitch_sessions');
+      const q = query(
+        sessionsRef,
+        where('user_id', '==', user.uid),
+        orderBy('created_at', 'desc'),
+        limit(10)
+      );
+
+      const unsubSessions = onSnapshot(q, (snapshot) => {
+        const logs = snapshot.docs.map(d => {
+          const data = d.data();
+          const date = data.created_at?.toDate() || new Date();
+          
+          return {
+            date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            type: 'Deep AI Analysis', // Simplified for now
+            icon: <Brain className="text-slate-400 size-5" />,
+            project: `Grant: ${data.grant_id?.substring(0, 8)}...`,
+            impact: '-1 credits',
+            impactColor: 'text-red-600',
+            rawDate: date
+          };
+        });
+
+        setUsageLogs(logs);
+
+        // Calculate Monthly Usage (this month)
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const thisMonthUsage = logs.filter(l => l.rawDate >= firstDay).length;
+        
+        setStats(prev => ({
+          ...prev,
+          monthlyUsage: thisMonthUsage,
+          lastSynced: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }));
+        
+        setLoading(false);
+      }, (error) => {
+        console.error("Sessions Listener Error:", error);
+        setLoading(false); // Stop spinner even if error
+      });
+
+      return () => {
+        unsubCredits();
+        unsubSessions();
+      };
+    });
+
+    return () => unsubscribeAuth();
+  }, [navigate]);
+
+  const totalCredits = (credits.analyze_credits || 0) + (credits.improve_credits || 0);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f6f6f8] flex items-center justify-center">
+        <div className="h-12 w-12 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f6f6f8] text-slate-900 font-['Public Sans',_sans-serif]">
@@ -70,24 +152,33 @@ const Credits = () => {
               <p className="text-slate-500 text-base">Detailed audit of your enterprise resource consumption and AI compute units.</p>
             </div>
             <div className="flex items-center gap-4">
-              <p className="text-xs text-slate-400">Last synced: 2 minutes ago</p>
-              <button className="flex items-center justify-center rounded-lg h-10 px-4 bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm gap-2">
+              <p className="text-xs text-slate-400">Last synced: {stats.lastSynced}</p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="flex items-center justify-center rounded-lg h-10 px-4 bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm gap-2"
+              >
                 <RefreshCw className="size-4" />
                 Refresh Data
               </button>
             </div>
           </div>
 
-          {/* Alert Section (Low Balance) */}
+          {/* Plan Management Section */}
           <div className="mb-8">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-6">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-amber-100 text-amber-700 rounded-xl">
-                  <AlertTriangle size={24} />
+                <div className={`p-3 ${totalCredits < 5 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'} rounded-xl transition-colors`}>
+                  {totalCredits < 5 ? <AlertTriangle size={24} /> : <Check size={24} />}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <p className="text-amber-900 text-base font-bold leading-tight">Low Credit Balance</p>
-                  <p className="text-amber-700 text-sm font-medium leading-normal">Your team has 12 credits remaining. Pitch analysis services may be interrupted once balance reaches zero.</p>
+                  <p className="text-slate-900 text-base font-bold leading-tight">
+                    {totalCredits < 5 ? 'Low Credit Balance' : 'Active Account Plan'}
+                  </p>
+                  <p className="text-slate-500 text-sm font-medium leading-normal">
+                    {totalCredits < 5 
+                      ? `Your team has ${totalCredits} credits remaining. Pitch analysis services may be interrupted.` 
+                      : `You have ${totalCredits} credits available for deep AI analysis and pitch optimization.`}
+                  </p>
                 </div>
               </div>
               <button
@@ -101,47 +192,52 @@ const Credits = () => {
 
           {/* Top-Level Metrics Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="flex flex-col gap-4 rounded-2xl p-6 bg-white border border-slate-200 shadow-sm">
-              <div className="flex justify-between items-start">
+            <div className="flex flex-col gap-4 rounded-2xl p-6 bg-white border border-slate-200 shadow-sm relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-110"></div>
+              <div className="flex justify-between items-start relative z-10">
                 <p className="text-slate-500 text-sm font-bold uppercase tracking-wider">Total Remaining Credits</p>
                 <div className="p-2 bg-[#40484f]/10 text-[#40484f] rounded-lg">
                   <Wallet size={20} />
                 </div>
               </div>
-              <p className="text-slate-900 text-4xl font-black">12</p>
-              <div className="flex items-center gap-1.5">
-                <span className="text-red-500 text-xs font-black flex items-center">
-                  <TrendingDown className="size-3.5" />
-                  -85%
+              <p className="text-slate-900 text-4xl font-black relative z-10">{totalCredits}</p>
+              <div className="flex items-center gap-1.5 relative z-10">
+                <span className={`${totalCredits < 5 ? 'text-red-500' : 'text-green-600'} text-xs font-black flex items-center`}>
+                  {totalCredits < 5 ? <TrendingDown className="size-3.5" /> : <TrendingUp className="size-3.5" />}
+                  {totalCredits < 5 ? 'Low' : 'Healthy'}
                 </span>
-                <span className="text-slate-400 text-xs font-bold">from last month</span>
+                <span className="text-slate-400 text-xs font-bold">real-time sync</span>
               </div>
             </div>
-            <div className="flex flex-col gap-4 rounded-2xl p-6 bg-white border border-slate-200 shadow-sm">
-              <div className="flex justify-between items-start">
+
+            <div className="flex flex-col gap-4 rounded-2xl p-6 bg-white border border-slate-200 shadow-sm relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-110"></div>
+              <div className="flex justify-between items-start relative z-10">
                 <p className="text-slate-500 text-sm font-bold uppercase tracking-wider">Monthly Usage</p>
                 <div className="p-2 bg-slate-50 text-slate-400 rounded-lg">
                   <BarChart3 size={20} />
                 </div>
               </div>
-              <p className="text-slate-900 text-4xl font-black">488</p>
-              <div className="flex items-center gap-1.5">
-                <span className="text-green-600 text-xs font-black flex items-center">
+              <p className="text-slate-900 text-4xl font-black relative z-10">{stats.monthlyUsage}</p>
+              <div className="flex items-center gap-1.5 relative z-10">
+                <span className="text-[#40484f] text-xs font-black flex items-center">
                   <TrendingUp className="size-3.5" />
-                  +12%
+                  Active
                 </span>
-                <span className="text-slate-400 text-xs font-bold">vs baseline</span>
+                <span className="text-slate-400 text-xs font-bold">this month</span>
               </div>
             </div>
-            <div className="flex flex-col gap-4 rounded-2xl p-6 bg-white border border-slate-200 shadow-sm">
-              <div className="flex justify-between items-start">
+
+            <div className="flex flex-col gap-4 rounded-2xl p-6 bg-white border border-slate-200 shadow-sm relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-110"></div>
+              <div className="flex justify-between items-start relative z-10">
                 <p className="text-slate-500 text-sm font-bold uppercase tracking-wider">Billing Period Ends</p>
                 <div className="p-2 bg-slate-50 text-slate-400 rounded-lg">
                   <Calendar size={20} />
                 </div>
               </div>
-              <p className="text-slate-900 text-4xl font-black">Nov 1, 2024</p>
-              <div className="flex items-center gap-1.5">
+              <p className="text-slate-900 text-2xl lg:text-3xl font-black relative z-10 mt-1">{stats.billingEnd}</p>
+              <div className="flex items-center gap-1.5 relative z-10">
                 <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Automatic renewal active</span>
               </div>
             </div>

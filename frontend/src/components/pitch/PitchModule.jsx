@@ -29,7 +29,7 @@ import Navbar from '../dashboard/Navbar';
 
 const PitchModule = () => {
     const { grantId } = useParams();
-    const [pitchText, setPitchText] = useState("<div>Our innovative Bio-Tech solution targets the metabolic signaling pathways in specific rare diseases. By leveraging our proprietary CRISPR-based delivery mechanism, we can achieve high-fidelity cellular updates with minimal off-target effects. This NSF Phase I proposal focuses on the commercial feasibility of the platform within clinical trials over the next 18 months...</div>");
+    const [pitchText, setPitchText] = useState("");
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [hasEvaluated, setHasEvaluated] = useState(false);
     const [showGuidelines, setShowGuidelines] = useState(false);
@@ -39,6 +39,23 @@ const PitchModule = () => {
         improvement_needed: "Submit your pitch to get feedback.",
         worse_part: "Critical areas will appear here.",
     });
+
+    // Load pitch from local storage when grantId changes
+    useEffect(() => {
+        const savedPitch = localStorage.getItem(`pitch_${grantId}`);
+        if (savedPitch) {
+            setPitchText(savedPitch);
+        } else {
+            setPitchText("");
+        }
+    }, [grantId]);
+
+    // Save pitch to local storage whenever it changes
+    useEffect(() => {
+        if (grantId) {
+            localStorage.setItem(`pitch_${grantId}`, pitchText);
+        }
+    }, [pitchText, grantId]);
 
     // Voice-to-Text State
     const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);

@@ -75,8 +75,16 @@ const ProfileSetup = () => {
       };
 
       await setDoc(doc(db, 'users', user.uid), profileData);
-      localStorage.setItem('userProfile', JSON.stringify(profileData));
+      
+      // Initialize credits for new user
+      await setDoc(doc(db, 'credits', user.uid), {
+        user_id: user.uid,
+        analyze_credits: 10,
+        improve_credits: 0,
+        last_updated: new Date()
+      }, { merge: true });
 
+      localStorage.setItem('userProfile', JSON.stringify(profileData));
       navigate('/dashboard');
     } catch (error) {
       console.error("Error saving profile:", error);

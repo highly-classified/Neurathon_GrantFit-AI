@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { auth, db } from '../../firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 import {
   User,
   Mail,
@@ -13,33 +16,71 @@ import {
   Shield,
   Bell,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Lightbulb
 } from 'lucide-react';
 
 const ProfileView = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Try to load from localStorage
-    const savedProfile = localStorage.getItem('userProfile');
-    if (savedProfile) {
-      setProfile(JSON.parse(savedProfile));
-    } else {
-      // Mock data if none exists
-      setProfile({
-        displayName: 'John Doe',
-        email: 'john.doe@example.com',
-        domain: 'AI & ML',
-        fundingRequirement: '250000',
-        role: 'Founder',
-        citizenship: 'United States',
-        gender: 'Male',
-        age: '28'
-      });
-    }
-  }, []);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          // Try Firestore first
+          const docRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(docRef);
+          
+          if (docSnap.exists()) {
+            setProfile(docSnap.data());
+          } else {
+            // Fallback to localStorage or mock
+            const savedProfile = localStorage.getItem('userProfile');
+            if (savedProfile) {
+              setProfile(JSON.parse(savedProfile));
+            } else {
+              setProfile({
+                displayName: user.displayName || 'Unnamed User',
+                email: user.email,
+                domain: 'Not Specified',
+                fundingRequirement: '0',
+                role: 'Founder',
+                citizenship: 'Not Specified',
+                gender: 'Not Specified',
+                age: 'N/A',
+                idea: 'No idea description provided yet.'
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching profile:", error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        navigate('/login');
+      }
+    });
 
+    return () => unsubscribe();
+  }, [navigate]);
+
+  const getInitials = (name) => {
+    if (!name) return '??';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  if (loading) return (
+    <div className="min-h-screen bg-[#f6f6f8] flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#40484f]"></div>
+    </div>
+  );
   if (!profile) return null;
 
   return (
@@ -57,12 +98,10 @@ const ProfileView = () => {
           <div className="lg:w-1/3 flex flex-col gap-6">
             <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/60 border border-slate-100">
               <div className="flex flex-col items-center text-center">
-                <div className="size-32 rounded-3xl bg-slate-100 p-1 border-4 border-white shadow-lg mb-6 group relative overflow-hidden">
-                  <img
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.displayName}`}
-                    alt="Profile"
-                    className="w-full h-full rounded-2xl object-cover"
-                  />
+                <div className="size-32 rounded-3xl bg-gradient-to-br from-[#40484f] to-slate-600 p-1 border-4 border-white shadow-lg mb-6 group relative overflow-hidden flex items-center justify-center">
+                  <span className="text-4xl font-black text-white tracking-widest leading-none">
+                    {getInitials(profile.displayName)}
+                  </span>
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                     <Edit3 className="text-white size-6" />
                   </div>
@@ -179,6 +218,22 @@ const ProfileView = () => {
                     <Calendar className="text-[#40484f] size-5" />
                     <span className="font-bold text-slate-700">{profile.age} Years</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Startup Idea Section */}
+              <div className="mt-12 pt-12 border-t border-slate-100">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2.5 bg-amber-50 rounded-xl">
+                    <Lightbulb className="text-amber-500 size-6" />
+                  </div>
+                  <h4 className="text-xl font-black text-slate-900">Research / Startup Idea</h4>
+                </div>
+                <div className="bg-slate-50 p-8 rounded-[32px] border border-slate-100 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/50 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                  <p className="text-slate-600 font-medium leading-relaxed italic relative z-10">
+                    "{profile.idea || "Your innovative research vision will appear here after you update your profile."}"
+                  </p>
                 </div>
               </div>
 

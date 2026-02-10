@@ -3,8 +3,8 @@ import { db } from "./firebase-admin.js";
 import { COLLECTIONS } from "./firestore/collections.js";
 
 const DEFAULT_FREE_CREDITS = {
-    analyze_credits: 5,
-    improve_credits: 3
+    analyze_credits: 10,
+    improve_credits: 0
 };
 
 /**
