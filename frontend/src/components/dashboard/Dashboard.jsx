@@ -13,28 +13,53 @@ const Dashboard = () => {
     partially_eligible: []
   });
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   // For demo/testing purposes, using a fixed userId
   // In a real app, this would come from an Auth context
   const userId = "user_postman_01";
+  const CACHE_KEY = `grant_matches_${userId}`;
 
-  const fetchMatches = async () => {
-    setIsLoading(true);
+  const fetchMatches = async (forceSkeletons = false) => {
+    // Only show loading spinner if we have NO data at all
+    const hasCache = !!localStorage.getItem(CACHE_KEY);
+    if (!hasCache || forceSkeletons === true) {
+      setIsLoading(true);
+    } else {
+      setIsRefreshing(true);
+    }
+
     setError(null);
     try {
       const response = await fetch(`http://localhost:5001/api/grants/${userId}`);
       if (!response.ok) throw new Error('Failed to fetch matches');
       const data = await response.json();
+
       setMatches(data);
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data)); // Persist to local storage
     } catch (err) {
       console.error("Match fetching failed:", err);
       setError(err.message);
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
   };
 
   useEffect(() => {
-    fetchMatches();
+    const cachedData = localStorage.getItem(CACHE_KEY);
+    if (cachedData) {
+      try {
+        setMatches(JSON.parse(cachedData));
+        setIsLoading(false);
+        // Silently revalidate in background without showing loading spinner
+        fetchMatches(false);
+      } catch (e) {
+        fetchMatches(true);
+      }
+    } else {
+      fetchMatches(true);
+    }
   }, []);
 
   const formatCurrency = (amount) => {
@@ -84,22 +109,22 @@ const Dashboard = () => {
             <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
               <span className="relative flex h-2 w-2">
                 <span className={`${isLoading ? 'animate-pulse bg-blue-400' : 'animate-ping bg-green-400'} absolute inline-flex h-full w-full rounded-full opacity-75`}></span>
-                <span className={`relative inline-flex rounded-full h-2 w-2 ${isLoading ? 'bg-blue-500' : 'bg-green-500'}`}></span>
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${isLoading || isRefreshing ? 'bg-blue-500' : 'bg-green-500'}`}></span>
               </span>
-              {isLoading ? 'AI is analyzing matches...' : `${matches.eligible.length + matches.partially_eligible.length} matches identified for your profile`}
+              {isLoading || isRefreshing ? 'AI is analyzing matches...' : `${matches.eligible.length + matches.partially_eligible.length} matches identified for your profile`}
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <button
-              onClick={fetchMatches}
-              disabled={isLoading}
+              onClick={() => fetchMatches(false)}
+              disabled={isLoading || isRefreshing}
               className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-[#0f172a] text-sm font-bold rounded-xl hover:bg-gray-50 shadow-sm transition-all focus:ring-2 focus:ring-gray-100 disabled:opacity-50"
             >
-              <svg className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-4 h-4 ${isLoading || isRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              {isLoading ? 'Updating...' : 'Refresh AI Matches'}
+              {isLoading || isRefreshing ? 'Updating...' : 'Refresh AI Matches'}
             </button>
           </div>
         </div>

@@ -3,13 +3,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "node src/test-admin-services.js",
     "ingest:grants": "node src/scripts/ingestGrants.js",
     "ingest:enrich": "node src/scripts/enrichOrganisers.js",
     "ingest:force-enrich": "node src/scripts/forceEnrichOrganisers.js",
     "ingest:normalize": "node src/scripts/normalizeFunding.js",
     "ingest:eligibility": "node src/scripts/enrichEligibility.js",
-    "test:eligibility": "node src/test-eligibility.js",
     "ingest:citizenship": "node src/scripts/updateCitizenship.js"
   },
   "dependencies": {
