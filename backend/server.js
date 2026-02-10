@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
+import { db } from "./src/firebase-admin.js";
 import { analyzeAndRecordPitch, improvePitchWithAI } from "./src/pitchAnalysisService.js";
 import { initializeUserCredits } from "./src/creditService.js";
 import { getCategorizedGrants } from "./src/matchingEngine.js";

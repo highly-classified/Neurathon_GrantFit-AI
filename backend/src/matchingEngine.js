@@ -21,12 +21,20 @@ export async function getCategorizedGrants(userId) {
         partially_eligible: []
     };
 
+    // Step 1: Filter by hard criteria first
+    const passHardCriteria = [];
     for (const org of organizers) {
         const eligibilityResult = checkHardEligibility(user, org);
+        if (eligibilityResult.isEligible) {
+            passHardCriteria.push(org);
+        }
+    }
 
-        // Soft filter only applies to those who pass hard criteria
-        if (!eligibilityResult.isEligible) continue;
+    // Step 2: Limit AI soft filtering to save credits (e.g., top 5)
+    // In a prod app, we might sort this list by some priority first
+    const limitedMatches = passHardCriteria.slice(0, 5);
 
+    for (const org of limitedMatches) {
         // Layer 2: AI-Powered Soft Filtering (Historical Alignment)
         const preferenceScore = await getAIPreferenceScore(user, org);
 
