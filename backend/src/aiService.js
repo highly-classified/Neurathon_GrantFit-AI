@@ -4,7 +4,7 @@ import path from "path";
 import "dotenv/config";
 
 const CACHE_FILE = path.join(process.cwd(), "ai_cache.json");
-const API_KEY = process.env.GOOGLE_GENAI_API_KEY;
+const API_KEY = process.env.GEMINI_PITCH_API_KEY;
 const DRY_RUN = process.env.G_DRY_RUN === "true";
 
 // Initialize Gemini
