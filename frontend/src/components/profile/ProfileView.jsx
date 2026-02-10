@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { auth, db } from '../../firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 import {
   User,
   Mail,
@@ -19,26 +22,76 @@ import {
 const ProfileView = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Try to load from localStorage
-    const savedProfile = localStorage.getItem('userProfile');
-    if (savedProfile) {
-      setProfile(JSON.parse(savedProfile));
-    } else {
-      // Mock data if none exists
-      setProfile({
-        displayName: 'John Doe',
-        email: 'john.doe@example.com',
-        domain: 'AI & ML',
-        fundingRequirement: '250000',
-        role: 'Founder',
-        citizenship: 'United States',
-        gender: 'Male',
-        age: '28'
-      });
-    }
-  }, []);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          // 1. Try Firestore first
+          const docRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setProfile(data);
+            localStorage.setItem('userProfile', JSON.stringify(data));
+          } else {
+            // 2. Fallback to localStorage if doc doesn't exist yet
+            const savedProfile = localStorage.getItem('userProfile');
+            if (savedProfile) {
+              setProfile(JSON.parse(savedProfile));
+            } else {
+              // 3. Last fallback: Mock data if first time
+              setProfile({
+                displayName: user.displayName || 'John Doe',
+                email: user.email,
+                domain: 'AI & ML',
+                fundingRequirement: '250000',
+                role: 'Founder',
+                citizenship: 'United States',
+                gender: 'Male',
+                age: '28'
+              });
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching profile:", err);
+          // Fallback on error
+          const savedProfile = localStorage.getItem('userProfile');
+          if (savedProfile) {
+            setProfile(JSON.parse(savedProfile));
+          } else {
+            setProfile({
+              displayName: user.displayName || 'John Doe',
+              email: user.email,
+              domain: 'AI & ML',
+              fundingRequirement: '250000',
+              role: 'Founder',
+              citizenship: 'United States',
+              gender: 'Male',
+              age: '28'
+            });
+          }
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        // No user logged in
+        navigate('/login');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f6f6f8] flex items-center justify-center">
+        <div className="h-12 w-12 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!profile) return null;
 
@@ -57,12 +110,14 @@ const ProfileView = () => {
           <div className="lg:w-1/3 flex flex-col gap-6">
             <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/60 border border-slate-100">
               <div className="flex flex-col items-center text-center">
-                <div className="size-32 rounded-3xl bg-slate-100 p-1 border-4 border-white shadow-lg mb-6 group relative overflow-hidden">
-                  <img
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.displayName}`}
-                    alt="Profile"
-                    className="w-full h-full rounded-2xl object-cover"
-                  />
+                <div className="size-32 rounded-3xl bg-slate-100 flex items-center justify-center border-4 border-white shadow-lg mb-6 group relative overflow-hidden">
+                  <span className="text-4xl font-black text-slate-600">
+                    {(() => {
+                      const names = (profile.displayName || '').trim().split(/\s+/);
+                      if (names.length >= 2) return (names[0][0] + names[1][0]).toUpperCase();
+                      return (profile.displayName || 'UN').substring(0, 2).toUpperCase();
+                    })()}
+                  </span>
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                     <Edit3 className="text-white size-6" />
                   </div>

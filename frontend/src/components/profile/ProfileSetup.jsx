@@ -4,7 +4,7 @@ import { auth, db } from '../../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { User, Briefcase, Globe, DollarSign, Flag, Calendar, ArrowRight, Search, ChevronDown, Check } from 'lucide-react';
-import { countries } from '../../constants/countries';
+import { countries } from '../../constants/countries.js';
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ const ProfileSetup = () => {
   const [error, setError] = useState('');
   const [isCountryOpen, setIsCountryOpen] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
-  
+
   const [formData, setFormData] = useState({
     domain: '',
     fundingRequirement: '',
@@ -37,21 +37,21 @@ const ProfileSetup = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Prevent negative values for funding
     if (name === 'fundingRequirement' && value < 0) return;
 
     if (name === 'dob') {
-        const age = calculateAge(value);
-        if (age < 0) return; // Prevent future dates resulting in negative age
-        setFormData({ ...formData, dob: value, age: age });
+      const age = calculateAge(value);
+      if (age < 0) return; // Prevent future dates resulting in negative age
+      setFormData({ ...formData, dob: value, age: age });
     } else if (name === 'idea') {
-        const wordCount = value.trim().split(/\s+/).length;
-        if (wordCount <= 300) {
-            setFormData({ ...formData, [name]: value });
-        }
-    } else {
+      const wordCount = value.trim().split(/\s+/).length;
+      if (wordCount <= 300) {
         setFormData({ ...formData, [name]: value });
+      }
+    } else {
+      setFormData({ ...formData, [name]: value });
     }
   };
 
@@ -127,10 +127,10 @@ const ProfileSetup = () => {
           className="w-full max-w-2xl"
         >
           <div className="mb-10 text-center">
-             <div className="flex justify-center mb-6">
-                <div className="bg-[var(--color-primary)] p-3 rounded-xl shadow-lg shadow-[var(--color-primary)]/20 flex items-center justify-center inline-block">
-                    <img src="/logo-white.png" alt="GrantFit AI Logo" className="h-14 w-auto" />
-                </div>
+            <div className="flex justify-center mb-6">
+              <div className="bg-[var(--color-primary)] p-3 rounded-xl shadow-lg shadow-[var(--color-primary)]/20 flex items-center justify-center inline-block">
+                <img src="/logo-white.png" alt="GrantFit AI Logo" className="h-14 w-auto" />
+              </div>
             </div>
             <h1 className="text-3xl font-bold text-[var(--color-text-main)] mb-2">Build Your Profile</h1>
             <p className="text-[var(--color-text-muted)]">Tell us about yourself to unlock tailored grant matches.</p>
@@ -147,22 +147,22 @@ const ProfileSetup = () => {
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Idea Section */}
             <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 flex items-center">
-                    <Briefcase className="w-4 h-4 mr-2 text-[var(--color-secondary)]" />
-                    Your Big Idea (Max 300 words)
-                </label>
-                <textarea
-                    name="idea"
-                    required
-                    value={formData.idea}
-                    onChange={handleChange}
-                    rows="4"
-                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all outline-none resize-none"
-                    placeholder="Describe your startup idea or project..."
-                ></textarea>
-                <p className="text-xs text-gray-400 text-right">
-                    {formData.idea.trim().split(/\s+/).filter(w => w.length > 0).length}/300 words
-                </p>
+              <label className="text-sm font-medium text-gray-700 flex items-center">
+                <Briefcase className="w-4 h-4 mr-2 text-[var(--color-secondary)]" />
+                Your Big Idea (Max 300 words)
+              </label>
+              <textarea
+                name="idea"
+                required
+                value={formData.idea}
+                onChange={handleChange}
+                rows="4"
+                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all outline-none resize-none"
+                placeholder="Describe your startup idea or project..."
+              ></textarea>
+              <p className="text-xs text-gray-400 text-right">
+                {formData.idea.trim().split(/\s+/).filter(w => w.length > 0).length}/300 words
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -229,8 +229,8 @@ const ProfileSetup = () => {
                       type="button"
                       onClick={() => setFormData({ ...formData, role })}
                       className={`flex-1 p-3 rounded-xl border transition-all ${formData.role === role
-                          ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5 text-[var(--color-primary)] font-medium'
-                          : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                        ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5 text-[var(--color-primary)] font-medium'
+                        : 'border-gray-200 hover:border-gray-300 text-gray-600'
                         }`}
                     >
                       {role}
@@ -245,7 +245,7 @@ const ProfileSetup = () => {
                   <Flag className="w-4 h-4 mr-2 text-[var(--color-secondary)]" />
                   Citizenship
                 </label>
-                
+
                 <div className="relative">
                   <button
                     type="button"
@@ -254,21 +254,21 @@ const ProfileSetup = () => {
                   >
                     {formData.citizenship ? (
                       <span className="flex items-center gap-2">
-                         {(() => {
-                            const c = countries.find(C => C.name === formData.citizenship);
-                            return c ? (
-                                <>
-                                  <img 
-                                    src={`https://flagcdn.com/w20/${c.code.toLowerCase()}.png`} 
-                                    srcSet={`https://flagcdn.com/w40/${c.code.toLowerCase()}.png 2x`}
-                                    width="20" 
-                                    alt={c.name} 
-                                    className="rounded-sm object-cover"
-                                  />
-                                  <span className="text-[#0f172a] font-medium">{c.name}</span>
-                                </>
-                            ) : formData.citizenship;
-                         })()}
+                        {(() => {
+                          const c = countries.find(C => C.name === formData.citizenship);
+                          return c ? (
+                            <>
+                              <img
+                                src={`https://flagcdn.com/w20/${c.code.toLowerCase()}.png`}
+                                srcSet={`https://flagcdn.com/w40/${c.code.toLowerCase()}.png 2x`}
+                                width="20"
+                                alt={c.name}
+                                className="rounded-sm object-cover"
+                              />
+                              <span className="text-[#0f172a] font-medium">{c.name}</span>
+                            </>
+                          ) : formData.citizenship;
+                        })()}
                       </span>
                     ) : (
                       <span className="text-gray-400">Select Citizenship</span>
@@ -282,8 +282,8 @@ const ProfileSetup = () => {
                       <div className="p-2 border-b border-gray-100 sticky top-0 bg-white">
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             placeholder="Search countries..."
                             className="w-full pl-9 pr-4 py-2 bg-gray-50 rounded-lg text-sm border-none focus:ring-0 text-gray-700 placeholder-gray-400"
                             value={countrySearch}
@@ -308,11 +308,11 @@ const ProfileSetup = () => {
                             className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-lg transition-colors group"
                           >
                             <div className="flex items-center gap-3">
-                              <img 
-                                src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`} 
+                              <img
+                                src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`}
                                 srcSet={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png 2x`}
-                                width="20" 
-                                alt={country.name} 
+                                width="20"
+                                alt={country.name}
                                 className="rounded-sm object-cover shadow-sm"
                               />
                               <span className="text-sm text-gray-600 group-hover:text-[#0f172a] font-medium">{country.name}</span>
@@ -323,7 +323,7 @@ const ProfileSetup = () => {
                           </button>
                         ))}
                         {countries.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase())).length === 0 && (
-                             <div className="p-4 text-center text-sm text-gray-400">No countries found</div>
+                          <div className="p-4 text-center text-sm text-gray-400">No countries found</div>
                         )}
                       </div>
                     </div>
@@ -368,7 +368,7 @@ const ProfileSetup = () => {
                   className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all outline-none"
                 />
                 {formData.age !== '' && (
-                    <p className="text-xs text-gray-500 text-right">Age: {formData.age} years</p>
+                  <p className="text-xs text-gray-500 text-right">Age: {formData.age} years</p>
                 )}
               </div>
             </div>

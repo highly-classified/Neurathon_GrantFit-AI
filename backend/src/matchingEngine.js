@@ -18,29 +18,31 @@ export async function getCategorizedGrants(userId) {
 
     const categorized = {
         eligible: [],
-        may_be_eligible: [],
-        ineligible: []
+        partially_eligible: []
     };
 
     for (const org of organizers) {
         const eligibilityResult = checkHardEligibility(user, org);
 
-        if (!eligibilityResult.isEligible) {
-            categorized.ineligible.push({
-                ...org,
-                reason: eligibilityResult.reason
-            });
-            continue;
-        }
+        // Soft filter only applies to those who pass hard criteria
+        if (!eligibilityResult.isEligible) continue;
 
-        // Layer 2: AI-Powered Preference Matching
+        // Layer 2: AI-Powered Soft Filtering (Historical Alignment)
         const preferenceScore = await getAIPreferenceScore(user, org);
 
-        // Sort into buckets based on AI score
-        if (preferenceScore > 0.7) {
-            categorized.eligible.push({ ...org, match_score: preferenceScore });
-        } else {
-            categorized.may_be_eligible.push({ ...org, match_score: preferenceScore });
+        // Sort into buckets based on AI score (Soft Filtering)
+        if (preferenceScore >= 0.8) {
+            categorized.eligible.push({
+                ...org,
+                match_score: preferenceScore,
+                confidence_tag: "High Alignment"
+            });
+        } else if (preferenceScore >= 0.4) {
+            categorized.partially_eligible.push({
+                ...org,
+                match_score: preferenceScore,
+                confidence_tag: "Potential Fit"
+            });
         }
     }
 
@@ -66,9 +68,14 @@ async function getAIPreferenceScore(user, org) {
     - Event: ${org.event_name}
     - Domain: ${org.domain || "None"}
     - Tags: ${org.tags?.join(", ") || "None"}
+    - Historical Specializations (Previous Grants): ${org.prev_year_funded_projects?.join(", ") || "None"}
     
-    Provide a match score between 0.0 and 1.0 representing how well the user's idea aligns with the opportunity's focus areas.
-    Respond ONLY with the numerical score (e.g., 0.85). No other text.
+    INSTRUCTIONS:
+    Evaluate the alignment based on:
+    1. Primary Domain match.
+    2. Specific specialization match against ${org.prev_year_funded_projects?.length > 0 ? 'historical specializations' : 'tags'}.
+    
+    Respond ONLY with a score between 0.0 and 1.0.
   `;
 
     try {

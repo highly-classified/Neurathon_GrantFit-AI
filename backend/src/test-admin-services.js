@@ -55,12 +55,19 @@ async function runAdminTests() {
                 max_amt_estimated: 2440000,
                 min_amt_estimated: 518000
             },
+            prev_year_funded_projects: ["Coastal Resilience", "Ocean Acidification Modeling"],
             tags: ["climate", "synthetic"],
             created_at: new Date()
         });
 
         const categories = await getCategorizedGrants(testUserId);
-        console.log(`✅ Matching Complete! Found ${categories.eligible.length} eligible grants.\n`);
+        console.log(`✅ Matching Complete!`);
+        console.log(`   - Eligible: ${categories.eligible.length}`);
+        console.log(`   - Partially Eligible: ${categories.partially_eligible.length}\n`);
+
+        if (categories.ineligible) {
+            throw new Error("Ineligible items should not be in the final output!");
+        }
 
         // 4. Test Pitch Analysis (Structured Feedback)
         console.log("🎤 Running Structured Pitch Analysis...");
@@ -71,11 +78,13 @@ async function runAdminTests() {
         console.log(`   Needs Improvement: ${evaluation.improvement_needed}`);
         console.log(`   Worse Part: ${evaluation.worse_part}\n`);
 
-        // 5. Test Pitch Improvement
-        console.log("🛠️ Running Pitch Improvement...");
-        const improvement = await improvePitchWithAI(testUserId, testGrantId, pitchText, evaluation);
-        console.log(`✅ Pitch Improved! New Score: ${improvement.score}`);
-        console.log(`   Improved Pitch: ${improvement.improved_pitch.substring(0, 50)}...\n`);
+        // 5. Test Pitch Improvement (Manual Refinement Simulation)
+        console.log("🛠️ Running Pitch Improvement (Manual Refinement)...");
+        const manualEdit = pitchText + " Our platform now includes a specific module for NOAA grant compliance.";
+        const improvement = await improvePitchWithAI(testUserId, testGrantId, manualEdit, evaluation);
+        console.log(`✅ Pitch Re-evaluated! New Score: ${improvement.score}`);
+        console.log(`   Best Part: ${improvement.best_part.substring(0, 50)}...`);
+        console.log(`   Next Area for Development: ${improvement.improvement_needed.substring(0, 50)}...\n`);
 
         if (improvement.score <= evaluation.score) {
             throw new Error("Improvement did not increase score!");
