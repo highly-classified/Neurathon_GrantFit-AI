@@ -34,24 +34,35 @@ export async function getCategorizedGrants(userId) {
     // In a prod app, we might sort this list by some priority first
     const limitedMatches = passHardCriteria.slice(0, 5);
 
-    for (const org of limitedMatches) {
-        // Layer 2: AI-Powered Soft Filtering (Historical Alignment)
-        const preferenceScore = await getAIPreferenceScore(user, org);
+    try {
+        for (const org of limitedMatches) {
+            // Layer 2: AI-Powered Soft Filtering (Historical Alignment)
+            const preferenceScore = await getAIPreferenceScore(user, org);
 
-        // Sort into buckets based on AI score (Soft Filtering)
-        if (preferenceScore >= 0.8) {
-            categorized.eligible.push({
-                ...org,
-                match_score: preferenceScore,
-                confidence_tag: "High Alignment"
-            });
-        } else if (preferenceScore >= 0.4) {
-            categorized.partially_eligible.push({
-                ...org,
-                match_score: preferenceScore,
-                confidence_tag: "Potential Fit"
-            });
+            // Sort into buckets based on AI score (Soft Filtering)
+            if (preferenceScore >= 0.8) {
+                categorized.eligible.push({
+                    ...org,
+                    match_score: preferenceScore,
+                    confidence_tag: "High Alignment"
+                });
+            } else if (preferenceScore >= 0.4) {
+                categorized.partially_eligible.push({
+                    ...org,
+                    match_score: preferenceScore,
+                    confidence_tag: "Potential Fit"
+                });
+            }
         }
+    } catch (error) {
+        console.error("AI Soft Filtering failed, using hard filter fallback:", error);
+        // Fallback: Use the first 5 hard-criteria matches as 'eligible'
+        categorized.eligible = limitedMatches.map(org => ({
+            ...org,
+            match_score: 1.0,
+            confidence_tag: "Hard Match (Fallback)"
+        }));
+        categorized.partially_eligible = [];
     }
 
     return categorized;
