@@ -4,7 +4,7 @@ import GrantCard from './GrantCard';
 
 const Dashboard = () => {
   const [eligibleSearch, setEligibleSearch] = React.useState('');
-  const [partialSearch, setPartialSearch] = React.useState('');
+  const [maybeSearch, setMaybeSearch] = React.useState('');
 
   const [matches, setMatches] = React.useState({
     eligible: [
@@ -45,9 +45,9 @@ const Dashboard = () => {
     g.org.toLowerCase().includes(eligibleSearch.toLowerCase())
   );
 
-  const filteredPartial = matches.partially_eligible.filter(g =>
-    g.title.toLowerCase().includes(partialSearch.toLowerCase()) ||
-    g.org.toLowerCase().includes(partialSearch.toLowerCase())
+  const filteredMaybe = matches.partially_eligible.filter(g =>
+    g.title.toLowerCase().includes(maybeSearch.toLowerCase()) ||
+    g.org.toLowerCase().includes(maybeSearch.toLowerCase())
   );
 
   return (
@@ -145,7 +145,7 @@ const Dashboard = () => {
               </div>
 
               <div className="space-y-4">
-                {filteredPartial.map((grant, idx) => (
+                {filteredMaybe.map((grant, idx) => (
                   <GrantCard key={idx} {...grant} />
                 ))}
               </div>
