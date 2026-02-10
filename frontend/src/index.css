@@ -1,11 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Gravitas+One&display=swap');
 @import "tailwindcss";
 
-@theme {
-  --breakpoint-xs: 320px;
-  --dark-mode: class;
-}
-
 :root {
   /* Navy Blue & Professional White Theme */
   --color-primary: #0f172a; /* Slate 900 - Deep Navy */
@@ -24,19 +19,6 @@
   --animate-glow: glow 2s ease-in-out infinite alternate;
   
   color-scheme: light;
-}
-
-html.dark {
-  --color-background: #0f172a; /* Slate 900 */
-  --color-surface: #1e293b;    /* Slate 800 */
-  --color-text-main: #ffffff;    /* Pure White */
-  --color-text-muted: #cbd5e1;   /* Slate 300 */
-  
-  /* Buttons/Links and primary text */
-  --color-primary: #ffffff;
-  --color-primary-hover: #f1f5f9;
-  
-  color-scheme: dark;
 }
 
 @keyframes float {

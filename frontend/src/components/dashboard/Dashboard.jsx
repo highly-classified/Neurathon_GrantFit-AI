@@ -72,7 +72,7 @@ const Dashboard = () => {
     );
 
   return (
-    <div className="min-h-screen bg-[var(--color-background)] pb-20 font-['Public Sans',_sans-serif] transition-colors duration-300">
+    <div className="min-h-screen bg-[#f6f6f8] pb-20 font-['Public Sans',_sans-serif]">
       <Navbar />
 
       <main className="max-w-[1600px] mx-auto pt-32 pb-32 px-6">
@@ -80,7 +80,7 @@ const Dashboard = () => {
         {/* Page Header */}
         <div className="flex items-end justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-[var(--color-primary)] mb-2 tracking-tight transition-colors">Grant Discovery</h1>
+            <h1 className="text-3xl font-bold text-[#0f172a] mb-2 tracking-tight">Grant Discovery</h1>
             <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
               <span className="relative flex h-2 w-2">
                 <span className={`${isLoading ? 'animate-pulse bg-blue-400' : 'animate-ping bg-green-400'} absolute inline-flex h-full w-full rounded-full opacity-75`}></span>
@@ -94,7 +94,7 @@ const Dashboard = () => {
             <button
               onClick={fetchMatches}
               disabled={isLoading}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-surface)] border border-gray-200 dark:border-slate-800 text-[var(--color-primary)] text-sm font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 shadow-sm transition-all focus:ring-2 focus:ring-gray-100 disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-[#0f172a] text-sm font-bold rounded-xl hover:bg-gray-50 shadow-sm transition-all focus:ring-2 focus:ring-gray-100 disabled:opacity-50"
             >
               <svg className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -117,7 +117,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
           {/* Main Eligible Column */}
-          <div className="col-span-1 rounded-3xl bg-[var(--color-surface)] dark:bg-slate-900/40 border border-gray-200 dark:border-slate-800 p-2 transition-colors">
+          <div className="col-span-1 rounded-3xl bg-gray-100 border border-gray-200 p-2">
             <div className="p-4">
               <div className="flex items-center justify-between mb-6 px-2">
                 <div className="flex items-center gap-3">
@@ -126,10 +126,10 @@ const Dashboard = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h2 className="text-lg font-bold text-[var(--color-primary)] transition-colors">Eligible</h2>
-                  <span className="px-2 py-0.5 bg-green-50 dark:bg-green-900/20 text-green-600 font-bold text-[10px] rounded-md uppercase tracking-tight transition-colors">{filteredEligible.length} Matches</span>
+                  <h2 className="text-lg font-bold text-[#0f172a]">Eligible</h2>
+                  <span className="px-2 py-0.5 bg-green-50 text-green-600 font-bold text-[10px] rounded-md uppercase tracking-tight">{filteredEligible.length} Matches</span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 bg-[var(--color-primary)] dark:bg-slate-800 border border-[var(--color-primary)] dark:border-slate-700 rounded-lg shadow-md transition-all focus-within:ring-2 focus-within:ring-slate-100">
+                <div className="flex items-center gap-2 px-3 py-2 bg-[#1e293b] border border-[#1e293b] rounded-lg shadow-md shadow-slate-200 transition-all focus-within:ring-2 focus-within:ring-slate-100">
                   <svg className="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
@@ -163,7 +163,7 @@ const Dashboard = () => {
           </div>
 
           {/* Side Potentially Eligible Column */}
-          <div className="col-span-1 rounded-3xl bg-[var(--color-surface)] dark:bg-slate-900/40 border border-gray-200 dark:border-slate-800 p-2 transition-colors">
+          <div className="col-span-1 rounded-3xl bg-gray-100 border border-gray-200 p-2">
             <div className="p-4">
               <div className="flex items-center justify-between mb-4 px-2">
                 <div className="flex items-center gap-3">
@@ -171,11 +171,11 @@ const Dashboard = () => {
                     <span className="text-xl font-bold">?</span>
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-[var(--color-primary)] transition-colors">Partially Eligible</h2>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{filteredMaybe.length} Potential</span>
+                    <h2 className="text-sm font-bold text-[#0f172a]">Partially Eligible</h2>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase">{filteredMaybe.length} Potential</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 bg-[var(--color-primary)] dark:bg-slate-800 border border-[var(--color-primary)] dark:border-slate-700 rounded-lg shadow-md transition-all focus-within:ring-2 focus-within:ring-slate-100">
+                <div className="flex items-center gap-2 px-3 py-2 bg-[#1e293b] border border-[#1e293b] rounded-lg shadow-md shadow-slate-200 transition-all focus-within:ring-2 focus-within:ring-slate-100">
                   <svg className="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>

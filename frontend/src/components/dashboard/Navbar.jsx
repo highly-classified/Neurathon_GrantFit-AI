@@ -1,36 +1,25 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LogOut, Sun, Moon } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
+import { LogOut } from 'lucide-react';
 
 const Navbar = () => {
   const location = useLocation();
-  const { theme, toggleTheme } = useTheme();
   const isActive = (path) => location.pathname === path;
 
   const getLinkClass = (path) => {
     const baseClass = "text-lg font-bold py-5 transition-colors tracking-tight";
-    const activeClass = "text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]";
-    const inactiveClass = "text-gray-400 hover:text-[var(--color-primary)]";
+    const activeClass = "text-[#0f172a] border-b-2 border-[#1e293b]";
+    const inactiveClass = "text-gray-400 hover:text-[#0f172a]";
 
     return `${baseClass} ${isActive(path) ? activeClass : inactiveClass}`;
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 h-16 bg-[var(--color-background)] border-b border-gray-100 dark:border-slate-800 flex items-center justify-between px-12 z-50 shadow-sm transition-colors duration-300">
+    <nav className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-100 flex items-center justify-between px-12 z-50 shadow-sm">
       <div className="flex items-center gap-8">
         <Link to="/dashboard" className="flex items-center gap-2 group cursor-pointer">
-          <img 
-            src="/logo-white.png" 
-            alt="GrantFit AI Logo" 
-            className="h-10 w-auto transition-all" 
-            style={{ 
-              filter: theme === 'dark' 
-                ? 'brightness(0) invert(1)' 
-                : 'brightness(0) saturate(100%) invert(13%) sepia(30%) saturate(3860%) hue-rotate(211deg) brightness(93%) contrast(93%)' 
-            }} 
-          />
-          <span className="text-xl text-[var(--color-primary)] ml-3" style={{ fontFamily: '"Gravitas One", serif' }}>GrantFit AI</span>
+          <img src="/logo-white.png" alt="GrantFit AI Logo" className="h-10 w-auto" style={{ filter: 'brightness(0) saturate(100%) invert(13%) sepia(30%) saturate(3860%) hue-rotate(211deg) brightness(93%) contrast(93%)' }} />
+          <span className="text-xl text-[#0f172a] ml-3" style={{ fontFamily: '"Gravitas One", serif' }}>GrantFit AI</span>
         </Link>
       </div>
 
@@ -41,31 +30,16 @@ const Navbar = () => {
           <Link to="/credits" className={getLinkClass('/credits')}>Credits</Link>
         </div>
 
-        <div className="flex items-center gap-3 border-l border-gray-100 dark:border-slate-800 pl-6 ml-2">
-          <button
-            onClick={toggleTheme}
-            className="p-2 text-slate-400 hover:text-[var(--color-primary)] hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all mr-2"
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
-          
+        <div className="flex items-center gap-3 border-l border-gray-100 pl-6 ml-2">
           <Link
             to="/profile"
-            className="w-9 h-9 rounded-full bg-slate-900 dark:bg-slate-100 flex items-center justify-center text-[13px] font-black text-white dark:text-slate-900 border-2 border-slate-100 dark:border-slate-800 shadow-sm cursor-pointer hover:ring-4 hover:ring-slate-50 dark:hover:ring-slate-900 transition-all font-sans uppercase tracking-tighter"
+            className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[11px] font-black text-slate-600 border border-slate-200 shadow-sm cursor-pointer hover:ring-4 hover:ring-slate-50 transition-all"
           >
-            {(() => {
-              const savedProfile = localStorage.getItem('userProfile');
-              if (savedProfile) {
-                const p = JSON.parse(savedProfile);
-                return (p.displayName || '').split(' ').map(n => n[0]).join('').substring(0, 2) || 'GF';
-              }
-              return 'GF';
-            })()}
+            JD
           </Link>
           <Link
             to="/"
-            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-all"
+            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
             title="Logout"
           >
             <LogOut size={18} />

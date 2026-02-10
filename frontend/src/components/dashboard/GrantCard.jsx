@@ -24,20 +24,20 @@ const GrantCard = ({
       : 'border-green-200 hover:border-green-300 hover:shadow-md';
 
   return (
-    <div className={`group bg-[var(--color-surface)] dark:bg-slate-800/40 border ${borderClass} dark:border-slate-700/50 rounded-2xl p-5 mb-4 transition-all duration-300 shadow-sm hover:shadow-md`}>
+    <div className={`group bg-white border ${borderClass} rounded-2xl p-5 mb-4 transition-all duration-200`}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex gap-4">
-          <div className="w-12 h-12 bg-gray-50 dark:bg-slate-900/50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-500 transition-colors">
+          <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
           </div>
           <div>
-            <h3 className="font-bold text-[var(--color-primary)] group-hover:text-blue-600 transition-colors leading-tight mb-1">{title}</h3>
-            <p className="text-sm text-[var(--color-text-muted)] font-medium mb-3">{org}</p>
+            <h3 className="font-bold text-[#0f172a] group-hover:text-blue-600 transition-colors leading-tight mb-1">{title}</h3>
+            <p className="text-sm text-gray-400 font-medium mb-3">{org}</p>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag) => (
-                <span key={tag} className="px-2.5 py-0.5 bg-gray-50 dark:bg-slate-900/50 text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wide rounded-md border dark:border-slate-800 transition-colors">
+                <span key={tag} className="px-2.5 py-0.5 bg-gray-50 text-[10px] font-bold text-gray-500 uppercase tracking-wide rounded-md">
                   {tag}
                 </span>
               ))}
@@ -74,23 +74,23 @@ const GrantCard = ({
         </div>
       )}
 
-      <div className="flex items-end justify-between border-t border-gray-50 dark:border-slate-800 pt-4 mt-2 transition-colors">
+      <div className="flex items-end justify-between border-t border-gray-50 pt-4 mt-2">
         <div className="flex gap-8">
           <div>
-            <p className="text-[10px] uppercase font-bold text-gray-400 dark:text-slate-500 tracking-wider mb-0.5">Funding</p>
-            <p className="text-sm font-bold text-[var(--color-primary)] transition-colors">{funding}</p>
+            <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-0.5">Funding</p>
+            <p className="text-sm font-bold text-[#1e293b]">{funding}</p>
           </div>
           <div>
-            <p className="text-[10px] uppercase font-bold text-gray-400 dark:text-slate-500 tracking-wider mb-0.5">Deadline</p>
-            <p className={`text-sm font-bold transition-colors ${deadlineUrgent ? 'text-red-500' : 'text-[var(--color-primary)]'}`}>{deadline}</p>
+            <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-0.5">Deadline</p>
+            <p className={`text-sm font-bold ${deadlineUrgent ? 'text-red-500' : 'text-[#1e293b]'}`}>{deadline}</p>
           </div>
         </div>
 
         <button
           onClick={() => isEligible && navigate(`/register/${id}`, { state: { org, title } })}
-          className={`px-5 py-2 white-space-nowrap text-sm font-bold rounded-xl transition-all ${isEligible
-            ? 'bg-[var(--color-primary)] text-[var(--color-background)] dark:text-slate-900 hover:opacity-90 shadow-sm hover:shadow-md'
-            : 'bg-gray-100 dark:bg-slate-900 text-gray-500 dark:text-slate-500 hover:bg-gray-200 dark:hover:bg-slate-800'
+          className={`px-5 py-2 whitespace-nowrap text-sm font-bold rounded-xl transition-all ${isEligible
+            ? 'bg-[#1e293b] text-white hover:bg-[#0f172a] shadow-sm hover:shadow-md'
+            : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
             }`}>
           {isEligible ? (title.includes('Draft') ? 'Start Draft' : 'Apply Now') : 'View Criteria'}
         </button>
