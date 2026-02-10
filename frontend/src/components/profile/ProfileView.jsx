@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { auth, db } from '../../firebase';
-import { doc, getDoc } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
 import {
   User,
   Mail,
@@ -22,76 +19,26 @@ import {
 const ProfileView = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          // 1. Try Firestore first
-          const docRef = doc(db, 'users', user.uid);
-          const docSnap = await getDoc(docRef);
-
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            setProfile(data);
-            localStorage.setItem('userProfile', JSON.stringify(data));
-          } else {
-            // 2. Fallback to localStorage if doc doesn't exist yet
-            const savedProfile = localStorage.getItem('userProfile');
-            if (savedProfile) {
-              setProfile(JSON.parse(savedProfile));
-            } else {
-              // 3. Last fallback: Mock data if first time
-              setProfile({
-                displayName: user.displayName || 'John Doe',
-                email: user.email,
-                domain: 'AI & ML',
-                fundingRequirement: '250000',
-                role: 'Founder',
-                citizenship: 'United States',
-                gender: 'Male',
-                age: '28'
-              });
-            }
-          }
-        } catch (err) {
-          console.error("Error fetching profile:", err);
-          // Fallback on error
-          const savedProfile = localStorage.getItem('userProfile');
-          if (savedProfile) {
-            setProfile(JSON.parse(savedProfile));
-          } else {
-            setProfile({
-              displayName: user.displayName || 'John Doe',
-              email: user.email,
-              domain: 'AI & ML',
-              fundingRequirement: '250000',
-              role: 'Founder',
-              citizenship: 'United States',
-              gender: 'Male',
-              age: '28'
-            });
-          }
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        // No user logged in
-        navigate('/login');
-      }
-    });
-
-    return () => unsubscribe();
-  }, [navigate]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#f6f6f8] flex items-center justify-center">
-        <div className="h-12 w-12 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin" />
-      </div>
-    );
-  }
+    // Try to load from localStorage
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+      setProfile(JSON.parse(savedProfile));
+    } else {
+      // Mock data if none exists
+      setProfile({
+        displayName: 'John Doe',
+        email: 'john.doe@example.com',
+        domain: 'AI & ML',
+        fundingRequirement: '250000',
+        role: 'Founder',
+        citizenship: 'United States',
+        gender: 'Male',
+        age: '28'
+      });
+    }
+  }, []);
 
   if (!profile) return null;
 
