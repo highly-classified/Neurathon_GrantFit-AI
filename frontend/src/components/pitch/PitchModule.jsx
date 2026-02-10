@@ -26,6 +26,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../dashboard/Navbar';
+import { API_ENDPOINTS } from '../../config';
+import { auth } from '../../firebase';
 
 const PitchModule = () => {
     const { grantId } = useParams();
@@ -173,54 +175,83 @@ const PitchModule = () => {
     };
 
     // In a real app, this would be a fetch() call to the backend
-    const simulateBackendAnalysis = async (text) => {
+    // Real backend analysis call
+    const analyzePitch = async (text) => {
         setIsAnalyzing(true);
-        // Simulate network delay
-        await new Promise(r => setTimeout(r, 2000));
+        try {
+            const user = auth.currentUser;
+            if (!user) throw new Error("User not authenticated");
 
-        // This simulates the analyzePitchWithAI logic
-        const score = 65 + Math.floor(Math.random() * 10);
-        setIsAnalyzing(false);
-        return {
-            score,
-            best_part: "The problem statement is clear and the technical approach is innovative.",
-            improvement_needed: "Need more focus on market size and commercialization path.",
-            worse_part: "The impact metrics are currently too vague for a Phase I proposal.",
-        };
+            const response = await fetch(API_ENDPOINTS.PITCH_ANALYZE, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user.uid,
+                    grantId: grantId,
+                    pitchText: text
+                })
+            });
+
+            if (!response.ok) throw new Error('Failed to analyze pitch');
+            const result = await response.json();
+            return result;
+        } catch (error) {
+            console.error("Pitch Analysis Error:", error);
+            alert("Failed to analyze pitch. Please ensure the backend is running.");
+            return null;
+        } finally {
+            setIsAnalyzing(false);
+        }
     };
 
-    const simulateBackendImprovement = async (text, prev) => {
+    const improvePitch = async (text, prev) => {
         setIsAnalyzing(true);
-        await new Promise(r => setTimeout(r, 2000));
+        try {
+            const user = auth.currentUser;
+            if (!user) throw new Error("User not authenticated");
 
-        // Simulating that user manual edits improved the score
-        const newScore = Math.min(prev.score + 5, 95);
-        setIsAnalyzing(false);
-        return {
-            score: newScore,
-            best_part: "Your manual additions to the technical section are excellent.",
-            improvement_needed: "Now focus on the 'Methodology' section, specifically the second sentence.",
-            worse_part: "The budget breakdown is still missing.",
-        };
+            const response = await fetch(API_ENDPOINTS.PITCH_IMPROVE, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user.uid,
+                    grantId: grantId,
+                    pitchText: text,
+                    previousAnalysis: prev
+                })
+            });
+
+            if (!response.ok) throw new Error('Failed to improve pitch');
+            const result = await response.json();
+            return result;
+        } catch (error) {
+            console.error("Pitch Improvement Error:", error);
+            alert("Failed to improve pitch. Please ensure the backend is running.");
+            return null;
+        } finally {
+            setIsAnalyzing(false);
+        }
     };
 
     const handleEvaluate = async () => {
-        const result = await simulateBackendAnalysis(pitchText);
-        setEvaluation(result);
-        setHasEvaluated(true);
+        const result = await analyzePitch(pitchText);
+        if (result) {
+            setEvaluation(result);
+            setHasEvaluated(true);
+        }
     };
 
     const handleImprove = async () => {
         if (evaluation.score >= 95) return;
-        // In the manual flow, we send the updated pitchText (manually edited by user)
-        const result = await simulateBackendImprovement(pitchText, evaluation);
-        // We do NOT call setPitchText(result.improved_pitch) here
-        setEvaluation({
-            score: result.score,
-            best_part: result.best_part,
-            improvement_needed: result.improvement_needed,
-            worse_part: result.worse_part,
-        });
+        const result = await improvePitch(pitchText, evaluation);
+        if (result) {
+            setEvaluation({
+                score: result.score,
+                best_part: result.best_part,
+                improvement_needed: result.improvement_needed,
+                worse_part: result.worse_part,
+            });
+        }
     };
 
     const grantDetails = {

@@ -8,7 +8,8 @@
     "ingest:force-enrich": "node src/scripts/forceEnrichOrganisers.js",
     "ingest:normalize": "node src/scripts/normalizeFunding.js",
     "ingest:eligibility": "node src/scripts/enrichEligibility.js",
-    "ingest:citizenship": "node src/scripts/updateCitizenship.js"
+    "ingest:citizenship": "node src/scripts/updateCitizenship.js",
+    "start": "node server.js"
   },
   "dependencies": {
     "@google-cloud/vertexai": "^1.10.0",
