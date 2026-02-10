@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, Upload, FileText, User, Mail, Building, Globe, Lightbulb, File, Trash2, Check } from 'lucide-react';
+import { auth } from '../../firebase';
+import { createRegistration } from '../../services/trackingService';
 
 const RegistrationPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const fileInputRef = React.useRef(null);
-  
+
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  
+
   // State for form data
   const [formData, setFormData] = useState({
     fullName: '',
@@ -83,32 +85,31 @@ const RegistrationPage = () => {
 
   const grant = grantData[id] || grantData['default'];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // Save to localStorage to simulate persistence
-      const registeredGrants = JSON.parse(localStorage.getItem('registeredGrants') || '[]');
-      const newApp = {
-        id: id || `APP-${Math.floor(Math.random() * 10000)}`,
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("You must be logged in to submit an application.");
+        setLoading(false);
+        return;
+      }
+
+      const registrationData = {
+        grantId: id || `APP-${Math.floor(Math.random() * 10000)}`,
         name: formData.proposalTitle || grant.title,
         organizer: formData.orgName || grant.org,
         deadline: grant.deadline,
-        daysLeft: 'Recently Applied',
-        status: 'Applied',
-        statusColor: 'emerald',
-        action: 'picture_as_pdf',
-        appliedAt: new Date().toISOString(),
         applicantName: formData.fullName,
         applicantEmail: formData.email,
         eventName: formData.eventName,
         domain: formData.domainName,
-        documentName: selectedFile ? selectedFile.name : 'No document uploaded'
       };
 
-      localStorage.setItem('registeredGrants', JSON.stringify([...registeredGrants, newApp]));
+      // Call the service to create registration and upload file
+      await createRegistration(user.uid, registrationData, selectedFile);
 
       setLoading(false);
       setSubmitted(true);
@@ -117,7 +118,12 @@ const RegistrationPage = () => {
       setTimeout(() => {
         navigate('/tracking');
       }, 2000);
-    }, 1500);
+
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert("Failed to submit application. Please try again.");
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -180,26 +186,26 @@ const RegistrationPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-wider text-slate-400">Full Name</label>
-                    <input 
-                      required 
-                      type="text" 
+                    <input
+                      required
+                      type="text"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" 
-                      placeholder="John Doe" 
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300"
+                      placeholder="John Doe"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-wider text-slate-400">Email Address</label>
-                    <input 
-                      required 
-                      type="email" 
+                    <input
+                      required
+                      type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" 
-                      placeholder="john@example.com" 
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300"
+                      placeholder="john@example.com"
                     />
                   </div>
                 </div>
@@ -215,39 +221,39 @@ const RegistrationPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-xs font-black uppercase tracking-wider text-slate-400">Organization Name</label>
-                      <input 
-                        required 
-                        type="text" 
+                      <input
+                        required
+                        type="text"
                         name="orgName"
                         value={formData.orgName}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" 
-                        placeholder="Your Startup Inc." 
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300"
+                        placeholder="Your Startup Inc."
                       />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-black uppercase tracking-wider text-slate-400">Event Name</label>
-                      <input 
-                        required 
-                        type="text" 
+                      <input
+                        required
+                        type="text"
                         name="eventName"
                         value={formData.eventName}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" 
-                        placeholder="Target Funding Event" 
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300"
+                        placeholder="Target Funding Event"
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-wider text-slate-400">Domain Name</label>
-                    <input 
-                      required 
-                      type="text" 
+                    <input
+                      required
+                      type="text"
                       name="domainName"
                       value={formData.domainName}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" 
-                      placeholder="e.g. AI & ML" 
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300"
+                      placeholder="e.g. AI & ML"
                     />
                   </div>
                 </div>
@@ -262,29 +268,29 @@ const RegistrationPage = () => {
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-wider text-slate-400">Proposal Title</label>
-                    <input 
-                      required 
-                      type="text" 
+                    <input
+                      required
+                      type="text"
                       name="proposalTitle"
                       value={formData.proposalTitle}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" 
-                      placeholder="Summarize your project" 
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300"
+                      placeholder="Summarize your project"
                     />
                   </div>
-                  
-                  <div 
+
+                  <div
                     onClick={() => fileInputRef.current?.click()}
                     className={`border-2 border-dashed rounded-3xl p-10 flex flex-col items-center justify-center transition-all group cursor-pointer ${selectedFile ? 'border-emerald-500 bg-emerald-50/30' : 'border-slate-200 hover:border-[#40484f] hover:bg-slate-50'}`}
                   >
-                    <input 
-                      type="file" 
-                      ref={fileInputRef} 
-                      onChange={handleFileChange} 
-                      className="hidden" 
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      className="hidden"
                       accept=".pdf,.docx"
                     />
-                    
+
                     {selectedFile ? (
                       <div className="flex flex-col items-center">
                         <div className="size-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 mb-4">
@@ -292,7 +298,7 @@ const RegistrationPage = () => {
                         </div>
                         <p className="text-sm font-bold text-slate-900 mb-1">{selectedFile.name}</p>
                         <p className="text-xs text-slate-500 mb-4">{(selectedFile.size / (1024 * 1024)).toFixed(2)} MB</p>
-                        <button 
+                        <button
                           onClick={removeFile}
                           className="flex items-center gap-2 text-xs font-bold text-red-500 hover:text-red-600 transition-colors"
                         >
