@@ -3,11 +3,9 @@ import { useParams, Link } from 'react-router-dom';
 import {
     Bell,
     HelpCircle,
-    LayoutDashboard,
     Mic,
     FileText,
     Users,
-    History,
     ArrowLeft,
     Save,
     Bold,
@@ -228,10 +226,6 @@ const PitchModule = () => {
                             </div>
                         </div>
                         <nav className="flex flex-col gap-1">
-                            <a className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
-                                <LayoutDashboard className="size-5" />
-                                <span className="text-sm font-medium">Overview</span>
-                            </a>
                             <a className="flex items-center gap-3 px-3 py-2 bg-[#40484f] text-white rounded-lg transition-colors shadow-sm shadow-[#40484f]/20" href="#">
                                 <Mic className="size-5" />
                                 <span className="text-sm font-medium">Practice Pitch</span>
@@ -244,10 +238,6 @@ const PitchModule = () => {
                                 <span className="text-sm font-medium">Guidelines</span>
                             </button>
 
-                            <a className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
-                                <History className="size-5" />
-                                <span className="text-sm font-medium">History</span>
-                            </a>
                         </nav>
                         <div className="mt-auto border-t border-slate-100 pt-4">
                             <Link to="/tracking" className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-100 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-200 transition-colors">
@@ -405,89 +395,39 @@ const PitchModule = () => {
 
                                 {/* Analysis Sections */}
                                 <div className="space-y-4">
-                                    {/* Best Part */}
+                                    {/* Your Strengths */}
                                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                                         <div className="px-5 py-4 flex items-center justify-between border-b border-emerald-50 bg-emerald-50/30">
                                             <div className="flex items-center gap-2">
-                                                <Eye className="size-5 text-slate-500" />
-                                                <h4 className="text-sm font-bold text-slate-900">Clarity &amp; Jargon</h4>
+                                                <CheckCircle2 className="size-5 text-emerald-500" />
+                                                <h4 className="text-sm font-bold text-slate-900">Your Strengths</h4>
                                             </div>
-                                            <CheckCircle2 className="size-5 text-green-500" />
-                                        </div>
-                                        <div className="p-5 space-y-3">
-                                            <div className="flex gap-3">
-                                                <div className="size-1.5 rounded-full bg-slate-300 mt-1.5 shrink-0"></div>
-                                                <p className="text-sm text-slate-600 leading-relaxed">Language is accessible to generalist reviewers.</p>
-                                            </div>
-                                            <div className="flex gap-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
-                                                <Lightbulb className="size-4.5 text-amber-500 shrink-0 mt-0.5" />
-                                                <p className="text-xs text-amber-800 font-medium italic">"High-fidelity cellular updates" might be too technical; consider "accurate cell modification."</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* Structure Section */}
-                                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100">
-                                            <div className="flex items-center gap-2">
-                                                <Network className="size-5 text-purple-500" />
-                                                <h4 className="text-sm font-bold text-slate-900">Structure</h4>
-                                            </div>
-                                            <span className="text-xs font-bold text-amber-500">80% COMPLETE</span>
-                                        </div>
-                                        <div className="p-5 space-y-3">
-                                            <div className="flex items-center gap-3">
-                                                <CheckCircle2 className="size-4.5 text-green-500" />
-                                                <span className="text-sm text-slate-600">Clear Problem Statement</span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <CheckCircle2 className="size-4.5 text-green-500" />
-                                                <span className="text-sm text-slate-600">Target Market Identified</span>
-                                            </div>
-                                            <div className="flex items-center gap-3 opacity-50">
-                                                <Circle className="size-4.5 text-slate-300" />
-                                                <span className="text-sm text-slate-600">Explicit Impact Statement missing</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* Alignment Section */}
-                                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100">
-                                            <div className="flex items-center gap-2">
-                                                <Target className="size-5 text-emerald-500" />
-                                                <h4 className="text-sm font-bold text-slate-900">Grant Alignment</h4>
-                                            </div>
-                                            <span className="text-xs font-bold text-slate-400">KEYWORDS: 12/15</span>
+                                            <span className="text-[10px] font-black text-emerald-500 uppercase">Strong</span>
                                         </div>
                                         <div className="p-5">
                                             <p className="text-sm text-slate-600 leading-relaxed font-medium">{evaluation.best_part}</p>
                                         </div>
                                     </div>
 
-                                    {/* Improvement Needed */}
+                                    {/* Needs Improvement */}
                                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                                         <div className="px-5 py-4 flex items-center justify-between border-b border-amber-50 bg-amber-50/30">
                                             <div className="flex items-center gap-2">
                                                 <TrendingUp className="size-5 text-amber-500" />
-                                                <h4 className="text-sm font-bold text-amber-900">Needs Improvement</h4>
+                                                <h4 className="text-sm font-bold text-amber-900">Needs improvement</h4>
                                             </div>
-                                            <span className="text-[10px] font-black text-amber-500">OPPORTUNITY</span>
+                                            <span className="text-[10px] font-black text-amber-500 uppercase">Opportunity</span>
                                         </div>
-                                        <div className="p-5">
-                                            <p className="text-sm text-slate-600 leading-relaxed italic">{evaluation.improvement_needed}</p>
-                                        </div>
-                                    </div>
-
-                                    {/* Worse Part */}
-                                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                        <div className="px-5 py-4 flex items-center justify-between border-b border-red-50 bg-red-50/30">
-                                            <div className="flex items-center gap-2">
-                                                <AlertTriangle className="size-5 text-red-500" />
-                                                <h4 className="text-sm font-bold text-red-900">Worse Part</h4>
+                                        <div className="p-5 space-y-4">
+                                            <div className="p-4 bg-amber-50 rounded-lg border border-amber-100">
+                                                <p className="text-sm text-slate-600 leading-relaxed italic">{evaluation.improvement_needed}</p>
                                             </div>
-                                            <span className="text-[10px] font-black text-red-500 uppercase">Critical</span>
-                                        </div>
-                                        <div className="p-5">
-                                            <p className="text-sm text-red-700/80 leading-relaxed font-semibold">{evaluation.worse_part}</p>
+                                            {evaluation.worse_part && evaluation.worse_part !== "Critical areas will appear here." && (
+                                                <div className="flex gap-3 px-1">
+                                                    <AlertTriangle className="size-4 text-red-500 shrink-0 mt-0.5" />
+                                                    <p className="text-xs text-red-700 font-medium">{evaluation.worse_part}</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
