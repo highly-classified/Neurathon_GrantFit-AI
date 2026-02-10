@@ -176,14 +176,14 @@ const PitchModule = () => {
         setIsAnalyzing(true);
         await new Promise(r => setTimeout(r, 2000));
 
-        const newScore = Math.min(prev.score + 10, 95);
+        // Simulating that user manual edits improved the score
+        const newScore = Math.min(prev.score + 5, 95);
         setIsAnalyzing(false);
         return {
-            improved_pitch: text + "\n\n[AI UPDATED]: We have now quantified our target market as $2.4B and established a clear Phase II roadmap with 3 specific clinical partners.",
             score: newScore,
-            best_part: "The commercialization potential is now much stronger.",
-            improvement_needed: "Fine-tune the budget allocation.",
-            worse_part: "Minor clarity issues in the methodology section.",
+            best_part: "Your manual additions to the technical section are excellent.",
+            improvement_needed: "Now focus on the 'Methodology' section, specifically the second sentence.",
+            worse_part: "The budget breakdown is still missing.",
         };
     };
 
@@ -195,8 +195,9 @@ const PitchModule = () => {
 
     const handleImprove = async () => {
         if (evaluation.score >= 95) return;
+        // In the manual flow, we send the updated pitchText (manually edited by user)
         const result = await simulateBackendImprovement(pitchText, evaluation);
-        setPitchText(result.improved_pitch);
+        // We do NOT call setPitchText(result.improved_pitch) here
         setEvaluation({
             score: result.score,
             best_part: result.best_part,

@@ -29,7 +29,7 @@ const Navbar = () => {
   const initials = getInitials();
 
   const getLinkClass = (path) => {
-    const baseClass = "text-lg font-bold py-5 transition-colors uppercase tracking-tight";
+    const baseClass = "text-lg font-bold py-5 transition-colors tracking-tight";
     const activeClass = "text-[#0f172a] border-b-2 border-[#1e293b]";
     const inactiveClass = "text-gray-400 hover:text-[#0f172a]";
 
@@ -37,7 +37,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-100 flex items-center justify-between pl-6 pr-12 z-50 shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-100 flex items-center justify-between px-12 z-50 shadow-sm">
       <div className="flex items-center gap-8">
         <Link to="/dashboard" className="flex items-center gap-2 group cursor-pointer">
           <img src="/logo-white.png" alt="GrantFit AI Logo" className="h-10 w-auto" style={{ filter: 'brightness(0) saturate(100%) invert(13%) sepia(30%) saturate(3860%) hue-rotate(211deg) brightness(93%) contrast(93%)' }} />

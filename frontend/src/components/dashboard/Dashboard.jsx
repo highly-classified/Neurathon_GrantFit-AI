@@ -4,36 +4,43 @@ import GrantCard from './GrantCard';
 
 const Dashboard = () => {
   const [eligibleSearch, setEligibleSearch] = React.useState('');
-  const [maybeSearch, setMaybeSearch] = React.useState('');
+  const [partialSearch, setPartialSearch] = React.useState('');
 
-  const eligibleGrants = [
-    {
-      id: "DOE-EERE-2024",
-      title: "Clean Energy Innovation Grant",
-      org: "Department of Energy (DOE)",
-      tags: ["Federal", "Energy"],
-      funding: "$500,000",
-      deadline: "In 5 Days",
-      deadlineUrgent: true
-    },
-    {
-      id: "NSF-2023-AI-042",
-      title: "NSF SBIR Phase I: AI & Quantum Tech",
-      org: "National Science Foundation",
-      tags: ["Federal", "Technology", "Priority Application"],
-      funding: "$275,000",
-      deadline: "Oct 24, 2024"
-    },
-    {
-      id: "BMGF-GH-9912",
-      title: "Future of Work Accelerator",
-      org: "Gates Foundation x Tech",
-      tags: ["Foundation", "Social Impact"],
-      funding: "$1,200,000",
-      deadline: "Nov 12, 2024"
-    }
-  ];
+  const [matches, setMatches] = React.useState({
+    eligible: [
+      {
+        id: "DOE-EERE-2024",
+        title: "Clean Energy Innovation Grant",
+        org: "Department of Energy (DOE)",
+        tags: ["Federal", "Energy"],
+        funding: "$500,000",
+        deadline: "In 5 Days",
+        deadlineUrgent: true
+      },
+      {
+        id: "NSF-2023-AI-042",
+        title: "NSF SBIR Phase I: AI & Quantum Tech",
+        org: "National Science Foundation",
+        tags: ["Federal", "Technology", "Priority Application"],
+        funding: "$275,000",
+        deadline: "Oct 24, 2024"
+      }
+    ],
+    partially_eligible: [
+      {
+        id: "UNI-RD-2024",
+        title: "University R&D Commercialization",
+        org: "Academic Innovation Hub",
+        tags: ["Research", "Academic"],
+        funding: "$50,000",
+        deadline: "Dec 1, 2024",
+        warning: "Possible match with your specialization in high-fidelity signaling.",
+        type: "maybe"
+      }
+    ]
+  });
 
+  const filteredEligible = matches.eligible.filter(g =>
   const mayBeEligible = [
     {
       id: "UNI-RD-2024",
@@ -62,9 +69,9 @@ const Dashboard = () => {
     g.org.toLowerCase().includes(eligibleSearch.toLowerCase())
   );
 
-  const filteredMaybe = mayBeEligible.filter(g =>
-    g.title.toLowerCase().includes(maybeSearch.toLowerCase()) ||
-    g.org.toLowerCase().includes(maybeSearch.toLowerCase())
+  const filteredPartial = matches.partially_eligible.filter(g =>
+    g.title.toLowerCase().includes(partialSearch.toLowerCase()) ||
+    g.org.toLowerCase().includes(partialSearch.toLowerCase())
   );
 
   return (
@@ -140,8 +147,8 @@ const Dashboard = () => {
                     <span className="text-xl font-bold">?</span>
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-[#0f172a]">May Be Eligible</h2>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase">{filteredMaybe.length} Potential</span>
+                    <h2 className="text-sm font-bold text-[#0f172a]">Partially Eligible</h2>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase">{filteredPartial.length} Potential</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-[#1e293b] border border-[#1e293b] rounded-lg shadow-md shadow-slate-200 transition-all focus-within:ring-2 focus-within:ring-slate-100">
@@ -152,15 +159,15 @@ const Dashboard = () => {
                     type="text"
                     placeholder="Search"
                     className="bg-transparent border-none outline-none text-xs font-bold text-white placeholder-gray-400 w-20 focus:w-32 transition-all"
-                    value={maybeSearch}
-                    onChange={(e) => setMaybeSearch(e.target.value)}
+                    value={partialSearch}
+                    onChange={(e) => setPartialSearch(e.target.value)}
                   />
                 </div>
 
               </div>
 
               <div className="space-y-4">
-                {filteredMaybe.map((grant, idx) => (
+                {filteredPartial.map((grant, idx) => (
                   <GrantCard key={idx} {...grant} />
                 ))}
               </div>
