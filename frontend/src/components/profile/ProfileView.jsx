@@ -57,12 +57,10 @@ const ProfileView = () => {
           <div className="lg:w-1/3 flex flex-col gap-6">
             <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/60 border border-slate-100">
               <div className="flex flex-col items-center text-center">
-                <div className="size-32 rounded-3xl bg-slate-100 p-1 border-4 border-white shadow-lg mb-6 group relative overflow-hidden">
-                  <img
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.displayName}`}
-                    alt="Profile"
-                    className="w-full h-full rounded-2xl object-cover"
-                  />
+                <div className="size-32 rounded-3xl bg-slate-900 flex items-center justify-center border-4 border-white shadow-lg mb-6 group relative overflow-hidden transition-all duration-300">
+                  <span className="text-4xl font-black text-white tracking-widest uppercase">
+                    {(profile.displayName || '').split(' ').map(name => name[0]).join('').substring(0, 2) || 'GF'}
+                  </span>
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                     <Edit3 className="text-white size-6" />
                   </div>
@@ -178,6 +176,19 @@ const ProfileView = () => {
                   <div className="flex items-center gap-4 p-4 bg-slate-100 rounded-2xl">
                     <Calendar className="text-[#40484f] size-5" />
                     <span className="font-bold text-slate-700">{profile.age} Years</span>
+                  </div>
+                </div>
+
+                {/* Startup Idea Display */}
+                <div className="md:col-span-2 space-y-4 pt-6 border-t border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <Briefcase className="text-slate-400 size-4" />
+                    <label className="text-[10px] font-black text-[#40484f] uppercase tracking-[0.2em] block">Startup Idea / Project Description</label>
+                  </div>
+                  <div className="p-6 bg-slate-50 border border-slate-100 rounded-3xl">
+                    <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-wrap italic">
+                      {profile.idea || "No idea description provided yet. Update your profile to tell us about your project!"}
+                    </p>
                   </div>
                 </div>
               </div>

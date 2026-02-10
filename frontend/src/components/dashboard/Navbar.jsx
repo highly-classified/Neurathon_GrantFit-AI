@@ -52,9 +52,16 @@ const Navbar = () => {
           
           <Link
             to="/profile"
-            className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[11px] font-black text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:ring-4 hover:ring-slate-50 dark:hover:ring-slate-900 transition-all font-sans"
+            className="w-9 h-9 rounded-full bg-slate-900 dark:bg-slate-100 flex items-center justify-center text-[13px] font-black text-white dark:text-slate-900 border-2 border-slate-100 dark:border-slate-800 shadow-sm cursor-pointer hover:ring-4 hover:ring-slate-50 dark:hover:ring-slate-900 transition-all font-sans uppercase tracking-tighter"
           >
-            JD
+            {(() => {
+              const savedProfile = localStorage.getItem('userProfile');
+              if (savedProfile) {
+                const p = JSON.parse(savedProfile);
+                return (p.displayName || '').split(' ').map(n => n[0]).join('').substring(0, 2) || 'GF';
+              }
+              return 'GF';
+            })()}
           </Link>
           <Link
             to="/"
