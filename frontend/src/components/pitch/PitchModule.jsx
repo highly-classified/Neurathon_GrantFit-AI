@@ -179,27 +179,6 @@ const PitchModule = () => {
                                 <p className="text-slate-500 mt-1 max-w-xl">Use AI-driven insights to polish your narrative and increase your chances of success.</p>
                             </div>
                             <div className="flex gap-3">
-<<<<<<< HEAD
-                                {!hasEvaluated ? (
-                                    <button
-                                        onClick={handleEvaluate}
-                                        disabled={isAnalyzing}
-                                        className="flex items-center gap-2 px-6 py-2.5 bg-[#1347ae] text-white rounded-xl font-bold text-sm hover:bg-[#1347ae]/90 transition-all shadow-lg shadow-[#1347ae]/20 disabled:opacity-50"
-                                    >
-                                        <span className="material-symbols-outlined text-lg">analytics</span>
-                                        Evaluate Pitch
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={handleImprove}
-                                        disabled={isAnalyzing || evaluation.score >= 95}
-                                        className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-sm hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50 disabled:bg-slate-400 disabled:shadow-none"
-                                    >
-                                        <span className="material-symbols-outlined text-lg">auto_fix_high</span>
-                                        {evaluation.score >= 95 ? "Perfect Pitch (95+)" : "Check Improvement"}
-                                    </button>
-                                )}
-=======
                                 <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 font-semibold text-sm hover:bg-slate-50 transition-colors">
                                     <Save className="size-4" /> Save Draft
                                 </button>
@@ -209,7 +188,6 @@ const PitchModule = () => {
                                 >
                                     Finalize Pitch
                                 </button>
->>>>>>> d842c6c4e76955578c062e7506952dcd5db7053f
                             </div>
                         </div>
 
