@@ -5,6 +5,7 @@ import { db } from "./src/firebase-admin.js";
 import { analyzeAndRecordPitch, improvePitchWithAI } from "./src/pitchAnalysisService.js";
 import { initializeUserCredits } from "./src/creditService.js";
 import { getCategorizedGrants } from "./src/matchingEngine.js";
+import { db, auth } from "./src/firebase-admin.js";
 
 const app = express();
 app.use(cors());
@@ -74,14 +75,36 @@ app.get("/api/grants/:userId", async (req, res) => {
     }
 });
 
+// Authentication Middleware
+const checkAuth = async (req, res, next) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({ error: "Unauthorized: Missing token" });
+        }
+
+        const token = authHeader.split(" ")[1];
+        const decodedToken = await auth.verifyIdToken(token);
+
+        req.user = decodedToken;
+        next();
+    } catch (error) {
+        console.error("Auth Error:", error);
+        res.status(401).json({ error: "Unauthorized: Invalid token" });
+    }
+};
+
 /**
  * POST /api/pitch/analyze
- * Body: { "userId": "...", "grantId": "...", "pitchText": "..." }
+ * Body: { "grantId": "...", "pitchText": "..." }
+ * Header: Authorization: Bearer <token>
  */
-app.post("/api/pitch/analyze", async (req, res) => {
-    const { userId, grantId, pitchText } = req.body;
-    if (!userId || !grantId || !pitchText) {
-        return res.status(400).json({ error: "Missing required fields: userId, grantId, pitchText" });
+app.post("/api/pitch/analyze", checkAuth, async (req, res) => {
+    const { grantId, pitchText } = req.body;
+    const userId = req.user.uid;
+
+    if (!grantId || !pitchText) {
+        return res.status(400).json({ error: "Missing required fields: grantId, pitchText" });
     }
 
     try {
