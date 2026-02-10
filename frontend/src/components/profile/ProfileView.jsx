@@ -57,12 +57,14 @@ const ProfileView = () => {
           <div className="lg:w-1/3 flex flex-col gap-6">
             <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/60 border border-slate-100">
               <div className="flex flex-col items-center text-center">
-                <div className="size-32 rounded-3xl bg-slate-100 p-1 border-4 border-white shadow-lg mb-6 group relative overflow-hidden">
-                  <img
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.displayName}`}
-                    alt="Profile"
-                    className="w-full h-full rounded-2xl object-cover"
-                  />
+                <div className="size-32 rounded-3xl bg-slate-100 flex items-center justify-center border-4 border-white shadow-lg mb-6 group relative overflow-hidden">
+                  <span className="text-4xl font-black text-slate-600">
+                    {(() => {
+                      const names = (profile.displayName || '').trim().split(/\s+/);
+                      if (names.length >= 2) return (names[0][0] + names[1][0]).toUpperCase();
+                      return (profile.displayName || 'UN').substring(0, 2).toUpperCase();
+                    })()}
+                  </span>
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                     <Edit3 className="text-white size-6" />
                   </div>
