@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import GrantCard from './GrantCard';
+import { auth } from '../../firebase';
 
 const Dashboard = () => {
   const [eligibleSearch, setEligibleSearch] = useState('');
@@ -15,9 +16,18 @@ const Dashboard = () => {
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // For demo/testing purposes, using a fixed userId
-  // In a real app, this would come from an Auth context
-  const userId = "user_postman_01";
+  const [user, setUser] = useState(auth.currentUser);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((u) => {
+      setUser(u);
+      setAuthChecked(true);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const userId = user?.uid || "user_postman_01"; // Fallback for safety
   const CACHE_KEY = `grant_matches_${userId}`;
 
   const fetchMatches = async (forceSkeletons = false) => {
@@ -47,12 +57,13 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    if (!authChecked) return;
+
     const cachedData = localStorage.getItem(CACHE_KEY);
     if (cachedData) {
       try {
         setMatches(JSON.parse(cachedData));
         setIsLoading(false);
-        // Silently revalidate in background without showing loading spinner
         fetchMatches(false);
       } catch (e) {
         fetchMatches(true);
@@ -60,7 +71,7 @@ const Dashboard = () => {
     } else {
       fetchMatches(true);
     }
-  }, []);
+  }, [authChecked, user]);
 
   const formatCurrency = (amount) => {
     if (!amount) return "TBD";
@@ -82,19 +93,39 @@ const Dashboard = () => {
     type: type // 'eligible' or 'maybe'
   });
 
-  const filteredEligible = matches.eligible
-    .map(g => mapBackendToUI(g, 'eligible'))
-    .filter(g =>
-      g.title.toLowerCase().includes(eligibleSearch.toLowerCase()) ||
-      g.org.toLowerCase().includes(eligibleSearch.toLowerCase())
-    );
+  const filteredEligible = (matches.eligible || []).filter(grant => {
+    const search = eligibleSearch.toLowerCase();
+    return (grant.event_name || "").toLowerCase().includes(search) ||
+      (grant.org_name || "").toLowerCase().includes(search);
+  }).map(g => mapBackendToUI(g, 'eligible'));
 
-  const filteredMaybe = matches.partially_eligible
-    .map(g => mapBackendToUI(g, 'maybe'))
-    .filter(g =>
-      g.title.toLowerCase().includes(maybeSearch.toLowerCase()) ||
-      g.org.toLowerCase().includes(maybeSearch.toLowerCase())
+  const filteredMaybe = (matches.partially_eligible || []).filter(grant => {
+    const search = maybeSearch.toLowerCase();
+    return (grant.event_name || "").toLowerCase().includes(search) ||
+      (grant.org_name || "").toLowerCase().includes(search);
+  }).map(g => mapBackendToUI(g, 'maybe'));
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-50 font-['Public Sans',_sans-serif] flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center border border-red-100">
+          <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 15c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">Discovery Failed</h2>
+          <p className="text-slate-500 mb-8">{error}. Make sure the backend server (node server.js) is running.</p>
+          <button
+            onClick={() => fetchMatches(true)}
+            className="w-full bg-[#1e293b] text-white py-3 rounded-2xl font-bold hover:bg-[#0f172a] transition-all shadow-lg shadow-slate-200"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
     );
+  }
 
   return (
     <div className="min-h-screen bg-[#f6f6f8] pb-20 font-['Public Sans',_sans-serif]">
@@ -111,13 +142,13 @@ const Dashboard = () => {
                 <span className={`${isLoading ? 'animate-pulse bg-blue-400' : 'animate-ping bg-green-400'} absolute inline-flex h-full w-full rounded-full opacity-75`}></span>
                 <span className={`relative inline-flex rounded-full h-2 w-2 ${isLoading || isRefreshing ? 'bg-blue-500' : 'bg-green-500'}`}></span>
               </span>
-              {isLoading || isRefreshing ? 'AI is analyzing matches...' : `${matches.eligible.length + matches.partially_eligible.length} matches identified for your profile`}
+              {isLoading || isRefreshing ? 'AI is analyzing matches...' : `${(matches.eligible?.length || 0) + (matches.partially_eligible?.length || 0)} matches identified for your profile`}
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => fetchMatches(false)}
+              onClick={() => fetchMatches(true)}
               disabled={isLoading || isRefreshing}
               className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-[#0f172a] text-sm font-bold rounded-xl hover:bg-gray-50 shadow-sm transition-all focus:ring-2 focus:ring-gray-100 disabled:opacity-50"
             >

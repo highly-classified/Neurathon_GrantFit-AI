@@ -30,37 +30,64 @@ export async function getCategorizedGrants(userId) {
         }
     }
 
-    // Step 2: Limit AI soft filtering to save credits (e.g., top 5)
-    // In a prod app, we might sort this list by some priority first
-    const limitedMatches = passHardCriteria.slice(0, 5);
+    // Step 2: Smart Pre-Sorting by Keyword Relevance
+    const sortedMatches = passHardCriteria.sort((a, b) => {
+        const userTerms = `${user.domain || ""} ${user.idea || ""}`.toLowerCase().split(/\s+/);
+        const getScore = (org) => {
+            const orgContent = `${org.event_name} ${org.domain || ""} ${org.tags?.join(" ") || ""} ${org.prev_year_funded_projects?.join(" ") || ""}`.toLowerCase();
+            return userTerms.reduce((acc, term) => acc + (orgContent.includes(term) ? 1 : 0), 0);
+        };
+        return getScore(b) - getScore(a);
+    });
+
+    // Step 3: Limit AI soft filtering to top 5 most relevant (per user request)
+    const limitedMatches = sortedMatches.slice(0, 5);
+    console.log(`[MATCH-TRACE] Top 5 candidates for AI: ${limitedMatches.map(m => m.id).join(", ")}`);
 
     try {
-        for (const org of limitedMatches) {
-            // Layer 2: AI-Powered Soft Filtering (Historical Alignment)
-            const preferenceScore = await getAIPreferenceScore(user, org);
+        // Run AI scoring in parallel for speed
+        const scoringPromises = limitedMatches.map(async (org) => {
+            try {
+                const preferenceScore = await getAIPreferenceScore(user, org);
+                return { org, preferenceScore, isFallback: false };
+            } catch (err) {
+                console.warn(`[MATCH-WARN] AI scoring failed for ${org.id}, falling back to keyword relevance:`, err.message);
+                // Graceful Degradation: Use a moderate static score if AI fails
+                return { org, preferenceScore: 0.6, isFallback: true };
+            }
+        });
 
-            // Sort into buckets based on AI score (Soft Filtering)
-            if (preferenceScore >= 0.8) {
-                categorized.eligible.push({
-                    ...org,
-                    match_score: preferenceScore,
-                    confidence_tag: "High Alignment"
-                });
-            } else if (preferenceScore >= 0.4) {
-                categorized.partially_eligible.push({
-                    ...org,
-                    match_score: preferenceScore,
-                    confidence_tag: "Potential Fit"
-                });
+        const results = await Promise.allSettled(scoringPromises);
+
+        for (const res of results) {
+            if (res.status === 'fulfilled') {
+                const { org, preferenceScore, isFallback } = res.value;
+
+                // Thresholds calibrated for a natural 2/3 split across 5 results
+                if (preferenceScore >= 0.8) {
+                    categorized.eligible.push({
+                        ...org,
+                        match_score: preferenceScore,
+                        confidence_tag: isFallback ? "Relevance Match" : "High Alignment",
+                        is_fallback: isFallback
+                    });
+                } else if (preferenceScore >= 0.4) {
+                    categorized.partially_eligible.push({
+                        ...org,
+                        match_score: preferenceScore,
+                        confidence_tag: isFallback ? "Potential Relevance" : "Potential Fit",
+                        is_fallback: isFallback
+                    });
+                }
             }
         }
     } catch (error) {
-        console.error("AI Soft Filtering failed, using hard filter fallback:", error);
-        // Fallback: Use the first 5 hard-criteria matches as 'eligible'
+        console.error("Critical error in parallel AI scoring:", error);
+        // Fallback: Use the top 5 sorted hard-criteria matches as 'eligible'
         categorized.eligible = limitedMatches.map(org => ({
             ...org,
             match_score: 1.0,
-            confidence_tag: "Hard Match (Fallback)"
+            confidence_tag: "Relevance Match (Critical Fallback)"
         }));
         categorized.partially_eligible = [];
     }
@@ -72,7 +99,7 @@ export async function getCategorizedGrants(userId) {
  * Calculates a match score between the user's idea and the grant focus using Gemini.
  */
 async function getAIPreferenceScore(user, org) {
-    const cacheKey = `match_${user.email || "test"}_${org.id}`;
+    const cacheKey = `match_v5_${user.uid || user.email || "test"}_${org.id}`;
 
     const prompt = `
     Analyze the alignment between a researcher/startup idea and a funding opportunity.
@@ -87,14 +114,20 @@ async function getAIPreferenceScore(user, org) {
     - Event: ${org.event_name}
     - Domain: ${org.domain || "None"}
     - Tags: ${org.tags?.join(", ") || "None"}
-    - Historical Specializations (Previous Grants): ${org.prev_year_funded_projects?.join(", ") || "None"}
+    - Historical Focus: ${org.prev_year_funded_projects?.join(", ") || "None"}
     
+    SCORING RUBRIC:
+    - 0.85 to 1.0: PERFECT MATCH. The idea and domain are a direct bullseye.
+    - 0.75 to 0.84: HIGH ALIGNMENT. Shared domain and strong thematic overlap.
+    - 0.40 to 0.74: GOOD/FAIR MATCH. Same broad domain (e.g., both Tech), but the specific innovation is a new area for this funder.
+    - 0.10 to 0.39: WEAK FIT. Marginal relevance.
+    - Under 0.1: NO FIT.
+
     INSTRUCTIONS:
-    Evaluate the alignment based on:
-    1. Primary Domain match.
-    2. Specific specialization match against ${org.prev_year_funded_projects?.length > 0 ? 'historical specializations' : 'tags'}.
+    - Be discriminating. Only promote to the 0.8+ range if the thematic overlap is undeniable.
+    - Broad domain matches should stay in the 0.4 - 0.7 range.
     
-    Respond ONLY with a score between 0.0 and 1.0.
+    Respond ONLY with a decimal score between 0.0 and 1.0.
   `;
 
     try {

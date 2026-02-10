@@ -35,6 +35,7 @@ function saveCache(cache) {
 /**
  * Calls Gemini with a prompt and a unique cache key.
  * If cacheKey exists in ai_cache.json, it returns the cached result.
+ * Includes exponential backoff for robustness.
  */
 export async function callGemini(prompt, cacheKey, mockResponse = "MOCK_AI_RESPONSE") {
     if (DRY_RUN) {
@@ -52,18 +53,37 @@ export async function callGemini(prompt, cacheKey, mockResponse = "MOCK_AI_RESPO
         throw new Error("GOOGLE_GENAI_API_KEY is missing. Please add it to your .env file.");
     }
 
-    console.log(`[AI-API-CALL] Calling Gemini for: ${cacheKey}...`);
-    try {
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
+    const maxRetries = 3;
+    let lastError;
 
-        // Save to cache
-        cache[cacheKey] = text;
-        saveCache(cache);
+    for (let i = 0; i <= maxRetries; i++) {
+        try {
+            if (i > 0) {
+                const waitTime = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                console.log(`[AI-RETRY] Attempt ${i} after ${Math.round(waitTime)}ms...`);
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+            }
 
-        return text;
-    } catch (error) {
-        console.error(`[AI-ERROR] Gemini call failed: ${error.message}`);
-        throw error;
+            console.log(`[AI-API-CALL] Calling Gemini for: ${cacheKey} (Attempt ${i + 1})...`);
+            const result = await model.generateContent(prompt);
+            const text = result.response.text();
+
+            // Save to cache
+            cache[cacheKey] = text;
+            saveCache(cache);
+
+            return text;
+        } catch (error) {
+            lastError = error;
+            console.error(`[AI-ERROR] Attempt ${i + 1} failed: ${error.message}`);
+            // Only retry on potential transient errors (rate limit, overload, network)
+            const isTransient = error.message.includes("429") ||
+                error.message.includes("503") ||
+                error.message.includes("500") ||
+                error.message.includes("fetch");
+            if (!isTransient) break;
+        }
     }
+
+    throw lastError;
 }
