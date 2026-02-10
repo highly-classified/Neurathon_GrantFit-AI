@@ -57,13 +57,13 @@ const Dashboard = () => {
     }
   ];
 
-  const filteredEligible = eligibleGrants.filter(g => 
-    g.title.toLowerCase().includes(eligibleSearch.toLowerCase()) || 
+  const filteredEligible = eligibleGrants.filter(g =>
+    g.title.toLowerCase().includes(eligibleSearch.toLowerCase()) ||
     g.org.toLowerCase().includes(eligibleSearch.toLowerCase())
   );
 
-  const filteredMaybe = mayBeEligible.filter(g => 
-    g.title.toLowerCase().includes(maybeSearch.toLowerCase()) || 
+  const filteredMaybe = mayBeEligible.filter(g =>
+    g.title.toLowerCase().includes(maybeSearch.toLowerCase()) ||
     g.org.toLowerCase().includes(maybeSearch.toLowerCase())
   );
 
@@ -71,7 +71,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-[#f6f6f8] pb-20 font-['Public Sans',_sans-serif]">
       <Navbar />
 
-      <main className="max-w-[1600px] mx-auto pt-24 pb-32 px-6">
+      <main className="max-w-[1600px] mx-auto pt-32 pb-32 px-6">
 
 
         {/* Page Header */}
