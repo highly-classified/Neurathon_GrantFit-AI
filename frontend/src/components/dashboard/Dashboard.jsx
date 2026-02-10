@@ -41,6 +41,30 @@ const Dashboard = () => {
   });
 
   const filteredEligible = matches.eligible.filter(g =>
+  const mayBeEligible = [
+    {
+      id: "UNI-RD-2024",
+      title: "University R&D Commercialization",
+      org: "Academic Innovation Hub",
+      tags: ["Research", "Academic"],
+      funding: "$50,000",
+      deadline: "Dec 1, 2024",
+      warning: "Requires partnership with an accredited Tier 1 University research facility.",
+      type: "maybe"
+    },
+    {
+      id: "GHA-2025",
+      title: "Global Health AI Challenge",
+      org: "World Health Partners",
+      tags: ["Healthcare", "AI"],
+      funding: "$2,500,000",
+      deadline: "Jan 15, 2025",
+      warning: "Matching funds of 50% required. Organization must be registered as a non-profit.",
+      type: "maybe"
+    }
+  ];
+
+  const filteredEligible = eligibleGrants.filter(g =>
     g.title.toLowerCase().includes(eligibleSearch.toLowerCase()) ||
     g.org.toLowerCase().includes(eligibleSearch.toLowerCase())
   );
@@ -54,7 +78,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-[#f6f6f8] pb-20 font-['Public Sans',_sans-serif]">
       <Navbar />
 
-      <main className="max-w-[1600px] mx-auto pt-24 pb-32 px-6">
+      <main className="max-w-[1600px] mx-auto pt-32 pb-32 px-6">
 
 
         {/* Page Header */}
@@ -71,13 +95,6 @@ const Dashboard = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-[#0f172a] text-sm font-bold rounded-xl hover:bg-gray-50 shadow-sm transition-all focus:ring-2 focus:ring-gray-100">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Refresh Matches
-            </button>
-
           </div>
         </div>
 

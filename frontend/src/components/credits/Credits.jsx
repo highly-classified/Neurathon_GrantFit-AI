@@ -14,7 +14,9 @@ import {
   FileEdit,
   ChevronDown,
   X,
-  Check
+  Check,
+  TrendingDown,
+  TrendingUp
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -59,7 +61,7 @@ const Credits = () => {
     <div className="min-h-screen bg-[#f6f6f8] text-slate-900 font-['Public Sans',_sans-serif]">
       <Navbar />
 
-      <main className="px-10 flex flex-col items-center pt-24 pb-12 max-w-[1280px] mx-auto">
+      <main className="px-10 flex flex-col items-center pt-32 pb-12 max-w-[1280px] mx-auto">
         <div className="w-full max-w-[1120px]">
           {/* Page Header */}
           <div className="flex flex-wrap justify-between items-end gap-3 mb-8">
@@ -88,7 +90,7 @@ const Credits = () => {
                   <p className="text-amber-700 text-sm font-medium leading-normal">Your team has 12 credits remaining. Pitch analysis services may be interrupted once balance reaches zero.</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setIsModalOpen(true)}
                 className="px-6 py-2.5 rounded-xl bg-[#40484f] text-white text-sm font-bold shadow-lg shadow-[#40484f]/20 hover:bg-[#40484f]/90 hover:scale-[1.02] transition-all whitespace-nowrap"
               >
@@ -192,17 +194,7 @@ const Credits = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-8 px-10">
-        <div className="max-w-[1120px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-slate-400 text-xs font-bold tracking-tight">© 2024 GranFit AI Enterprise. All rights reserved.</p>
-          <div className="flex gap-8">
-            <Link className="text-slate-400 hover:text-[#40484f] text-xs font-bold transition-colors" to="#">Terms of Service</Link>
-            <Link className="text-slate-400 hover:text-[#40484f] text-xs font-bold transition-colors" to="#">Privacy Policy</Link>
-            <Link className="text-slate-400 hover:text-[#40484f] text-xs font-bold transition-colors" to="#">Compliance Audit</Link>
-          </div>
-        </div>
-      </footer>
+
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">

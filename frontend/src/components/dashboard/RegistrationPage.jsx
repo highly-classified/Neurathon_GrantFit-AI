@@ -1,12 +1,62 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { CheckCircle, ArrowLeft, Upload, FileText, User, Mail, Building, Globe, Lightbulb } from 'lucide-react';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
+import { CheckCircle, ArrowLeft, Upload, FileText, User, Mail, Building, Globe, Lightbulb, File, Trash2, Check } from 'lucide-react';
 
 const RegistrationPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const fileInputRef = React.useRef(null);
+  
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  
+  // State for form data
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    orgName: location.state?.org || '',
+    eventName: location.state?.title || '',
+    domainName: '',
+    proposalTitle: ''
+  });
+
+  useEffect(() => {
+    // Autofill from profile
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+      const profile = JSON.parse(savedProfile);
+      setFormData(prev => ({
+        ...prev,
+        domainName: profile.domain || '',
+        fullName: prev.fullName || profile.displayName || '',
+        email: prev.email || profile.email || ''
+      }));
+    }
+  }, []);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File size exceeds 10MB limit.");
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
+  const removeFile = (e) => {
+    e.stopPropagation();
+    setSelectedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   // Mock grant data - in a real app, this would come from an API based on 'id'
   const grantData = {
@@ -43,14 +93,19 @@ const RegistrationPage = () => {
       const registeredGrants = JSON.parse(localStorage.getItem('registeredGrants') || '[]');
       const newApp = {
         id: id || `APP-${Math.floor(Math.random() * 10000)}`,
-        name: grant.title,
-        organizer: grant.org,
+        name: formData.proposalTitle || grant.title,
+        organizer: formData.orgName || grant.org,
         deadline: grant.deadline,
         daysLeft: 'Recently Applied',
         status: 'Applied',
         statusColor: 'blue',
         action: 'picture_as_pdf',
-        appliedAt: new Date().toISOString()
+        appliedAt: new Date().toISOString(),
+        applicantName: formData.fullName,
+        applicantEmail: formData.email,
+        eventName: formData.eventName,
+        domain: formData.domainName,
+        documentName: selectedFile ? selectedFile.name : 'No document uploaded'
       };
 
       localStorage.setItem('registeredGrants', JSON.stringify([...registeredGrants, newApp]));
@@ -125,11 +180,27 @@ const RegistrationPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-wider text-slate-400">Full Name</label>
-                    <input required type="text" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" placeholder="John Doe" />
+                    <input 
+                      required 
+                      type="text" 
+                      name="fullName"
+                      value={formData.fullName}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" 
+                      placeholder="John Doe" 
+                    />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-wider text-slate-400">Email Address</label>
-                    <input required type="email" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" placeholder="john@example.com" />
+                    <input 
+                      required 
+                      type="email" 
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" 
+                      placeholder="john@example.com" 
+                    />
                   </div>
                 </div>
               </section>
@@ -141,24 +212,43 @@ const RegistrationPage = () => {
                   Organization Details
                 </h3>
                 <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-wider text-slate-400">Organization Name</label>
-                    <input required type="text" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" placeholder="Your Startup Inc." />
-                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-xs font-black uppercase tracking-wider text-slate-400">Website URL</label>
-                      <input type="url" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" placeholder="https://example.com" />
+                      <label className="text-xs font-black uppercase tracking-wider text-slate-400">Organization Name</label>
+                      <input 
+                        required 
+                        type="text" 
+                        name="orgName"
+                        value={formData.orgName}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" 
+                        placeholder="Your Startup Inc." 
+                      />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-black uppercase tracking-wider text-slate-400">Funding Stage</label>
-                      <select className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")` }}>
-                        <option>Pre-seed</option>
-                        <option>Seed</option>
-                        <option>Series A</option>
-                        <option>Series B+</option>
-                      </select>
+                      <label className="text-xs font-black uppercase tracking-wider text-slate-400">Event Name</label>
+                      <input 
+                        required 
+                        type="text" 
+                        name="eventName"
+                        value={formData.eventName}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" 
+                        placeholder="Target Funding Event" 
+                      />
                     </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-black uppercase tracking-wider text-slate-400">Domain Name</label>
+                    <input 
+                      required 
+                      type="text" 
+                      name="domainName"
+                      value={formData.domainName}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" 
+                      placeholder="e.g. AI & ML" 
+                    />
                   </div>
                 </div>
               </section>
@@ -172,14 +262,52 @@ const RegistrationPage = () => {
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-wider text-slate-400">Proposal Title</label>
-                    <input required type="text" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" placeholder="Summarize your project" />
+                    <input 
+                      required 
+                      type="text" 
+                      name="proposalTitle"
+                      value={formData.proposalTitle}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1347ae]/20 focus:border-[#1347ae] outline-none transition-all placeholder:text-slate-300" 
+                      placeholder="Summarize your project" 
+                    />
                   </div>
-                  <div className="border-2 border-dashed border-slate-200 rounded-3xl p-10 flex flex-col items-center justify-center hover:border-[#1347ae] hover:bg-[#1347ae]/5 transition-all group cursor-pointer">
-                    <div className="size-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-white group-hover:text-[#1347ae] transition-colors mb-4">
-                      <Upload size={24} />
-                    </div>
-                    <p className="text-sm font-bold text-slate-700 mb-1">Upload Proposal Document</p>
-                    <p className="text-xs text-slate-400">PDF, DOCX up to 10MB</p>
+                  
+                  <div 
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-3xl p-10 flex flex-col items-center justify-center transition-all group cursor-pointer ${selectedFile ? 'border-emerald-500 bg-emerald-50/30' : 'border-slate-200 hover:border-[#40484f] hover:bg-slate-50'}`}
+                  >
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      onChange={handleFileChange} 
+                      className="hidden" 
+                      accept=".pdf,.docx"
+                    />
+                    
+                    {selectedFile ? (
+                      <div className="flex flex-col items-center">
+                        <div className="size-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 mb-4">
+                          <Check size={24} />
+                        </div>
+                        <p className="text-sm font-bold text-slate-900 mb-1">{selectedFile.name}</p>
+                        <p className="text-xs text-slate-500 mb-4">{(selectedFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                        <button 
+                          onClick={removeFile}
+                          className="flex items-center gap-2 text-xs font-bold text-red-500 hover:text-red-600 transition-colors"
+                        >
+                          <Trash2 size={14} /> Remove File
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="size-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-white group-hover:text-[#40484f] transition-colors mb-4">
+                          <Upload size={24} />
+                        </div>
+                        <p className="text-sm font-bold text-slate-700 mb-1">Upload Proposal Document</p>
+                        <p className="text-xs text-slate-400">PDF, DOCX up to 10MB</p>
+                      </>
+                    )}
                   </div>
                 </div>
               </section>

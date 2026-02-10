@@ -73,7 +73,7 @@ const GrantCard = ({
         </div>
 
         <button
-          onClick={() => isEligible && navigate(`/register/${id}`)}
+          onClick={() => isEligible && navigate(`/register/${id}`, { state: { org, title } })}
           className={`px-5 py-2 whitespace-nowrap text-sm font-bold rounded-xl transition-all ${isEligible
             ? 'bg-[#1e293b] text-white hover:bg-[#0f172a] shadow-sm hover:shadow-md'
             : 'bg-gray-100 text-gray-500 hover:bg-gray-200'

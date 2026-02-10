@@ -101,7 +101,7 @@ const ProfileView = () => {
 
 
                 <button
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate('/')}
                   className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-red-50 transition-colors group"
                 >
                   <div className="flex items-center gap-4 text-red-600">
