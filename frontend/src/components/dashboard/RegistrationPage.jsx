@@ -98,7 +98,7 @@ const RegistrationPage = () => {
         deadline: grant.deadline,
         daysLeft: 'Recently Applied',
         status: 'Applied',
-        statusColor: 'blue',
+        statusColor: 'emerald',
         action: 'picture_as_pdf',
         appliedAt: new Date().toISOString(),
         applicantName: formData.fullName,

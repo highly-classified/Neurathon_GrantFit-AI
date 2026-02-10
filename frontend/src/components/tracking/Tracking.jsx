@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import Navbar from '../dashboard/Navbar';
 import {
   Filter,
@@ -79,10 +80,13 @@ const Tracking = () => {
   const applications = [...dynamicApps, ...staticApplications];
 
   const getStatusStyles = (status, color) => {
+    // Force emerald (green) for 'Applied' status
+    const effectiveColor = status === 'Applied' ? 'emerald' : color;
+    
     const colors = {
       amber: 'bg-amber-50 text-amber-700',
       blue: 'bg-[#40484f]/10 text-[#40484f]',
-      emerald: 'bg-emerald-50 text-emerald-700'
+      emerald: 'bg-emerald-50 text-emerald-100/10 text-emerald-600 border border-emerald-100'
     };
     const dotColors = {
       amber: 'bg-amber-500',
@@ -90,8 +94,8 @@ const Tracking = () => {
       emerald: 'bg-emerald-500'
     };
     return {
-      container: `inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${colors[color]}`,
-      dot: `size-1.5 rounded-full ${dotColors[color]}`
+      container: `inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-tight ${colors[effectiveColor]}`,
+      dot: `size-1.5 rounded-full ${dotColors[effectiveColor]}`
     };
   };
 
@@ -102,10 +106,14 @@ const Tracking = () => {
       {/* Main Content Area */}
       <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 pt-32 px-10 pb-10">
         {/* Page Header */}
-        <div className="flex items-end justify-between">
+        <motion.div 
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="flex items-end justify-between"
+        >
           <div className="flex flex-col gap-2">
             <h1 className="text-4xl font-black tracking-tight text-[#0e121b]">Application Tracking</h1>
-
           </div>
           <div className="flex gap-3">
             <Link to="/dashboard" className="flex items-center gap-2 rounded-lg bg-[#40484f] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#40484f]/20 hover:bg-[#40484f]/90 transition-all">
@@ -113,86 +121,90 @@ const Tracking = () => {
               New Application
             </Link>
           </div>
+        </motion.div>
+
+        {/* Column Headers as a Block */}
+        <motion.div 
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: 'easeOut', delay: 0.04 }}
+          className="grid grid-cols-[2.5fr_1.5fr_1fr_1fr_0.5fr] gap-4 px-8 py-4 bg-white/50 backdrop-blur-sm rounded-2xl border border-slate-200/60 shadow-sm"
+        >
+          <div className="text-xs font-black uppercase tracking-wider text-slate-400">Grant Name & ID</div>
+          <div className="text-xs font-black uppercase tracking-wider text-slate-400">Organizer</div>
+          <div className="text-xs font-black uppercase tracking-wider text-slate-400">Deadline</div>
+          <div className="text-xs font-black uppercase tracking-wider text-slate-400">Status</div>
+          <div className="text-xs font-black uppercase tracking-wider text-slate-400 text-right">Actions</div>
+        </motion.div>
+
+        {/* Application Records as Separate Blocks */}
+        <div className="space-y-4">
+          {applications.map((app, index) => {
+            const styles = getStatusStyles(app.status, app.statusColor);
+            return (
+              <motion.div
+                key={app.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut', delay: (index + 2) * 0.04 }}
+                className="grid grid-cols-[2.5fr_1.5fr_1fr_1fr_0.5fr] gap-4 items-center px-8 py-5 bg-white rounded-3xl border border-slate-200/60 shadow-sm hover:shadow-md hover:border-slate-300/60 transition-all group"
+              >
+                <div className="flex flex-col">
+                  <Link to={`/pitch/${app.id}`} className="flex flex-col hover:opacity-75 transition-opacity">
+                    <span className="text-base font-bold text-[#0e121b] leading-tight">{app.name}</span>
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-1">ID: {app.id}</span>
+                  </Link>
+                </div>
+                
+                <div className="text-sm text-slate-600 font-bold">{app.organizer}</div>
+                
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold text-slate-700">{app.deadline}</span>
+                  <span className={`text-[11px] font-black uppercase tracking-tight mt-0.5 ${app.statusColor === 'amber' ? 'text-amber-500' : 'text-slate-400'}`}>
+                    {app.daysLeft}
+                  </span>
+                </div>
+                
+                <div>
+                  <span className={styles.container}>
+                    <span className={styles.dot}></span>
+                    {app.status}
+                  </span>
+                </div>
+                
+                <div className="flex justify-end">
+                  <button className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-400 hover:text-slate-600 transition-colors p-2 hover:bg-slate-50 rounded-xl whitespace-nowrap">
+                    <FileText className="size-4 text-red-500" />
+                    View PDF
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
 
-
-
-        {/* Main Data Grid */}
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/50">
-                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Grant Name & ID</th>
-                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Organizer</th>
-                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Deadline</th>
-                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {applications.map((app) => {
-                  const styles = getStatusStyles(app.status, app.statusColor);
-                  return (
-                    <tr key={app.id} className="hover:bg-slate-50 transition-colors group">
-                      <td className="px-6 py-5">
-                        <Link to={`/pitch/${app.id}`} className="flex flex-col group-hover:opacity-80 transition-opacity">
-                          <span className="text-sm font-bold text-[#0e121b]">{app.name}</span>
-                          <span className="text-xs text-slate-400">ID: {app.id}</span>
-                        </Link>
-                      </td>
-                      <td className="px-6 py-5 text-sm text-slate-600 font-medium">{app.organizer}</td>
-                      <td className="px-6 py-5">
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium text-slate-700">{app.deadline}</span>
-                          <span className={`text-[11px] font-bold ${app.statusColor === 'amber' ? 'text-amber-600' : 'text-slate-400'}`}>
-                            {app.daysLeft}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-5">
-                        <span className={styles.container}>
-                          <span className={styles.dot}></span>
-                          {app.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-5 text-right">
-                        {app.action === 'more_vert' ? (
-                          <button className="text-slate-400 hover:text-[#40484f] transition-colors ml-auto flex justify-end">
-                            <MoreVertical className="size-5" />
-                          </button>
-                        ) : app.action === 'picture_as_pdf' ? (
-                          <button className="flex items-center gap-1 ml-auto text-sm font-bold text-slate-500 hover:text-slate-700">
-                            <FileText className="size-4.5" />
-                            View PDF
-                          </button>
-                        ) : (
-                          <button className="text-sm font-bold text-[#40484f] hover:underline">{app.action}</button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+        {/* Pagination Controls as a Block */}
+        <motion.div 
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: 'easeOut', delay: (applications.length + 2) * 0.04 }}
+          className="flex items-center justify-between px-8 py-5 bg-white rounded-3xl border border-slate-200/60 shadow-sm"
+        >
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Showing 1 to 5 of 24 applications</p>
+          <div className="flex items-center gap-2">
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:bg-slate-50 transition-colors">
+              <ChevronLeft className="size-5" />
+            </button>
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#40484f] text-sm font-bold text-white shadow-lg shadow-[#40484f]/20">1</button>
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-sm font-bold text-slate-400 hover:bg-slate-50 transition-colors">2</button>
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-sm font-bold text-slate-400 hover:bg-slate-50 transition-colors">3</button>
+            <span className="px-2 text-slate-300">...</span>
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-sm font-bold text-slate-400 hover:bg-slate-50 transition-colors">5</button>
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:bg-slate-50 transition-colors">
+              <ChevronRight className="size-5" />
+            </button>
           </div>
-          {/* Pagination Controls */}
-          <div className="flex items-center justify-between border-t border-slate-100 bg-white px-6 py-4">
-            <p className="text-sm text-slate-500 font-medium">Showing 1 to 5 of 24 applications</p>
-            <div className="flex items-center gap-1">
-              <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50">
-                <ChevronLeft className="size-5" />
-              </button>
-              <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#40484f] text-sm font-bold text-white shadow-md shadow-[#40484f]/20">1</button>
-              <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-sm font-bold text-slate-600 hover:bg-slate-100">2</button>
-              <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-sm font-bold text-slate-600 hover:bg-slate-100">3</button>
-              <span className="px-1 text-slate-400">...</span>
-              <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-sm font-bold text-slate-600 hover:bg-slate-100">5</button>
-              <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50">
-                <ChevronRight className="size-5" />
-              </button>
-            </div>
-          </div>
-        </div>
+        </motion.div>
 
 
       </main>
