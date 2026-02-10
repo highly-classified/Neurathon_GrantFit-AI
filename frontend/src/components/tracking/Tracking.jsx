@@ -84,9 +84,9 @@ const Tracking = () => {
     const effectiveColor = status === 'Applied' ? 'emerald' : color;
     
     const colors = {
-      amber: 'bg-amber-50 text-amber-700',
-      blue: 'bg-[#40484f]/10 text-[#40484f]',
-      emerald: 'bg-emerald-50 text-emerald-100/10 text-emerald-600 border border-emerald-100'
+      amber: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-800/50',
+      blue: 'bg-[#40484f]/10 dark:bg-slate-800/50 text-[#40484f] dark:text-slate-300 border border-transparent dark:border-slate-700/50',
+      emerald: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/50'
     };
     const dotColors = {
       amber: 'bg-amber-500',
@@ -100,7 +100,7 @@ const Tracking = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f6f8] text-[#0e121b] font-['Public Sans',_sans-serif]">
+    <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text-main)] font-['Public Sans',_sans-serif] transition-colors duration-300">
       <Navbar />
 
       {/* Main Content Area */}
@@ -113,7 +113,10 @@ const Tracking = () => {
           className="flex items-end justify-between"
         >
           <div className="flex flex-col gap-2">
-            <h1 className="text-4xl font-black tracking-tight text-[#0e121b]">Application Tracking</h1>
+            <h1 className="text-4xl font-black tracking-tight text-[var(--color-primary)] transition-colors">Application Tracking</h1>
+            <div className="hidden dark:block text-[10px] font-bold text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-2 py-1 rounded w-fit">
+              Device State: Dark Mode Active 🌓
+            </div>
           </div>
           <div className="flex gap-3">
             <Link to="/dashboard" className="flex items-center gap-2 rounded-lg bg-[#40484f] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#40484f]/20 hover:bg-[#40484f]/90 transition-all">
@@ -128,13 +131,13 @@ const Tracking = () => {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: 'easeOut', delay: 0.04 }}
-          className="grid grid-cols-[2.5fr_1.5fr_1fr_1fr_0.5fr] gap-4 px-8 py-4 bg-white/50 backdrop-blur-sm rounded-2xl border border-slate-200/60 shadow-sm"
+          className="grid grid-cols-[2.5fr_1.5fr_1fr_1fr_0.5fr] gap-4 px-8 py-4 bg-[var(--color-surface)] backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-sm transition-colors duration-300"
         >
-          <div className="text-xs font-black uppercase tracking-wider text-slate-400">Grant Name & ID</div>
-          <div className="text-xs font-black uppercase tracking-wider text-slate-400">Organizer</div>
-          <div className="text-xs font-black uppercase tracking-wider text-slate-400">Deadline</div>
-          <div className="text-xs font-black uppercase tracking-wider text-slate-400">Status</div>
-          <div className="text-xs font-black uppercase tracking-wider text-slate-400 text-right">Actions</div>
+          <div className="text-xs font-black uppercase tracking-wider text-[var(--color-text-muted)] transition-colors">Grant Name & ID</div>
+          <div className="text-xs font-black uppercase tracking-wider text-[var(--color-text-muted)] transition-colors">Organizer</div>
+          <div className="text-xs font-black uppercase tracking-wider text-[var(--color-text-muted)] transition-colors">Deadline</div>
+          <div className="text-xs font-black uppercase tracking-wider text-[var(--color-text-muted)] transition-colors">Status</div>
+          <div className="text-xs font-black uppercase tracking-wider text-[var(--color-text-muted)] text-right transition-colors">Actions</div>
         </motion.div>
 
         {/* Application Records as Separate Blocks */}
@@ -147,20 +150,20 @@ const Tracking = () => {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, ease: 'easeOut', delay: (index + 2) * 0.04 }}
-                className="grid grid-cols-[2.5fr_1.5fr_1fr_1fr_0.5fr] gap-4 items-center px-8 py-5 bg-white rounded-3xl border border-slate-200/60 shadow-sm hover:shadow-md hover:border-slate-300/60 transition-all group"
+                className="grid grid-cols-[2.5fr_1.5fr_1fr_1fr_0.5fr] gap-4 items-center px-8 py-5 bg-[var(--color-surface)] border border-slate-200/60 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-slate-300/60 dark:hover:border-slate-700 transition-all group duration-300"
               >
                 <div className="flex flex-col">
                   <Link to={`/pitch/${app.id}`} className="flex flex-col hover:opacity-75 transition-opacity">
-                    <span className="text-base font-bold text-[#0e121b] leading-tight">{app.name}</span>
-                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-1">ID: {app.id}</span>
+                    <span className="text-base font-bold text-[var(--color-text-main)] leading-tight transition-colors">{app.name}</span>
+                    <span className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider mt-1 transition-colors">ID: {app.id}</span>
                   </Link>
                 </div>
                 
-                <div className="text-sm text-slate-600 font-bold">{app.organizer}</div>
+                <div className="text-sm text-[var(--color-text-main)] font-bold transition-colors dark:text-white">{app.organizer}</div>
                 
                 <div className="flex flex-col">
-                  <span className="text-sm font-bold text-slate-700">{app.deadline}</span>
-                  <span className={`text-[11px] font-black uppercase tracking-tight mt-0.5 ${app.statusColor === 'amber' ? 'text-amber-500' : 'text-slate-400'}`}>
+                  <span className="text-sm font-bold text-[var(--color-text-main)] transition-colors dark:text-white">{app.deadline}</span>
+                  <span className={`text-[11px] font-black uppercase tracking-tight mt-0.5 transition-colors dark:text-slate-200 ${app.statusColor === 'amber' ? 'text-amber-500' : 'text-[var(--color-text-muted)]'}`}>
                     {app.daysLeft}
                   </span>
                 </div>
@@ -173,7 +176,7 @@ const Tracking = () => {
                 </div>
                 
                 <div className="flex justify-end">
-                  <button className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-400 hover:text-slate-600 transition-colors p-2 hover:bg-slate-50 rounded-xl whitespace-nowrap">
+                  <button className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] transition-colors p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl whitespace-nowrap dark:text-white">
                     <FileText className="size-4 text-red-500" />
                     View PDF
                   </button>
@@ -188,19 +191,19 @@ const Tracking = () => {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: 'easeOut', delay: (applications.length + 2) * 0.04 }}
-          className="flex items-center justify-between px-8 py-5 bg-white rounded-3xl border border-slate-200/60 shadow-sm"
+          className="flex items-center justify-between px-8 py-5 bg-[var(--color-surface)] border border-slate-200/60 dark:border-slate-800 rounded-3xl shadow-sm transition-colors duration-300"
         >
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Showing 1 to 5 of 24 applications</p>
+          <p className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest transition-colors">Showing 1 to 5 of 24 applications</p>
           <div className="flex items-center gap-2">
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:bg-slate-50 transition-colors">
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
               <ChevronLeft className="size-5" />
             </button>
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#40484f] text-sm font-bold text-white shadow-lg shadow-[#40484f]/20">1</button>
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-sm font-bold text-slate-400 hover:bg-slate-50 transition-colors">2</button>
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-sm font-bold text-slate-400 hover:bg-slate-50 transition-colors">3</button>
-            <span className="px-2 text-slate-300">...</span>
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-sm font-bold text-slate-400 hover:bg-slate-50 transition-colors">5</button>
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:bg-slate-50 transition-colors">
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-primary)] dark:bg-blue-600 text-sm font-bold text-white shadow-lg transition-all">1</button>
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-sm font-bold text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">2</button>
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-sm font-bold text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">3</button>
+            <span className="px-2 text-slate-300 dark:text-slate-700">...</span>
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-sm font-bold text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">5</button>
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
               <ChevronRight className="size-5" />
             </button>
           </div>
