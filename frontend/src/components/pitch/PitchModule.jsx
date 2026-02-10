@@ -367,8 +367,8 @@ const PitchModule = () => {
                                 {/* Readiness Dashboard */}
                                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                                     <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Readiness Score</h3>
-                                        <span className={`px-2 py-0.5 ${evaluation.score >= 80 ? 'bg-emerald-100 text-emerald-700' : 'bg-[#40484f]/10 text-[#40484f]'} text-[10px] font-bold rounded`}>
+                                        <h3 className="text-lg font-bold text-slate-900 uppercase tracking-wider">Readiness Score</h3>
+                                        <span className={`px-2 py-0.5 ${evaluation.score >= 80 ? 'bg-emerald-100 text-emerald-700' : 'bg-[#40484f]/10 text-[#40484f]'} text-xs font-bold rounded`}>
                                             {evaluation.score >= 90 ? 'ELITE' : evaluation.score >= 70 ? 'STRONG' : 'DRAFT'}
                                         </span>
                                     </div>
@@ -399,13 +399,13 @@ const PitchModule = () => {
                                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                                         <div className="px-5 py-4 flex items-center justify-between border-b border-emerald-50 bg-emerald-50/30">
                                             <div className="flex items-center gap-2">
-                                                <CheckCircle2 className="size-5 text-emerald-500" />
-                                                <h4 className="text-sm font-bold text-slate-900">Your Strengths</h4>
+                                                <CheckCircle2 className="size-6 text-emerald-500" />
+                                                <h4 className="text-lg font-bold text-slate-900">Your Strengths</h4>
                                             </div>
-                                            <span className="text-[10px] font-black text-emerald-500 uppercase">Strong</span>
+                                            <span className="text-xs font-black text-emerald-500 uppercase">Strong</span>
                                         </div>
                                         <div className="p-5">
-                                            <p className="text-sm text-slate-600 leading-relaxed font-medium">{evaluation.best_part}</p>
+                                            <p className="text-base text-slate-600 leading-relaxed font-medium">{evaluation.best_part}</p>
                                         </div>
                                     </div>
 
@@ -413,14 +413,14 @@ const PitchModule = () => {
                                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                                         <div className="px-5 py-4 flex items-center justify-between border-b border-amber-50 bg-amber-50/30">
                                             <div className="flex items-center gap-2">
-                                                <TrendingUp className="size-5 text-amber-500" />
-                                                <h4 className="text-sm font-bold text-amber-900">Needs improvement</h4>
+                                                <TrendingUp className="size-6 text-amber-500" />
+                                                <h4 className="text-lg font-bold text-amber-900">Needs improvement</h4>
                                             </div>
-                                            <span className="text-[10px] font-black text-amber-500 uppercase">Opportunity</span>
+                                            <span className="text-xs font-black text-amber-500 uppercase">Opportunity</span>
                                         </div>
                                         <div className="p-5 space-y-4">
                                             <div className="p-4 bg-amber-50 rounded-lg border border-amber-100">
-                                                <p className="text-sm text-slate-600 leading-relaxed italic">{evaluation.improvement_needed}</p>
+                                                <p className="text-base text-slate-600 leading-relaxed italic">{evaluation.improvement_needed}</p>
                                             </div>
                                             {evaluation.worse_part && evaluation.worse_part !== "Critical areas will appear here." && (
                                                 <div className="flex gap-3 px-1">
