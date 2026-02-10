@@ -197,17 +197,7 @@ const Tracking = () => {
 
       </main>
 
-      {/* Footer */}
-      <footer className="mx-auto mt-auto w-full max-w-[1280px] px-10 py-8 border-t border-slate-200">
-        <div className="flex justify-between items-center text-slate-400 text-xs font-medium">
-          <p>© 2023 GranFit AI. All rights reserved.</p>
-          <div className="flex gap-6">
-            <a className="hover:text-[#40484f]" href="#">Privacy Policy</a>
-            <a className="hover:text-[#40484f]" href="#">Terms of Service</a>
-            <a className="hover:text-[#40484f]" href="#">Help Center</a>
-          </div>
-        </div>
-      </footer>
+
     </div>
   );
 };

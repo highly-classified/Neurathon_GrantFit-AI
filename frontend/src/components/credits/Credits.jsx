@@ -194,17 +194,7 @@ const Credits = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-8 px-10">
-        <div className="max-w-[1120px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-slate-400 text-xs font-bold tracking-tight">© 2024 GranFit AI Enterprise. All rights reserved.</p>
-          <div className="flex gap-8">
-            <Link className="text-slate-400 hover:text-[#40484f] text-xs font-bold transition-colors" to="#">Terms of Service</Link>
-            <Link className="text-slate-400 hover:text-[#40484f] text-xs font-bold transition-colors" to="#">Privacy Policy</Link>
-            <Link className="text-slate-400 hover:text-[#40484f] text-xs font-bold transition-colors" to="#">Compliance Audit</Link>
-          </div>
-        </div>
-      </footer>
+
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
