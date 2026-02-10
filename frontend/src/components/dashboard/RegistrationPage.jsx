@@ -66,13 +66,13 @@ const RegistrationPage = () => {
       title: "NSF SBIR Phase I: AI & Quantum Tech",
       org: "National Science Foundation",
       funding: "$275,000",
-      deadline: "Oct 24, 2024"
+      deadline: "Oct 24, 2026"
     },
     'DOE-EERE-2024': {
       title: "Clean Energy Innovation Grant",
       org: "Department of Energy (DOE)",
       funding: "$500,000",
-      deadline: "In 5 Days"
+      deadline: "Dec 01, 2026"
     },
     // Default fallback
     'default': {

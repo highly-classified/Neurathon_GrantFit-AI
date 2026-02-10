@@ -119,7 +119,7 @@ async function analyzePitchWithAI(pitchText, grant) {
         const cleanResponse = response.replace(/```json/g, "").replace(/```/g, "").trim();
         const result = JSON.parse(cleanResponse);
 
-        return {
+        return {   
             score: Math.max(0, Math.min(100, result.score || 50)),
             best_part: result.best_part || "Strong mission intent.",
             improvement_needed: result.improvement_needed || "Add more technical details.",
