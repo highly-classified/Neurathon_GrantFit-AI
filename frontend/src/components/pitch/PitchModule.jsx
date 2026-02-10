@@ -20,8 +20,13 @@ import {
     Circle,
     Target,
     TrendingUp,
-    AlertTriangle
+    AlertTriangle,
+    X,
+    Pause,
+    Play,
+    StopCircle
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../dashboard/Navbar';
 
 const PitchModule = () => {
@@ -35,6 +40,97 @@ const PitchModule = () => {
         improvement_needed: "Submit your pitch to get feedback.",
         worse_part: "Critical areas will appear here.",
     });
+
+    // Voice-to-Text State
+    const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
+    const [recordingTime, setRecordingTime] = useState(0);
+    const [interimTranscript, setInterimTranscript] = useState('');
+    const [recognition, setRecognition] = useState(null);
+
+    useEffect(() => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recog = new SpeechRecognition();
+            recog.continuous = true;
+            recog.interimResults = true;
+            recog.lang = 'en-US';
+
+            recog.onresult = (event) => {
+                let currentInterim = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        setPitchText(prev => prev + ' ' + event.results[i][0].transcript);
+                    } else {
+                        currentInterim += event.results[i][0].transcript;
+                    }
+                }
+                setInterimTranscript(currentInterim);
+            };
+
+            recog.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                setIsRecording(false);
+            };
+
+            recog.onend = () => {
+                setIsRecording(false);
+            };
+
+            setRecognition(recog);
+        }
+    }, []);
+
+    useEffect(() => {
+        let interval;
+        if (isRecording) {
+            interval = setInterval(() => {
+                setRecordingTime(prev => {
+                    if (prev <= 1) {
+                        stopRecording();
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        } else {
+            clearInterval(interval);
+        }
+        return () => clearInterval(interval);
+    }, [isRecording]);
+
+    const startRecording = () => {
+        if (recognition) {
+            try {
+                recognition.start();
+                setIsRecording(true);
+                setRecordingTime(300);
+                setInterimTranscript('');
+            } catch (e) {
+                console.error("Recognition already started", e);
+            }
+        } else {
+            alert("Speech recognition is not supported in this browser.");
+        }
+    };
+
+    const stopRecording = () => {
+        if (recognition) {
+            recognition.stop();
+            setIsRecording(false);
+            if (interimTranscript) {
+                setPitchText(prev => prev + ' ' + interimTranscript);
+            }
+            setInterimTranscript('');
+            setIsVoiceModalOpen(false);
+        }
+    };
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
 
     // In a real app, this would be a fetch() call to the backend
     const simulateBackendAnalysis = async (text) => {
@@ -180,7 +276,10 @@ const PitchModule = () => {
                                             <List className="size-5" />
                                         </button>
                                         <div className="h-6 w-px bg-slate-200 mx-1"></div>
-                                        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#40484f]/10 text-[#40484f] font-bold text-xs hover:bg-[#40484f]/20 transition-colors">
+                                        <button 
+                                            onClick={() => setIsVoiceModalOpen(true)}
+                                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#40484f]/10 text-[#40484f] font-bold text-xs hover:bg-[#40484f]/20 transition-colors"
+                                        >
                                             <Mic className="size-4" /> Voice Input
                                         </button>
                                     </div>
@@ -328,6 +427,98 @@ const PitchModule = () => {
                     </div>
                 </main>
             </div>
+
+            <AnimatePresence>
+                {isVoiceModalOpen && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-6"
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-slate-100"
+                        >
+                            <div className="p-8 flex flex-col items-center text-center">
+                                <div className="w-full flex justify-end mb-2">
+                                    <button 
+                                        onClick={() => { stopRecording(); setIsVoiceModalOpen(false); }}
+                                        className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
+
+                                <div className="relative mb-8">
+                                    <AnimatePresence>
+                                        {isRecording && (
+                                            <motion.div 
+                                                initial={{ scale: 0.8, opacity: 0 }}
+                                                animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.3, 0.1] }}
+                                                transition={{ duration: 2, repeat: Infinity }}
+                                                className="absolute inset-0 bg-[#40484f] rounded-full"
+                                            />
+                                        )}
+                                    </AnimatePresence>
+                                    <div className={`relative z-10 size-24 rounded-full flex items-center justify-center transition-all duration-500 ${isRecording ? 'bg-[#40484f] text-white shadow-xl shadow-[#40484f]/30' : 'bg-slate-100 text-slate-400'}`}>
+                                        <Mic size={40} className={isRecording ? 'animate-pulse' : ''} />
+                                    </div>
+                                </div>
+
+                                <h3 className="text-2xl font-black text-slate-900 mb-2">
+                                    {isRecording ? "Listening..." : "Ready to Record"}
+                                </h3>
+                                <p className="text-slate-500 text-sm mb-6 max-w-[240px]">
+                                    {isRecording 
+                                        ? "Your voice is being transcribed in real-time to the editor." 
+                                        : "Tap the button below to start dictating your pitch."}
+                                </p>
+
+                                <div className="text-4xl font-black text-slate-900 mb-8 tabular-nums">
+                                    {formatTime(recordingTime)}
+                                </div>
+
+                                {interimTranscript && (
+                                    <div className="w-full p-4 bg-slate-50 rounded-2xl mb-8 min-h-[60px] flex items-center justify-center">
+                                        <p className="text-sm text-[#40484f] italic font-medium opacity-70">
+                                            "{interimTranscript}..."
+                                        </p>
+                                    </div>
+                                )}
+
+                                <div className="flex items-center gap-4 w-full">
+                                    {!isRecording ? (
+                                        <button 
+                                            onClick={startRecording}
+                                            className="flex-1 py-4 bg-[#40484f] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#40484f]/90 transition-all shadow-lg shadow-[#40484f]/20"
+                                        >
+                                            <Play size={20} fill="currentColor" />
+                                            Start Recording
+                                        </button>
+                                    ) : (
+                                        <button 
+                                            onClick={stopRecording}
+                                            className="flex-1 py-4 bg-red-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
+                                        >
+                                            <StopCircle size={20} fill="currentColor" />
+                                            Stop & Save
+                                        </button>
+                                    )}
+                                    <button 
+                                        onClick={() => { stopRecording(); setIsVoiceModalOpen(false); }}
+                                        className="px-6 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-all"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <style>{`
                 .custom-scrollbar::-webkit-scrollbar {
