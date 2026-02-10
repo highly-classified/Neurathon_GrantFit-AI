@@ -41,30 +41,6 @@ const Dashboard = () => {
   });
 
   const filteredEligible = matches.eligible.filter(g =>
-  const mayBeEligible = [
-    {
-      id: "UNI-RD-2024",
-      title: "University R&D Commercialization",
-      org: "Academic Innovation Hub",
-      tags: ["Research", "Academic"],
-      funding: "$50,000",
-      deadline: "Dec 1, 2024",
-      warning: "Requires partnership with an accredited Tier 1 University research facility.",
-      type: "maybe"
-    },
-    {
-      id: "GHA-2025",
-      title: "Global Health AI Challenge",
-      org: "World Health Partners",
-      tags: ["Healthcare", "AI"],
-      funding: "$2,500,000",
-      deadline: "Jan 15, 2025",
-      warning: "Matching funds of 50% required. Organization must be registered as a non-profit.",
-      type: "maybe"
-    }
-  ];
-
-  const filteredEligible = eligibleGrants.filter(g =>
     g.title.toLowerCase().includes(eligibleSearch.toLowerCase()) ||
     g.org.toLowerCase().includes(eligibleSearch.toLowerCase())
   );
