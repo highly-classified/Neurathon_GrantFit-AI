@@ -1,4 +1,11 @@
 {
+<<<<<<< HEAD
+  "match_ai@test.com_ai-compute-grant": "1.0",
+  "match_ai@test.com_biotech-seed-fund": "0.08",
+  "match_ai@test.com_clean-water-fund": "0.0",
+  "match_ai@test.com_edu-tech-global": "0.1",
+  "match_ai@test.com_grant_environment_green": "0.1"
+=======
   "match_v3_shruthikarthikeyan2006@gmail.com_grant_environment_green": "0.1",
   "match_v3_shruthikarthikeyan2006@gmail.com_grant_tech_ai": "0.76",
   "match_v3_shruthikarthikeyan2006@gmail.com_green-energy-grant": "0.0",
@@ -14,4 +21,5 @@
   "match_v5_shruthikarthikeyan2006@gmail.com_smart-grid-innovation": "0.05",
   "match_v5_shruthikarthikeyan2006@gmail.com_ai-compute-grant": "0.45",
   "match_v5_shruthikarthikeyan2006@gmail.com_biotech-seed-fund": "0.0"
+>>>>>>> 4116064241be4ef6bb2320c3ebed78321ae16b10
 }
