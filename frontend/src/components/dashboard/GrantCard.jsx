@@ -24,7 +24,7 @@ const GrantCard = ({
       : 'border-green-200 hover:border-green-300 hover:shadow-md';
 
   return (
-    <div className={`group bg-white border ${borderClass} rounded-2xl p-5 mb-4 transition-all duration-200`}>
+    <div className={`group bg-white border ${borderClass} rounded-2xl p-5 mb-4 transition-all duration-200 ${isEligible ? 'border-l-4 border-l-green-500' : isMaybe ? 'border-l-4 border-l-blue-500' : ''}`}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex gap-4">
           <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
