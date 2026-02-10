@@ -10,7 +10,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
+process.on('uncaughtException', (err) => {
+    console.error('💥 [CRITICAL] Uncaught Exception:', err);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('💥 [CRITICAL] Unhandled Rejection at:', promise, 'reason:', reason);
+    process.exit(1);
+});
+
+console.log("📍 [DEBUG] Server script started...");
+const PORT = process.env.PORT || 5001;
+console.log(`📍 [DEBUG] Attempting to listen on port ${PORT}...`);
 
 // Root check
 app.get("/", (req, res) => {
@@ -115,6 +127,15 @@ app.post("/api/pitch/improve", async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
+
+server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${PORT} is already in use. Please use a different port or kill the existing process.`);
+    } else {
+        console.error(`❌ Server failed to start:`, error);
+    }
+    process.exit(1);
 });
