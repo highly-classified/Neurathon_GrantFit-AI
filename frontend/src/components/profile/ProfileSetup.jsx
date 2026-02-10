@@ -4,7 +4,7 @@ import { auth, db } from '../../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { User, Briefcase, Globe, DollarSign, Flag, Calendar, ArrowRight, Search, ChevronDown, Check } from 'lucide-react';
-import { countries } from '../../constants/countries.js';
+import { countries } from '../../constants/countries';
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
