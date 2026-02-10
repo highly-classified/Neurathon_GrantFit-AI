@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { jsPDF } from 'jspdf';
 import Navbar from '../dashboard/Navbar';
@@ -14,7 +14,9 @@ import {
   CheckCircle2,
   Clock,
   ArrowUpRight,
-  Download
+  Download,
+  Mic,
+  Eye
 } from 'lucide-react';
 
 const Tracking = () => {
@@ -22,6 +24,7 @@ const Tracking = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const navigate = useNavigate();
 
   const staticApplications = [
     {
@@ -227,7 +230,7 @@ const Tracking = () => {
               className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 hover:border-slate-300 transition-all cursor-default group"
             >
               <div className={`size-12 rounded-2xl flex items-center justify-center transition-colors ${stat.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' :
-                  stat.color === 'blue' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600'
+                stat.color === 'blue' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600'
                 }`}>
                 <stat.icon size={24} />
               </div>
@@ -257,8 +260,8 @@ const Tracking = () => {
                 key={filter}
                 onClick={() => setStatusFilter(filter)}
                 className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${statusFilter === filter
-                    ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10'
-                    : 'bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 border border-slate-100'
+                  ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10'
+                  : 'bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 border border-slate-100'
                   }`}
               >
                 {filter}
@@ -313,13 +316,22 @@ const Tracking = () => {
                     </span>
                   </div>
 
-                  <div className="flex justify-end">
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={() => navigate(`/pitch/${app.grantId || app.id}`)}
+                      className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-blue-500 hover:text-blue-600 transition-all p-2.5 hover:bg-blue-50 rounded-xl"
+                      title="Practice Pitch"
+                    >
+                      <Mic className="size-4" />
+                      Practice Pitch
+                    </button>
                     <button
                       onClick={() => generatePDF(app)}
-                      className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-slate-400 hover:text-red-500 transition-all p-2.5 hover:bg-red-50 rounded-xl"
+                      className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-slate-400 hover:text-emerald-500 transition-all p-2.5 hover:bg-emerald-50 rounded-xl"
+                      title="Download PDF"
                     >
                       <Download className="size-4" />
-                      View PDF
+                      PDF
                     </button>
                   </div>
                 </motion.div>

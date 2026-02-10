@@ -239,8 +239,8 @@ const PitchModule = () => {
                         <div>
                             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Grant Context</h3>
                             <div className="p-3 bg-[#40484f]/5 rounded-lg border border-[#40484f]/10">
-                                <h4 className="text-sm font-bold text-[#40484f]">{grantId || "NSF Phase I"}</h4>
-                                <p className="text-xs text-slate-500 mt-1">{grantDetails.org}</p>
+                                <h4 className="text-sm font-bold text-[#40484f]">{grantId}</h4>
+                                <p className="text-xs text-slate-500 mt-1">Practice Module</p>
                             </div>
                         </div>
                         <nav className="flex flex-col gap-1">
