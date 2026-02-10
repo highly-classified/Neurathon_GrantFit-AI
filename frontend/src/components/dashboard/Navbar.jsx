@@ -6,28 +6,6 @@ const Navbar = () => {
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
 
-  // Get user initials from localStorage
-  const getInitials = () => {
-    try {
-      const savedProfile = localStorage.getItem('userProfile');
-      if (savedProfile) {
-        const profile = JSON.parse(savedProfile);
-        if (profile.displayName) {
-          const names = profile.displayName.trim().split(/\s+/);
-          if (names.length >= 2) {
-            return (names[0][0] + names[1][0]).toUpperCase();
-          }
-          return profile.displayName.substring(0, 2).toUpperCase();
-        }
-      }
-    } catch (error) {
-      console.error("Error getting initials:", error);
-    }
-    return 'JD';
-  };
-
-  const initials = getInitials();
-
   const getLinkClass = (path) => {
     const baseClass = "text-lg font-bold py-5 transition-colors tracking-tight";
     const activeClass = "text-[#0f172a] border-b-2 border-[#1e293b]";
@@ -57,7 +35,7 @@ const Navbar = () => {
             to="/profile"
             className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[11px] font-black text-slate-600 border border-slate-200 shadow-sm cursor-pointer hover:ring-4 hover:ring-slate-50 transition-all"
           >
-            {initials}
+            JD
           </Link>
           <Link
             to="/"
