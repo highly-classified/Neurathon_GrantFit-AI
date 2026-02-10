@@ -3,7 +3,7 @@ import cors from "cors";
 import "dotenv/config";
 import { db } from "./src/firebase-admin.js";
 import { analyzeAndRecordPitch, improvePitchWithAI } from "./src/pitchAnalysisService.js";
-import { initializeUserCredits } from "./src/creditService.js";
+import { initializeUserCredits, checkInUser } from "./src/creditService.js";
 import { getCategorizedGrants } from "./src/matchingEngine.js";
 
 const app = express();
@@ -53,8 +53,25 @@ app.post("/api/credits/initialize", async (req, res) => {
 
     try {
         const result = await initializeUserCredits(userId);
-        res.json({ message: "Credits initialized successfully", ...result });
+        res.json({ message: "Credits initialized with registration reward (+10)", ...result });
     } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * POST /api/credits/check-in
+ * Body: { "userId": "..." }
+ */
+app.post("/api/credits/check-in", async (req, res) => {
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ error: "userId is required" });
+
+    try {
+        const result = await checkInUser(userId);
+        res.json(result);
+    } catch (error) {
+        console.error("Check-in Error:", error);
         res.status(500).json({ error: error.message });
     }
 });

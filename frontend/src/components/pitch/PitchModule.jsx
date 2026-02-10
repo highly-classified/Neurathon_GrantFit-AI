@@ -64,6 +64,7 @@ const PitchModule = () => {
     const [isRecording, setIsRecording] = useState(false);
     const [recordingTime, setRecordingTime] = useState(0);
     const [interimTranscript, setInterimTranscript] = useState('');
+    const [finalTranscript, setFinalTranscript] = useState('');
     const [recognition, setRecognition] = useState(null);
     const textareaRef = useRef(null);
     const isUpdatingFromInput = useRef(false);
@@ -100,12 +101,19 @@ const PitchModule = () => {
 
             recog.onresult = (event) => {
                 let currentInterim = '';
+                let newFinal = '';
+
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    const transcript = event.results[i][0].transcript;
                     if (event.results[i].isFinal) {
-                        setPitchText(prev => prev + ' ' + event.results[i][0].transcript);
+                        newFinal += transcript;
                     } else {
-                        currentInterim += event.results[i][0].transcript;
+                        currentInterim += transcript;
                     }
+                }
+
+                if (newFinal) {
+                    setFinalTranscript(prev => prev + newFinal);
                 }
                 setInterimTranscript(currentInterim);
             };
@@ -144,10 +152,11 @@ const PitchModule = () => {
     const startRecording = () => {
         if (recognition) {
             try {
+                setInterimTranscript('');
+                setFinalTranscript('');
                 recognition.start();
                 setIsRecording(true);
                 setRecordingTime(300);
-                setInterimTranscript('');
             } catch (e) {
                 console.error("Recognition already started", e);
             }
@@ -160,10 +169,18 @@ const PitchModule = () => {
         if (recognition) {
             recognition.stop();
             setIsRecording(false);
-            if (interimTranscript) {
-                setPitchText(prev => prev + ' ' + interimTranscript);
+
+            // Commit final transcript + any remaining interim transcript to main pitch text
+            const fullTranscript = (finalTranscript + ' ' + interimTranscript).trim();
+            if (fullTranscript) {
+                setPitchText(prev => {
+                    const separator = prev && !prev.endsWith(' ') ? ' ' : '';
+                    return prev + separator + fullTranscript;
+                });
             }
+
             setInterimTranscript('');
+            setFinalTranscript('');
             setIsVoiceModalOpen(false);
         }
     };
@@ -539,10 +556,10 @@ const PitchModule = () => {
                                     {formatTime(recordingTime)}
                                 </div>
 
-                                {interimTranscript && (
+                                {(finalTranscript || interimTranscript) && (
                                     <div className="w-full p-4 bg-slate-50 rounded-2xl mb-8 min-h-[60px] flex items-center justify-center">
                                         <p className="text-sm text-[#40484f] italic font-medium opacity-70">
-                                            "{interimTranscript}..."
+                                            "{finalTranscript} <span className="text-slate-400">{interimTranscript}</span>"
                                         </p>
                                     </div>
                                 )}

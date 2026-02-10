@@ -5,6 +5,7 @@ export const COLLECTIONS = {
   PITCH_SESSIONS: "pitch_sessions",
   CREDITS: "credits",
   PITCH_ATTEMPT_COUNTERS: "pitch_attempt_counters",
+  ACTIVITY_LOGS: "activity_logs",
 };
 
 export const USER_ROLES = new Set(["researcher", "startup"]);
