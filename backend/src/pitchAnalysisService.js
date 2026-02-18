@@ -8,14 +8,14 @@ import { callGemini } from "./aiService.js";
  * Analyzes a user's pitch text against a grant's requirements using real AI.
  */
 export async function analyzeAndRecordPitch(userId, grantId, pitchText) {
-    const hasCredits = await hasSufficientCredits(userId, "analyze_credits");
+    const hasCredits = await hasSufficientCredits(userId);
     if (!hasCredits) throw new Error("INSUFFICIENT_ANALYZE_CREDITS");
 
     const grantDoc = await db.collection(COLLECTIONS.ORGANIZERS).doc(grantId).get();
     const grantData = grantDoc.exists ? grantDoc.data() : { org_name: "Target Grant" };
 
     const analysis = await analyzePitchWithAI(pitchText, grantData);
-    await deductCredits(userId, "analyze_credits");
+    await deductCredits(userId, undefined, grantData.org_name || "Target Grant");
 
     const result = await createPitchSessionAdmin(userId, {
         grant_id: grantId,
@@ -34,7 +34,7 @@ export async function analyzeAndRecordPitch(userId, grantId, pitchText) {
  * AI identifies specific sentences or sections that still need work.
  */
 export async function improvePitchWithAI(userId, grantId, pitchText, previousAnalysis) {
-    const hasCredits = await hasSufficientCredits(userId, "analyze_credits");
+    const hasCredits = await hasSufficientCredits(userId);
     if (!hasCredits) throw new Error("INSUFFICIENT_ANALYZE_CREDITS");
 
     const grantDoc = await db.collection(COLLECTIONS.ORGANIZERS).doc(grantId).get();
@@ -77,7 +77,7 @@ export async function improvePitchWithAI(userId, grantId, pitchText, previousAna
     const cleanResponse = response.replace(/```json/g, "").replace(/```/g, "").trim();
     const result = JSON.parse(cleanResponse);
 
-    await deductCredits(userId, "analyze_credits");
+    await deductCredits(userId, undefined, grantData.org_name || "Target Grant");
 
     return {
         score: result.new_score,
@@ -119,7 +119,7 @@ async function analyzePitchWithAI(pitchText, grant) {
         const cleanResponse = response.replace(/```json/g, "").replace(/```/g, "").trim();
         const result = JSON.parse(cleanResponse);
 
-        return {   
+        return {
             score: Math.max(0, Math.min(100, result.score || 50)),
             best_part: result.best_part || "Strong mission intent.",
             improvement_needed: result.improvement_needed || "Add more technical details.",

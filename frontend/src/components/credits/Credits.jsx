@@ -2,13 +2,13 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { auth, db } from '../../firebase';
-import { 
-  doc, 
-  onSnapshot, 
-  collection, 
-  query, 
-  where, 
-  orderBy, 
+import {
+  doc,
+  onSnapshot,
+  collection,
+  query,
+  where,
+  orderBy,
   limit,
   getDoc
 } from 'firebase/firestore';
@@ -29,7 +29,8 @@ import {
   X,
   Check,
   TrendingDown,
-  TrendingUp
+  TrendingUp,
+  Sparkles
 } from 'lucide-react';
 
 const Credits = () => {
@@ -56,13 +57,18 @@ const Credits = () => {
       const unsubCredits = onSnapshot(creditsRef, (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
-          setCredits(data);
-          
+          // Ensure minimum 10 credits for display
+          const displayCredits = {
+            ...data,
+            analyze_credits: data.analyze_credits || 10
+          };
+          setCredits(displayCredits);
+
           // Estimate billing end from last_updated or use fallback
           const updatedTS = data.last_updated?.toDate() || new Date();
           const nextBilling = new Date(updatedTS);
           nextBilling.setDate(nextBilling.getDate() + 30);
-          
+
           setStats(prev => ({
             ...prev,
             billingEnd: nextBilling.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -76,53 +82,76 @@ const Credits = () => {
         setLoading(false); // Stop spinner even if error
       });
 
-      // 2. Fetch recent activity (Pitch Sessions)
-      const sessionsRef = collection(db, 'pitch_sessions');
+      // 2. Fetch recent activity (Activity Logs)
+      const logsRef = collection(db, 'activity_logs');
       const q = query(
-        sessionsRef,
+        logsRef,
         where('user_id', '==', user.uid),
-        orderBy('created_at', 'desc'),
-        limit(10)
+        limit(50) // Fetch enough to sort locally
       );
 
-      const unsubSessions = onSnapshot(q, (snapshot) => {
+      const unsubLogs = onSnapshot(q, (snapshot) => {
         const logs = snapshot.docs.map(d => {
           const data = d.data();
-          const date = data.created_at?.toDate() || new Date();
-          
+          const date = data.timestamp?.toDate() || new Date();
+
+          let icon = <Brain className="text-slate-400 size-5" />;
+          if (data.type === 'Daily Check-in') icon = <Calendar className="text-slate-400 size-5" />;
+          if (data.type === 'First Registration') icon = <PlusCircle className="text-slate-400 size-5" />;
+
+          const impact = data.impact || "0";
+
           return {
             date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-            type: 'Deep AI Analysis', // Simplified for now
-            icon: <Brain className="text-slate-400 size-5" />,
-            project: `Grant: ${data.grant_id?.substring(0, 8)}...`,
-            impact: '-1 credits',
-            impactColor: 'text-red-600',
+            type: data.type || "Unknown Activity",
+            icon: icon,
+            project: data.project_name || '—',
+            impact: impact,
+            impactColor: impact.startsWith('+') ? 'text-green-600' : (impact.startsWith('-') ? 'text-red-600' : 'text-slate-600'),
             rawDate: date
           };
         });
 
-        setUsageLogs(logs);
+        // Sort locally by date descending to avoid index requirement
+        const sortedLogs = [...logs].sort((a, b) => b.rawDate - a.rawDate).slice(0, 10);
+        setUsageLogs(sortedLogs);
 
-        // Calculate Monthly Usage (this month)
+        // Calculate Monthly Usage (this month - only deductions)
         const now = new Date();
         const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        const thisMonthUsage = logs.filter(l => l.rawDate >= firstDay).length;
-        
+        const thisMonthUsage = sortedLogs.filter(l => l.rawDate >= firstDay && l.impact.startsWith('-')).length;
+
         setStats(prev => ({
           ...prev,
           monthlyUsage: thisMonthUsage,
           lastSynced: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }));
-        
+
         setLoading(false);
       }, (error) => {
-        console.error("Sessions Listener Error:", error);
-        setLoading(false); // Stop spinner even if error
+        console.error("Logs Listener Error:", error);
+        setLoading(false);
       });
+
+      // 3. Trigger Daily Check-in
+      const handleCheckIn = async () => {
+        try {
+          const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+          await fetch(`${API_BASE_URL}/api/credits/check-in`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.uid })
+          });
+        } catch (e) {
+          console.error("Check-in Trigger Error:", e);
+        }
+      };
+
+      handleCheckIn();
 
       return () => {
         unsubCredits();
-        unsubSessions();
+        unsubLogs();
       };
     });
 
@@ -153,7 +182,7 @@ const Credits = () => {
             </div>
             <div className="flex items-center gap-4">
               <p className="text-xs text-slate-400">Last synced: {stats.lastSynced}</p>
-              <button 
+              <button
                 onClick={() => window.location.reload()}
                 className="flex items-center justify-center rounded-lg h-10 px-4 bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm gap-2"
               >
@@ -175,8 +204,8 @@ const Credits = () => {
                     {totalCredits < 5 ? 'Low Credit Balance' : 'Active Account Plan'}
                   </p>
                   <p className="text-slate-500 text-sm font-medium leading-normal">
-                    {totalCredits < 5 
-                      ? `Your team has ${totalCredits} credits remaining. Pitch analysis services may be interrupted.` 
+                    {totalCredits < 5
+                      ? `Your team has ${totalCredits} credits remaining. Pitch analysis services may be interrupted.`
                       : `You have ${totalCredits} credits available for deep AI analysis and pitch optimization.`}
                   </p>
                 </div>
@@ -231,14 +260,18 @@ const Credits = () => {
             <div className="flex flex-col gap-4 rounded-2xl p-6 bg-white border border-slate-200 shadow-sm relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-110"></div>
               <div className="flex justify-between items-start relative z-10">
-                <p className="text-slate-500 text-sm font-bold uppercase tracking-wider">Billing Period Ends</p>
-                <div className="p-2 bg-slate-50 text-slate-400 rounded-lg">
-                  <Calendar size={20} />
+                <p className="text-slate-500 text-sm font-bold uppercase tracking-wider">Plan Type</p>
+                <div className="p-2 bg-green-50 text-green-600 rounded-lg">
+                  <Sparkles size={20} />
                 </div>
               </div>
-              <p className="text-slate-900 text-2xl lg:text-3xl font-black relative z-10 mt-1">{stats.billingEnd}</p>
+              <p className="text-slate-900 text-2xl font-black relative z-10">Freemium</p>
               <div className="flex items-center gap-1.5 relative z-10">
-                <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Automatic renewal active</span>
+                <span className="text-green-600 text-xs font-black flex items-center">
+                  <Check className="size-3.5" />
+                  Active
+                </span>
+                <span className="text-slate-400 text-xs font-bold">Earn credits daily</span>
               </div>
             </div>
           </div>
@@ -250,7 +283,6 @@ const Credits = () => {
             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
               <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
                 <h2 className="text-slate-900 text-xl font-black">Recent Activity Logs</h2>
-                <button className="text-[#40484f] text-sm font-bold hover:underline">Download CSV</button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">

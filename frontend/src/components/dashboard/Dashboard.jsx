@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import GrantCard from './GrantCard';
 import { auth } from '../../firebase';
+import { API_ENDPOINTS } from '../../config';
 
 const Dashboard = () => {
   const [eligibleSearch, setEligibleSearch] = useState('');
@@ -41,7 +42,7 @@ const Dashboard = () => {
 
     setError(null);
     try {
-      const response = await fetch(`http://localhost:5001/api/grants/${userId}`);
+      const response = await fetch(API_ENDPOINTS.GRANTS(userId));
       if (!response.ok) throw new Error('Failed to fetch matches');
       const data = await response.json();
 
