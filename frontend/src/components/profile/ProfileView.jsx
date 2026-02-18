@@ -192,7 +192,7 @@ const ProfileView = () => {
                   </div>
                   <div className="text-center border-l border-slate-100">
                     <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Plan</p>
-                    <p className="text-sm font-bold text-[#40484f]">Enterprise</p>
+                    <p className="text-sm font-bold text-[#40484f]">Free</p>
                   </div>
                 </div>
 
