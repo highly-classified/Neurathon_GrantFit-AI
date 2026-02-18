@@ -41,9 +41,9 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-100 flex items-center justify-between px-12 z-50 shadow-sm">
-      <div className="flex items-center gap-8">
+      <div className="flex items-center gap-8 ml-4">
         <Link to="/dashboard" className="flex items-center gap-2 group cursor-pointer">
-          <img src="/logo-white.png" alt="GrantFit AI Logo" className="h-10 w-auto" style={{ filter: 'brightness(0) saturate(100%) invert(13%) sepia(30%) saturate(3860%) hue-rotate(211deg) brightness(93%) contrast(93%)' }} />
+          <img src="/logo-white.png" alt="GrantFit AI Logo" className="h-14 w-auto" style={{ filter: 'brightness(0) saturate(100%) invert(13%) sepia(30%) saturate(3860%) hue-rotate(211deg) brightness(93%) contrast(93%)' }} />
           <span className="text-xl text-[#0f172a] ml-3" style={{ fontFamily: '"Gravitas One", serif' }}>GrantFit AI</span>
         </Link>
       </div>
