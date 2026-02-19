@@ -209,12 +209,22 @@ const PitchModule = () => {
                 })
             });
 
-            if (!response.ok) throw new Error('Failed to analyze pitch');
+            if (!response.ok) {
+                const errorData = await response.json();
+                if (errorData.message === "INSUFFICIENT_ANALYZE_CREDITS") {
+                    alert("You have insufficient credits to perform this analysis. Please upgrade your plan.");
+                    // Optional: open the upgrade modal if you have access to it here, or navigate to credits page
+                    return null;
+                }
+                throw new Error(errorData.message || 'Failed to analyze pitch');
+            }
             const result = await response.json();
             return result;
         } catch (error) {
             console.error("Pitch Analysis Error:", error);
-            alert("Failed to analyze pitch. Please ensure the backend is running.");
+            if (error.message !== "INSUFFICIENT_ANALYZE_CREDITS") {
+                alert(`Analysis failed: ${error.message}`);
+            }
             return null;
         } finally {
             setIsAnalyzing(false);
@@ -238,12 +248,21 @@ const PitchModule = () => {
                 })
             });
 
-            if (!response.ok) throw new Error('Failed to improve pitch');
+            if (!response.ok) {
+                const errorData = await response.json();
+                if (errorData.message === "INSUFFICIENT_ANALYZE_CREDITS") {
+                    alert("You have insufficient credits to improve this pitch. Please upgrade your plan.");
+                    return null;
+                }
+                throw new Error(errorData.message || 'Failed to improve pitch');
+            }
             const result = await response.json();
             return result;
         } catch (error) {
             console.error("Pitch Improvement Error:", error);
-            alert("Failed to improve pitch. Please ensure the backend is running.");
+            if (error.message !== "INSUFFICIENT_ANALYZE_CREDITS") {
+                alert(`Improvement failed: ${error.message}`);
+            }
             return null;
         } finally {
             setIsAnalyzing(false);

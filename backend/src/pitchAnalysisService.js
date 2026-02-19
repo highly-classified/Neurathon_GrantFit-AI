@@ -1,32 +1,49 @@
 import { db } from "./firebase-admin.js";
 import { COLLECTIONS } from "./firestore/collections.js";
 import { createPitchSessionAdmin } from "./pitchSessionService.js";
-import { deductCredits, hasSufficientCredits } from "./creditService.js";
+import { deductCredits, hasSufficientCredits, COSTS } from "./creditService.js";
 import { callGemini } from "./aiService.js";
 
 /**
  * Analyzes a user's pitch text against a grant's requirements using real AI.
  */
 export async function analyzeAndRecordPitch(userId, grantId, pitchText) {
-    const hasCredits = await hasSufficientCredits(userId);
-    if (!hasCredits) throw new Error("INSUFFICIENT_ANALYZE_CREDITS");
+    // 1. Check credits first
+    const hasCredits = await hasSufficientCredits(userId, COSTS.PITCH_ANALYSIS);
+    if (!hasCredits) throw new Error("INSUFFICIENT_ANALYZE_CREDITS"); // Custom error code for frontend
 
     const grantDoc = await db.collection(COLLECTIONS.ORGANIZERS).doc(grantId).get();
     const grantData = grantDoc.exists ? grantDoc.data() : { org_name: "Target Grant" };
+    const orgName = grantData.org_name || "Target Grant";
 
-    const analysis = await analyzePitchWithAI(pitchText, grantData);
-    await deductCredits(userId, undefined, grantData.org_name || "Target Grant");
+    // 2. Deduct credits BEFORE the expensive operation (Optimistic Locking)
+    // This prevents race conditions where a user spams the button
+    await deductCredits(userId, COSTS.PITCH_ANALYSIS, orgName);
 
-    const result = await createPitchSessionAdmin(userId, {
-        grant_id: grantId,
-        readiness_score: analysis.score,
-        feedback: analysis.best_part, // Store best part as main feedback summary
-    });
+    try {
+        // 3. Perform the AI Analysis
+        const analysis = await analyzePitchWithAI(pitchText, grantData);
 
-    return {
-        ...result,
-        ...analysis
-    };
+        // 4. Record the session
+        const result = await createPitchSessionAdmin(userId, {
+            grant_id: grantId,
+            readiness_score: analysis.score,
+            feedback: analysis.best_part, // Store best part as main feedback summary
+        });
+
+        return {
+            ...result,
+            ...analysis
+        };
+    } catch (error) {
+        // 5. ROLLBACK / REFUND on failure
+        console.error("AI Analysis failed, refunding credits:", error);
+        // We refund by adding the credits back
+        // In a real production system, you might want a specific 'refund' transaction to track this
+        const { addCredits } = await import("./creditService.js"); // Dynamic import to avoid circular dependency if any
+        await addCredits(userId, "System Refund (Error)", COSTS.PITCH_ANALYSIS, orgName);
+        throw error; // Re-throw so frontend knows it failed
+    }
 }
 
 /**
@@ -34,13 +51,19 @@ export async function analyzeAndRecordPitch(userId, grantId, pitchText) {
  * AI identifies specific sentences or sections that still need work.
  */
 export async function improvePitchWithAI(userId, grantId, pitchText, previousAnalysis) {
-    const hasCredits = await hasSufficientCredits(userId);
+    // 1. Check credits first
+    const hasCredits = await hasSufficientCredits(userId, COSTS.PITCH_IMPROVE);
     if (!hasCredits) throw new Error("INSUFFICIENT_ANALYZE_CREDITS");
 
     const grantDoc = await db.collection(COLLECTIONS.ORGANIZERS).doc(grantId).get();
     const grantData = grantDoc.exists ? grantDoc.data() : { org_name: "Target Grant" };
+    const orgName = grantData.org_name || "Target Grant";
 
-    const prompt = `
+    // 2. Deduct credits BEFORE AI work
+    await deductCredits(userId, COSTS.PITCH_IMPROVE, orgName);
+
+    try {
+        const prompt = `
     You are an AI Pitch Evaluator. The user has manually edited their pitch based on your previous feedback.
     Analyze the CURRENT PITCH and determine if it has improved.
     
@@ -64,27 +87,32 @@ export async function improvePitchWithAI(userId, grantId, pitchText, previousAna
        { "new_score": 75, "best_part": "...", "improvement_needed": "In the paragraph about X, the sentence '...' is still vague; try adding Y.", "worse_part": "..." }
     `;
 
-    // Use a unique cache key based on the new text to avoid returning the old AI-rewritten cached values
-    const textHash = pitchText.substring(0, 30).replace(/[^a-zA-Z]/g, "");
-    const cacheKey = `manual_v1_${grantId}_${textHash}`;
+        // Use a unique cache key based on the new text to avoid returning the old AI-rewritten cached values
+        const textHash = pitchText.substring(0, 30).replace(/[^a-zA-Z]/g, "");
+        const cacheKey = `manual_v1_${grantId}_${textHash}`;
 
-    const response = await callGemini(prompt, cacheKey, JSON.stringify({
-        new_score: previousAnalysis.score + 5,
-        best_part: "Improved methodology.",
-        improvement_needed: "Work on budget.",
-        worse_part: "None"
-    }));
-    const cleanResponse = response.replace(/```json/g, "").replace(/```/g, "").trim();
-    const result = JSON.parse(cleanResponse);
+        const response = await callGemini(prompt, cacheKey, JSON.stringify({
+            new_score: previousAnalysis.score + 5,
+            best_part: "Improved methodology.",
+            improvement_needed: "Work on budget.",
+            worse_part: "None"
+        }));
+        const cleanResponse = response.replace(/```json/g, "").replace(/```/g, "").trim();
+        const result = JSON.parse(cleanResponse);
 
-    await deductCredits(userId, undefined, grantData.org_name || "Target Grant");
-
-    return {
-        score: result.new_score,
-        best_part: result.best_part,
-        improvement_needed: result.improvement_needed,
-        worse_part: result.worse_part
-    };
+        return {
+            score: result.new_score,
+            best_part: result.best_part,
+            improvement_needed: result.improvement_needed,
+            worse_part: result.worse_part
+        };
+    } catch (error) {
+        // 3. ROLLBACK / REFUND on failure
+        console.error("Improvement Analysis failed, refunding credits:", error);
+        const { addCredits } = await import("./creditService.js");
+        await addCredits(userId, "System Refund (Error)", COSTS.PITCH_IMPROVE, orgName);
+        throw error;
+    }
 }
 
 /**
