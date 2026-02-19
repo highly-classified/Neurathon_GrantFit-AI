@@ -35,6 +35,31 @@ const LandingPage = () => {
 };
 
 function App() {
+  // Trigger Daily Check-in on mount/auth
+  React.useEffect(() => {
+    // Dynamic import to avoid top-level dependency issues if any, 
+    // though standard import is better. The file already has imports.
+    // Use the firebase auth listener.
+    import('./firebase').then(({ auth }) => {
+      const unsubscribe = auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          try {
+            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+            await fetch(`${API_BASE_URL}/api/credits/check-in`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId: user.uid })
+            });
+            console.log("Daily check-in attempted.");
+          } catch (e) {
+            console.error("Global check-in failed:", e);
+          }
+        }
+      });
+      return () => unsubscribe();
+    });
+  }, []);
+
   return (
     <Router>
       <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text-main)] font-sans selection:bg-[var(--color-primary)] selection:text-white">
