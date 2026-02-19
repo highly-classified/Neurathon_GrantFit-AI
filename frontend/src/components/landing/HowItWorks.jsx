@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { UserPlus, Filter, Mic, Award } from 'lucide-react';
+import { UserPlus, Filter, Mic, Award, ArrowRight } from 'lucide-react';
 
 const steps = [
   {
@@ -39,8 +39,7 @@ const HowItWorks = () => {
         </div>
 
         <div className="relative">
-          {/* Connection Line (Desktop) */}
-          <div className="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-[var(--color-primary)]/40 via-[var(--color-secondary)]/80 to-[var(--color-primary)]/40 -translate-y-1/2"></div>
+
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 relative">
             {steps.map((step, index) => (
@@ -61,6 +60,18 @@ const HowItWorks = () => {
                     {step.description}
                   </p>
                 </div>
+
+                {/* Arrow (Desktop) */}
+                {index < steps.length - 1 && (
+                  <div className="hidden md:block absolute -right-8 top-1/2 -translate-y-1/2 z-20">
+                    <motion.div
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <ArrowRight className="w-8 h-8 text-black drop-shadow-[0_0_10px_rgba(255,255,255,0.9)]" />
+                    </motion.div>
+                  </div>
+                )}
               </motion.div>
             ))}
           </div>

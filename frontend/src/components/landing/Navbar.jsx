@@ -45,7 +45,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20">
           <div className="flex-shrink-0 flex items-center">
             <img src="/logo-white.png" alt="GrantFit AI Logo" className="h-14 w-auto" />
-            <span className="ml-2 text-3xl text-white" style={{ fontFamily: '"Gravitas One", serif' }}>
+            <span className="ml-2 text-2xl text-white" style={{ fontFamily: '"Gravitas One", serif' }}>
               GrantFit AI
             </span>
           </div>
