@@ -37,27 +37,70 @@ const PitchModule = () => {
     const [showGuidelines, setShowGuidelines] = useState(false);
     const [evaluation, setEvaluation] = useState({
         score: 0,
+        clarityScore: 0,
+        confidenceScore: 0,
+        structureScore: 0,
+        feedback: "Submit your pitch to get feedback.",
+        strengths: [],
+        improvements: [],
         best_part: "Not evaluated yet.",
-        improvement_needed: "Submit your pitch to get feedback.",
         worse_part: "Critical areas will appear here.",
+        updatedAt: null
     });
+    const [isLoadingLatest, setIsLoadingLatest] = useState(true);
+    const [isDrafting, setIsDrafting] = useState(false);
 
-    // Load pitch from local storage when grantId changes
+    // Load pitch from backend when component mounts
     useEffect(() => {
-        const savedPitch = localStorage.getItem(`pitch_${grantId}`);
-        if (savedPitch) {
-            setPitchText(savedPitch);
-        } else {
-            setPitchText("");
-        }
-    }, [grantId]);
+        const fetchLatestPitch = async () => {
+            const user = auth.currentUser;
+            if (!user) {
+                setIsLoadingLatest(false);
+                return;
+            }
 
-    // Save pitch to local storage whenever it changes
-    useEffect(() => {
-        if (grantId) {
-            localStorage.setItem(`pitch_${grantId}`, pitchText);
-        }
-    }, [pitchText, grantId]);
+            try {
+                const response = await fetch(API_ENDPOINTS.PITCH_LATEST(user.uid));
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data) {
+                        setPitchText(data.pitchContent || "");
+                        setEvaluation({
+                            score: data.overallScore || 0,
+                            clarityScore: data.clarityScore || 0,
+                            confidenceScore: data.confidenceScore || 0,
+                            structureScore: data.structureScore || 0,
+                            feedback: data.feedback || "Good progress!",
+                            strengths: data.strengths || [],
+                            improvements: data.improvements || [],
+                            best_part: data.strengths?.[0] || "Found some key points.",
+                            worse_part: data.improvements?.[0] || "Minor areas to improve.",
+                            updatedAt: data.updatedAt
+                        });
+                        setHasEvaluated(true);
+                        // Also sync with textarea if ref is ready
+                        if (textareaRef.current) {
+                            textareaRef.current.innerHTML = data.pitchContent || "";
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching latest pitch:", error);
+            } finally {
+                setIsLoadingLatest(false);
+            }
+        };
+
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user) {
+                fetchLatestPitch();
+            } else {
+                setIsLoadingLatest(false);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     // Voice-to-Text State
     const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
@@ -90,6 +133,13 @@ const PitchModule = () => {
         }
         isUpdatingFromInput.current = false;
     }, [pitchText]);
+
+    // Auto-focus when user starts drafting for the first time
+    useEffect(() => {
+        if (isDrafting && textareaRef.current) {
+            textareaRef.current.focus();
+        }
+    }, [isDrafting]);
 
     useEffect(() => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -191,7 +241,6 @@ const PitchModule = () => {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    // In a real app, this would be a fetch() call to the backend
     // Real backend analysis call
     const analyzePitch = async (text) => {
         setIsAnalyzing(true);
@@ -213,7 +262,6 @@ const PitchModule = () => {
                 const errorData = await response.json();
                 if (errorData.message === "INSUFFICIENT_ANALYZE_CREDITS") {
                     alert("You have insufficient credits to perform this analysis. Please upgrade your plan.");
-                    // Optional: open the upgrade modal if you have access to it here, or navigate to credits page
                     return null;
                 }
                 throw new Error(errorData.message || 'Failed to analyze pitch');
@@ -270,29 +318,23 @@ const PitchModule = () => {
     };
 
     const handleEvaluate = async () => {
+        setIsDrafting(false); // No longer just drafting
         const result = await analyzePitch(pitchText);
-        if (result) {
-            setEvaluation(result);
-            setHasEvaluated(true);
-        }
-    };
-
-    const handleImprove = async () => {
-        if (evaluation.score >= 95) return;
-        const result = await improvePitch(pitchText, evaluation);
         if (result) {
             setEvaluation({
                 score: result.score,
+                clarityScore: result.clarityScore,
+                confidenceScore: result.confidenceScore,
+                structureScore: result.structureScore,
+                feedback: result.feedback,
+                strengths: result.strengths,
+                improvements: result.improvements,
                 best_part: result.best_part,
-                improvement_needed: result.improvement_needed,
                 worse_part: result.worse_part,
+                updatedAt: new Date().toISOString()
             });
+            setHasEvaluated(true);
         }
-    };
-
-    const grantDetails = {
-        name: "NSF Phase I",
-        org: "Bio-Tech Solutions"
     };
 
     return (
@@ -322,7 +364,6 @@ const PitchModule = () => {
                                 <FileText className="size-5" />
                                 <span className="text-sm font-medium">Guidelines</span>
                             </button>
-
                         </nav>
                         <div className="mt-auto border-t border-slate-100 pt-4">
                             <Link to="/tracking" className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-100 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-200 transition-colors">
@@ -381,143 +422,231 @@ const PitchModule = () => {
                             </div>
                             <div className="flex gap-3">
                                 <button
+                                    disabled={isAnalyzing}
                                     onClick={handleEvaluate}
-                                    className="flex items-center gap-2 px-4 py-2 bg-[#40484f] text-white rounded-lg font-bold text-sm hover:bg-[#40484f]/90 transition-colors shadow-lg shadow-[#40484f]/10"
+                                    className="flex items-center gap-2 px-4 py-2 bg-[#40484f] text-white rounded-lg font-bold text-sm hover:bg-[#40484f]/90 transition-colors shadow-lg shadow-[#40484f]/10 disabled:opacity-50"
                                 >
-                                    Calculate score
+                                    {isAnalyzing ? "Analyzing..." : "Calculate score"}
                                 </button>
                             </div>
                         </div>
 
-                        {/* Two-Column Layout */}
-                        <div className="flex flex-1 p-8 pt-4 gap-8 overflow-hidden">
-                            {/* Column 1: Pitch Drafting */}
-                            <div className="flex-[3] flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
-                                <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/50">
-                                    <div className="flex items-center gap-4">
-                                        <span className="text-sm font-bold text-slate-900">Drafting Zone</span>
-                                        {isAnalyzing && (
-                                            <div className="flex items-center gap-2">
-                                                <div className="size-2 rounded-full bg-slate-500 animate-ping"></div>
-                                                <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">AI is thinking...</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onMouseDown={(e) => { e.preventDefault(); applyFormatting('bold'); }}
-                                            className="flex items-center justify-center size-9 rounded-lg hover:bg-slate-200 text-slate-600"
-                                            title="Format Bold"
-                                        >
-                                            <Bold className="size-5" />
-                                        </button>
-                                        <button
-                                            onMouseDown={(e) => { e.preventDefault(); applyFormatting('list'); }}
-                                            className="flex items-center justify-center size-9 rounded-lg hover:bg-slate-200 text-slate-600"
-                                            title="Add List"
-                                        >
-                                            <List className="size-5" />
-                                        </button>
-                                        <div className="h-6 w-px bg-slate-200 mx-1"></div>
-                                        <button
-                                            onClick={() => setIsVoiceModalOpen(true)}
-                                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#40484f]/10 text-[#40484f] font-bold text-xs hover:bg-[#40484f]/20 transition-colors"
-                                        >
-                                            <Mic className="size-4" /> Voice Input
-                                        </button>
-                                    </div>
+                        {isLoadingLatest ? (
+                            <div className="flex-1 flex items-center justify-center">
+                                <div className="flex flex-col items-center gap-4">
+                                    <div className="size-12 border-4 border-slate-200 border-t-[#40484f] rounded-full animate-spin"></div>
+                                    <p className="text-slate-500 font-medium">Loading your pitch data...</p>
                                 </div>
-                                <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
-                                    <div
-                                        ref={textareaRef}
-                                        contentEditable={true}
-                                        suppressContentEditableWarning={true}
-                                        className="w-full h-full focus:outline-none text-slate-800 text-lg leading-relaxed placeholder:text-slate-300 min-h-[300px] drafting-zone"
-                                        onInput={handleInput}
-                                    ></div>
-                                </div>
-                                <div className="px-6 py-3 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-                                    <span className="text-xs font-medium text-slate-400">Words: <span className="text-slate-700">{pitchText.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(w => w).length}</span></span>
+                            </div>
+                        ) : !hasEvaluated && !isDrafting && pitchText.replace(/<[^>]*>/g, '').trim() === "" ? (
+                            <div className="flex-1 flex items-center justify-center p-8">
+                                <div className="max-w-md w-full bg-white p-10 rounded-3xl shadow-xl border border-slate-100 text-center">
+                                    <div className="size-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-400">
+                                        <Mic size={40} />
+                                    </div>
+                                    <h2 className="text-2xl font-black text-slate-900 mb-3">No pitch practiced yet</h2>
+                                    <p className="text-slate-500 mb-8 leading-relaxed">
+                                        Start by typing or recording your 3-minute pitch. Our AI will provide instant feedback on your clarity, confidence, and structure.
+                                    </p>
                                     <button
-                                        onClick={() => { setPitchText('<div></div>'); textareaRef.current.innerHTML = ''; setHasEvaluated(false); setEvaluation({ score: 0, best_part: "Not evaluated yet.", improvement_needed: "Submit your pitch to get feedback.", worse_part: "Critical areas will appear here." }); }}
-                                        className="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1"
+                                        onClick={() => setIsDrafting(true)}
+                                        className="w-full py-4 bg-[#40484f] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#40484f]/90 transition-all shadow-lg shadow-[#40484f]/20"
                                     >
-                                        <RotateCcw className="size-3.5" /> Reset Pitch
+                                        Practice your first pitch
                                     </button>
                                 </div>
                             </div>
-
-                            {/* Column 2: AI Feedback & Readiness */}
-                            <div className="flex-[2] flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-2">
-                                {/* Readiness Dashboard */}
-                                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Readiness Score</h3>
-                                        <span className={`px-2 py-0.5 ${evaluation.score >= 80 ? 'bg-emerald-100 text-emerald-700' : 'bg-[#40484f]/10 text-[#40484f]'} text-[10px] font-bold rounded`}>
-                                            {evaluation.score >= 90 ? 'ELITE' : evaluation.score >= 70 ? 'STRONG' : 'DRAFT'}
-                                        </span>
-                                    </div>
-                                    <div className="flex flex-col items-center gap-4">
-                                        <div className="relative flex items-center justify-center size-32">
-                                            <svg className="size-full transform -rotate-90">
-                                                <circle className="text-slate-100" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" strokeWidth="8"></circle>
-                                                <circle
-                                                    className="text-[#40484f] transition-all duration-1000"
-                                                    cx="64" cy="64" fill="transparent" r="56"
-                                                    stroke="currentColor"
-                                                    strokeDasharray="351.8"
-                                                    strokeDashoffset={351.8 - (351.8 * evaluation.score / 100)}
-                                                    strokeLinecap="round" strokeWidth="8"
-                                                ></circle>
-                                            </svg>
-                                            <div className="absolute flex flex-col items-center">
-                                                <span className="text-3xl font-black text-slate-900">{evaluation.score}%</span>
-                                                <span className="text-[10px] text-slate-400 font-bold uppercase">Ready</span>
-                                            </div>
+                        ) : (
+                            /* Two-Column Layout */
+                            <div className="flex flex-1 p-8 pt-4 gap-8 overflow-hidden">
+                                {/* Column 1: Pitch Drafting */}
+                                <div className="flex-[3] flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
+                                    <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/50">
+                                        <div className="flex items-center gap-4">
+                                            <span className="text-sm font-bold text-slate-900">Drafting Zone</span>
+                                            {isAnalyzing && (
+                                                <div className="flex items-center gap-2">
+                                                    <div className="size-2 rounded-full bg-slate-500 animate-ping"></div>
+                                                    <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">AI is thinking...</span>
+                                                </div>
+                                            )}
                                         </div>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onMouseDown={(e) => { e.preventDefault(); applyFormatting('bold'); }}
+                                                className="flex items-center justify-center size-9 rounded-lg hover:bg-slate-200 text-slate-600"
+                                                title="Format Bold"
+                                            >
+                                                <Bold className="size-5" />
+                                            </button>
+                                            <button
+                                                onMouseDown={(e) => { e.preventDefault(); applyFormatting('list'); }}
+                                                className="flex items-center justify-center size-9 rounded-lg hover:bg-slate-200 text-slate-600"
+                                                title="Add List"
+                                            >
+                                                <List className="size-5" />
+                                            </button>
+                                            <div className="h-6 w-px bg-slate-200 mx-1"></div>
+                                            <button
+                                                onClick={() => setIsVoiceModalOpen(true)}
+                                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#40484f]/10 text-[#40484f] font-bold text-xs hover:bg-[#40484f]/20 transition-colors"
+                                            >
+                                                <Mic className="size-4" /> Voice Input
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
+                                        <div
+                                            ref={textareaRef}
+                                            contentEditable={true}
+                                            suppressContentEditableWarning={true}
+                                            className="w-full h-full focus:outline-none text-slate-800 text-lg leading-relaxed placeholder:text-slate-300 min-h-[300px] drafting-zone"
+                                            onInput={handleInput}
+                                        ></div>
+                                    </div>
+                                    <div className="px-6 py-3 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+                                        <span className="text-xs font-medium text-slate-400">Words: <span className="text-slate-700">{pitchText.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(w => w).length}</span></span>
+                                        <button
+                                            onClick={() => {
+                                                setPitchText('<div></div>');
+                                                if (textareaRef.current) textareaRef.current.innerHTML = '';
+                                                setHasEvaluated(false);
+                                                setIsDrafting(false);
+                                                setEvaluation({
+                                                    score: 0,
+                                                    clarityScore: 0,
+                                                    confidenceScore: 0,
+                                                    structureScore: 0,
+                                                    feedback: "Submit your pitch to get feedback.",
+                                                    strengths: [],
+                                                    improvements: [],
+                                                    best_part: "Not evaluated yet.",
+                                                    worse_part: "Critical areas will appear here."
+                                                });
+                                            }}
+                                            className="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1"
+                                        >
+                                            <RotateCcw className="size-3.5" /> Reset Pitch
+                                        </button>
                                     </div>
                                 </div>
 
-                                {/* Analysis Sections */}
-                                <div className="space-y-4">
-                                    {/* Your Strengths */}
-                                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                        <div className="px-5 py-4 flex items-center justify-between border-b border-emerald-50 bg-emerald-50/30">
-                                            <div className="flex items-center gap-2">
-                                                <CheckCircle2 className="size-5 text-emerald-500" />
-                                                <h4 className="text-sm font-bold text-slate-900">Your Strengths</h4>
+                                {/* Column 2: AI Feedback & Readiness */}
+                                <div className="flex-[2] flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-2">
+                                    {/* Readiness Dashboard */}
+                                    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Readiness Score</h3>
+                                            <span className={`px-2 py-0.5 ${evaluation.score >= 80 ? 'bg-emerald-100 text-emerald-700' : 'bg-[#40484f]/10 text-[#40484f]'} text-[10px] font-bold rounded`}>
+                                                {evaluation.score >= 90 ? 'ELITE' : evaluation.score >= 70 ? 'STRONG' : 'DRAFT'}
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-col items-center gap-6">
+                                            <div className="relative flex items-center justify-center size-32">
+                                                <svg className="size-full transform -rotate-90">
+                                                    <circle className="text-slate-100" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" strokeWidth="8"></circle>
+                                                    <circle
+                                                        className="text-[#40484f] transition-all duration-1000"
+                                                        cx="64" cy="64" fill="transparent" r="56"
+                                                        stroke="currentColor"
+                                                        strokeDasharray="351.8"
+                                                        strokeDashoffset={351.8 - (351.8 * evaluation.score / 100)}
+                                                        strokeLinecap="round" strokeWidth="8"
+                                                    ></circle>
+                                                </svg>
+                                                <div className="absolute flex flex-col items-center">
+                                                    <span className="text-3xl font-black text-slate-900">{evaluation.score}%</span>
+                                                    <span className="text-[10px] text-slate-400 font-bold uppercase">Ready</span>
+                                                </div>
                                             </div>
-                                            <span className="text-[10px] font-black text-emerald-500 uppercase">Strong</span>
-                                        </div>
-                                        <div className="p-5">
-                                            <p className="text-sm text-slate-600 leading-relaxed font-medium">{evaluation.best_part}</p>
-                                        </div>
-                                    </div>
 
-                                    {/* Needs Improvement */}
-                                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                        <div className="px-5 py-4 flex items-center justify-between border-b border-amber-50 bg-amber-50/30">
-                                            <div className="flex items-center gap-2">
-                                                <TrendingUp className="size-5 text-amber-500" />
-                                                <h4 className="text-sm font-bold text-amber-900">Needs improvement</h4>
-                                            </div>
-                                            <span className="text-[10px] font-black text-amber-500 uppercase">Opportunity</span>
-                                        </div>
-                                        <div className="p-5 space-y-4">
-                                            <div className="p-4 bg-amber-50 rounded-lg border border-amber-100">
-                                                <p className="text-sm text-slate-600 leading-relaxed italic">{evaluation.improvement_needed}</p>
-                                            </div>
-                                            {evaluation.worse_part && evaluation.worse_part !== "Critical areas will appear here." && (
-                                                <div className="flex gap-3 px-1">
-                                                    <AlertTriangle className="size-4 text-red-500 shrink-0 mt-0.5" />
-                                                    <p className="text-xs text-red-700 font-medium">{evaluation.worse_part}</p>
+                                            {hasEvaluated && (
+                                                <div className="w-full grid grid-cols-3 gap-2">
+                                                    {[
+                                                        { label: 'Clarity', score: evaluation.clarityScore },
+                                                        { label: 'Confidence', score: evaluation.confidenceScore },
+                                                        { label: 'Structure', score: evaluation.structureScore }
+                                                    ].map((stat, i) => (
+                                                        <div key={i} className="flex flex-col items-center p-2 bg-slate-50 rounded-lg border border-slate-100">
+                                                            <span className="text-[9px] font-bold text-slate-400 uppercase">{stat.label}</span>
+                                                            <span className="text-sm font-black text-slate-700">{stat.score}%</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {evaluation.updatedAt && (
+                                                <div className="text-[10px] text-slate-400 font-medium">
+                                                    Last practiced: {new Date(evaluation.updatedAt).toLocaleDateString()}
                                                 </div>
                                             )}
                                         </div>
                                     </div>
+
+                                    {/* Analysis Sections */}
+                                    <div className="space-y-4">
+                                        {/* Your Strengths */}
+                                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                            <div className="px-5 py-4 flex items-center justify-between border-b border-emerald-50 bg-emerald-50/30">
+                                                <div className="flex items-center gap-2">
+                                                    <CheckCircle2 className="size-5 text-emerald-500" />
+                                                    <h4 className="text-sm font-bold text-slate-900">Your Strengths</h4>
+                                                </div>
+                                                <span className="text-[10px] font-black text-emerald-500 uppercase">Strong</span>
+                                            </div>
+                                            <div className="p-5 space-y-3">
+                                                {evaluation.strengths && evaluation.strengths.length > 0 ? (
+                                                    <ul className="space-y-2">
+                                                        {evaluation.strengths.map((str, idx) => (
+                                                            <li key={idx} className="flex gap-2 text-sm text-slate-600 leading-relaxed font-medium">
+                                                                <div className="size-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0"></div>
+                                                                {str}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                ) : (
+                                                    <p className="text-sm text-slate-600 leading-relaxed font-medium">{evaluation.best_part}</p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Needs Improvement */}
+                                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                            <div className="px-5 py-4 flex items-center justify-between border-b border-amber-50 bg-amber-50/30">
+                                                <div className="flex items-center gap-2">
+                                                    <TrendingUp className="size-5 text-amber-500" />
+                                                    <h4 className="text-sm font-bold text-amber-900">Needs improvement</h4>
+                                                </div>
+                                                <span className="text-[10px] font-black text-amber-500 uppercase">Opportunity</span>
+                                            </div>
+                                            <div className="p-5 space-y-4">
+                                                <div className="p-4 bg-amber-50 rounded-lg border border-amber-100">
+                                                    <p className="text-sm text-slate-600 leading-relaxed italic">{evaluation.feedback}</p>
+                                                </div>
+
+                                                {evaluation.improvements && evaluation.improvements.length > 0 && (
+                                                    <ul className="space-y-2 px-1">
+                                                        {evaluation.improvements.map((imp, idx) => (
+                                                            <li key={idx} className="flex gap-3 text-xs text-slate-700 font-medium">
+                                                                <div className="size-1.5 rounded-full bg-amber-400 mt-1 shrink-0"></div>
+                                                                {imp}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                )}
+
+                                                {evaluation.worse_part && evaluation.worse_part !== "Critical areas will appear here." && (!evaluation.improvements || evaluation.improvements.length === 0) && (
+                                                    <div className="flex gap-3 px-1">
+                                                        <AlertTriangle className="size-4 text-red-500 shrink-0 mt-0.5" />
+                                                        <p className="text-xs text-red-700 font-medium">{evaluation.worse_part}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </main>
             </div>
