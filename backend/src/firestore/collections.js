@@ -6,6 +6,7 @@ export const COLLECTIONS = {
   CREDITS: "credits",
   PITCH_ATTEMPT_COUNTERS: "pitch_attempt_counters",
   ACTIVITY_LOGS: "activity_logs",
+  USER_PITCHES: "user_pitches",
 };
 
 export const USER_ROLES = new Set(["researcher", "startup"]);

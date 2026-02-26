@@ -144,6 +144,26 @@ app.post("/api/pitch/improve", async (req, res) => {
     }
 });
 
+/**
+ * GET /api/pitch/:userId
+ * Returns the latest stored pitch and evaluation for a user
+ */
+app.get("/api/pitch/:userId", async (req, res) => {
+    const { userId } = req.params;
+    if (!userId) return res.status(400).json({ error: "userId is required" });
+
+    try {
+        const pitchDoc = await db.collection(COLLECTIONS.USER_PITCHES).doc(userId).get();
+        if (!pitchDoc.exists) {
+            return res.json(null);
+        }
+        res.json(pitchDoc.data());
+    } catch (error) {
+        console.error("Fetch Pitch Error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 const server = app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

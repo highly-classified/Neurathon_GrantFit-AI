@@ -1,3 +1,4 @@
+import admin from "firebase-admin";
 import { db } from "./firebase-admin.js";
 import { COLLECTIONS } from "./firestore/collections.js";
 import { createPitchSessionAdmin } from "./pitchSessionService.js";
@@ -24,15 +25,26 @@ export async function analyzeAndRecordPitch(userId, grantId, pitchText) {
         // 3. Perform the AI Analysis
         const analysis = await analyzePitchWithAI(pitchText, grantData);
 
-        // 4. Record the session
-        const result = await createPitchSessionAdmin(userId, {
-            grant_id: grantId,
-            readiness_score: analysis.score,
-            feedback: analysis.best_part, // Store best part as main feedback summary
-        });
+        // 4. Save the latest pitch and results to user_pitches
+        const pitchData = {
+            userId,
+            grantId,
+            pitchContent: pitchText,
+            overallScore: analysis.score,
+            clarityScore: analysis.clarityScore || 0,
+            confidenceScore: analysis.confidenceScore || 0,
+            structureScore: analysis.structureScore || 0,
+            feedback: analysis.feedback || "Good progress!",
+            strengths: analysis.strengths || [],
+            improvements: analysis.improvements || [],
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+
+        const docRef = db.collection(COLLECTIONS.USER_PITCHES).doc(userId);
+        await docRef.set(pitchData, { merge: false });
 
         return {
-            ...result,
             ...analysis
         };
     } catch (error) {
@@ -100,11 +112,32 @@ export async function improvePitchWithAI(userId, grantId, pitchText, previousAna
         const cleanResponse = response.replace(/```json/g, "").replace(/```/g, "").trim();
         const result = JSON.parse(cleanResponse);
 
+        // Save the latest pitch and results to user_pitches
+        const pitchData = {
+            userId,
+            grantId,
+            pitchContent: pitchText,
+            overallScore: result.new_score,
+            clarityScore: previousAnalysis.clarityScore || 0, // We keep the other scores or could re-estimate, but stay consistent
+            confidenceScore: previousAnalysis.confidenceScore || 0,
+            structureScore: previousAnalysis.structureScore || 0,
+            feedback: result.improvement_needed || "Progress made.",
+            strengths: [result.best_part],
+            improvements: [result.improvement_needed],
+            best_part: result.best_part,
+            worse_part: result.worse_part,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+
+        const docRef = db.collection(COLLECTIONS.USER_PITCHES).doc(userId);
+        await docRef.set(pitchData, { merge: true }); // Use merge: true for improvements if we want to keep some metadata
+
         return {
             score: result.new_score,
             best_part: result.best_part,
             improvement_needed: result.improvement_needed,
-            worse_part: result.worse_part
+            worse_part: result.worse_part,
+            updatedAt: new Date().toISOString()
         };
     } catch (error) {
         // 3. ROLLBACK / REFUND on failure
@@ -114,6 +147,7 @@ export async function improvePitchWithAI(userId, grantId, pitchText, previousAna
         throw error;
     }
 }
+
 
 /**
  * Core AI logic for analyzing pitch content.
@@ -130,11 +164,24 @@ async function analyzePitchWithAI(pitchText, grant) {
     
     INSTRUCTIONS:
     1. Calculate a Score from 0 to 100.
-    2. Identify the BEST PART of the pitch.
-    3. Identify what NEEDS IMPROVEMENT.
-    4. Identify the WORSE PART (most critical weakness).
-    5. Respond ONLY in JSON:
-       { "score": 75, "best_part": "...", "improvement_needed": "...", "worse_part": "..." }
+    2. Provide specialized scores (0-100) for Clarity, Confidence, and Structure.
+    3. Identify the BEST PART of the pitch as a string.
+    4. Provide a list of STRENGTHS as an array of strings.
+    5. Provide a list of IMPROVEMENTS as an array of strings.
+    6. Provide overall feedback as a summary string.
+    7. Identify the WORSE PART (most critical weakness) as a string.
+    8. Respond ONLY in JSON:
+       { 
+         "score": 75, 
+         "clarityScore": 80,
+         "confidenceScore": 70,
+         "structureScore": 75,
+         "best_part": "...", 
+         "strengths": ["...", "..."],
+         "improvements": ["...", "..."],
+         "feedback": "...",
+         "worse_part": "..." 
+       }
   `;
 
     try {
@@ -149,8 +196,13 @@ async function analyzePitchWithAI(pitchText, grant) {
 
         return {
             score: Math.max(0, Math.min(100, result.score || 50)),
+            clarityScore: Math.max(0, Math.min(100, result.clarityScore || 50)),
+            confidenceScore: Math.max(0, Math.min(100, result.confidenceScore || 50)),
+            structureScore: Math.max(0, Math.min(100, result.structureScore || 50)),
             best_part: result.best_part || "Strong mission intent.",
-            improvement_needed: result.improvement_needed || "Add more technical details.",
+            strengths: result.strengths || (result.best_part ? [result.best_part] : []),
+            improvements: result.improvements || (result.improvement_needed ? [result.improvement_needed] : []),
+            feedback: result.feedback || result.improvement_needed || "Add more technical details.",
             worse_part: result.worse_part || "Lack of specific outcome metrics."
         };
     } catch (error) {
