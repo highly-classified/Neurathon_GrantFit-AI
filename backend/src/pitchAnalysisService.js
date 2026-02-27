@@ -1,6 +1,6 @@
 import admin from "firebase-admin";
 import { db } from "./firebase-admin.js";
-import { COLLECTIONS } from "./firestore/collections.js";
+import { COLLECTIONS, buildUserGrantKey } from "./firestore/collections.js";
 import { createPitchSessionAdmin } from "./pitchSessionService.js";
 import { deductCredits, hasSufficientCredits, COSTS } from "./creditService.js";
 import { callGemini } from "./aiService.js";
@@ -41,7 +41,8 @@ export async function analyzeAndRecordPitch(userId, grantId, pitchText) {
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         };
 
-        const docRef = db.collection(COLLECTIONS.USER_PITCHES).doc(userId);
+        const pitchId = buildUserGrantKey(userId, grantId);
+        const docRef = db.collection(COLLECTIONS.USER_PITCHES).doc(pitchId);
         await docRef.set(pitchData, { merge: false });
 
         return {
@@ -129,7 +130,8 @@ export async function improvePitchWithAI(userId, grantId, pitchText, previousAna
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         };
 
-        const docRef = db.collection(COLLECTIONS.USER_PITCHES).doc(userId);
+        const pitchId = buildUserGrantKey(userId, grantId);
+        const docRef = db.collection(COLLECTIONS.USER_PITCHES).doc(pitchId);
         await docRef.set(pitchData, { merge: true }); // Use merge: true for improvements if we want to keep some metadata
 
         return {

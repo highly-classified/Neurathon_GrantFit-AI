@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import { db } from "./src/firebase-admin.js";
-import { COLLECTIONS } from "./src/firestore/collections.js";
+import { COLLECTIONS, buildUserGrantKey } from "./src/firestore/collections.js";
 import { analyzeAndRecordPitch, improvePitchWithAI } from "./src/pitchAnalysisService.js";
 import { initializeUserCredits, checkInUser } from "./src/creditService.js";
 import { getCategorizedGrants } from "./src/matchingEngine.js";
@@ -20,23 +20,25 @@ app.use(express.json());
 app.post("/api/pitch/start", async (req, res) => {
     const { userId, grantId } = req.body;
     if (!userId) return res.status(400).json({ error: "userId is required" });
+    if (!grantId) return res.status(400).json({ error: "grantId is required" });
 
     try {
-        const docRef = db.collection(COLLECTIONS.USER_PITCHES).doc(userId);
+        const pitchId = buildUserGrantKey(userId, grantId);
+        const docRef = db.collection(COLLECTIONS.USER_PITCHES).doc(pitchId);
         const doc = await docRef.get();
 
         // Only create if it doesn't exist yet to avoid overwriting real data with a placeholder
         if (!doc.exists) {
             await docRef.set({
                 userId,
-                grantId: grantId || "initial",
+                grantId,
                 pitchContent: "",
                 overallScore: 0,
                 hasStarted: true,
                 updatedAt: new Date().toISOString()
             });
         }
-        res.json({ success: true });
+        res.json({ success: true, pitchId });
     } catch (error) {
         console.error("Start Pitch Error:", error);
         res.status(500).json({ error: error.message });
@@ -178,15 +180,16 @@ app.post("/api/pitch/improve", async (req, res) => {
 });
 
 /**
- * GET /api/pitch/:userId
- * Returns the latest stored pitch and evaluation for a user
+ * GET /api/pitch/:userId/:grantId
+ * Returns the latest stored pitch and evaluation for a specific user and grant
  */
-app.get("/api/pitch/:userId", async (req, res) => {
-    const { userId } = req.params;
-    if (!userId) return res.status(400).json({ error: "userId is required" });
+app.get("/api/pitch/:userId/:grantId", async (req, res) => {
+    const { userId, grantId } = req.params;
+    if (!userId || !grantId) return res.status(400).json({ error: "userId and grantId are required" });
 
     try {
-        const pitchDoc = await db.collection(COLLECTIONS.USER_PITCHES).doc(userId).get();
+        const pitchId = buildUserGrantKey(userId, grantId);
+        const pitchDoc = await db.collection(COLLECTIONS.USER_PITCHES).doc(pitchId).get();
         if (!pitchDoc.exists) {
             return res.json(null);
         }

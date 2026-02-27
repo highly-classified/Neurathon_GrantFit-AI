@@ -50,14 +50,14 @@ const PitchModule = () => {
     });
     const [isLoadingLatest, setIsLoadingLatest] = useState(true);
     const [isDrafting, setIsDrafting] = useState(false);
-    const [hasStartedLocal, setHasStartedLocal] = useState(localStorage.getItem(`pitch_started_global`) === 'true');
+    const [hasStartedLocal, setHasStartedLocal] = useState(localStorage.getItem(`pitch_started_${grantId}`) === 'true');
 
     // Load pitch from backend when component mounts
     useEffect(() => {
         const fetchLatestPitch = async (user) => {
             setIsLoadingLatest(true);
             try {
-                const response = await fetch(API_ENDPOINTS.PITCH_LATEST(user.uid));
+                const response = await fetch(API_ENDPOINTS.PITCH_LATEST(user.uid, grantId));
                 if (response.ok) {
                     const data = await response.json();
                     if (data) {
@@ -76,7 +76,7 @@ const PitchModule = () => {
                             hasStarted: data.hasStarted || true
                         });
                         if (data.hasStarted || data.pitchContent) {
-                            localStorage.setItem(`pitch_started_global`, 'true');
+                            localStorage.setItem(`pitch_started_${grantId}`, 'true');
                             setHasStartedLocal(true);
                         }
                         // If we have content but score is 0, we still want to show the drafting zone
@@ -334,7 +334,7 @@ const PitchModule = () => {
         setIsDrafting(false);
         const result = await analyzePitch(pitchText);
         if (result) {
-            localStorage.setItem(`pitch_started_global`, 'true');
+            localStorage.setItem(`pitch_started_${grantId}`, 'true');
             setHasStartedLocal(true);
             setEvaluation(prev => ({
                 ...prev,
@@ -469,7 +469,7 @@ const PitchModule = () => {
                                         onClick={async () => {
                                             setIsDrafting(true);
                                             setHasStartedLocal(true);
-                                            localStorage.setItem(`pitch_started_global`, 'true');
+                                            localStorage.setItem(`pitch_started_${grantId}`, 'true');
                                             const user = auth.currentUser;
                                             if (user) {
                                                 try {
