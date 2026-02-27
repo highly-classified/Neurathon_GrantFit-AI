@@ -170,3 +170,38 @@ export async function hasSufficientCredits(userId, amount = PITCH_ANALYSIS_COST)
     if (!creditsDoc.exists) return false;
     return (creditsDoc.data().analyze_credits || 0) >= amount;
 }
+
+/**
+ * Upgrades a user's plan.
+ */
+export async function upgradeUserPlan(userId, planType) {
+    const creditsRef = db.collection(COLLECTIONS.CREDITS).doc(userId);
+
+    return db.runTransaction(async (transaction) => {
+        const creditsDoc = await transaction.get(creditsRef);
+        
+        let currentBalance = 0;
+        if (creditsDoc.exists) {
+            currentBalance = creditsDoc.data().analyze_credits || 0;
+        } else {
+            transaction.set(creditsRef, {
+                user_id: userId,
+                analyze_credits: 0,
+                last_updated: admin.firestore.FieldValue.serverTimestamp(),
+            });
+        }
+
+        const creditsToAdd = planType === 'pro' ? 100 : planType === 'plus' ? 500 : 0;
+        
+        transaction.set(creditsRef, {
+            user_id: userId,
+            analyze_credits: currentBalance + creditsToAdd,
+            last_updated: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        const planName = planType === 'pro' ? 'Pro Plan Upgrade' : 'Plus Plan Upgrade';
+        await logActivity(transaction, userId, planName, creditsToAdd, "—");
+
+        return { success: true, new_balance: currentBalance + creditsToAdd };
+    });
+}

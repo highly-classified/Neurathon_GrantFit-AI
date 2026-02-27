@@ -45,6 +45,40 @@ const Credits = () => {
     lastSynced: 'Just now'
   });
 
+  const handleUpgrade = async (planType) => {
+    try {
+      setLoading(true);
+      const userEmail = auth.currentUser?.email || '';
+      const userId = auth.currentUser?.uid || '';
+
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+      const response = await fetch(`${API_BASE_URL}/api/create-checkout-session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planType,
+          userId,
+          userEmail
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error("Upgrade Error:", error);
+      alert(error.message || "Something went wrong while connecting to the payment provider.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   React.useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -400,7 +434,7 @@ const Credits = () => {
                         </li>
                       ))}
                     </ul>
-                    <button className="w-full py-4 rounded-2xl bg-[#40484f] text-white font-black hover:bg-[#333a41] shadow-lg shadow-[#40484f]/20 transition-all">Upgrade to Pro</button>
+                    <button onClick={() => handleUpgrade('pro')} className="w-full py-4 rounded-2xl bg-[#40484f] text-white font-black hover:bg-[#333a41] shadow-lg shadow-[#40484f]/20 transition-all">Upgrade to Pro</button>
                   </div>
 
                   {/* Plus Plan */}
@@ -424,7 +458,7 @@ const Credits = () => {
                         </li>
                       ))}
                     </ul>
-                    <button className="w-full py-4 rounded-2xl bg-white border border-slate-200 text-slate-900 font-black hover:bg-slate-50 transition-all">Select Plus</button>
+                    <button onClick={() => handleUpgrade('plus')} className="w-full py-4 rounded-2xl bg-white border border-slate-200 text-slate-900 font-black hover:bg-slate-50 transition-all">Select Plus</button>
                   </div>
                 </div>
               </div>
