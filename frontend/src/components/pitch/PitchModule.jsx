@@ -45,20 +45,17 @@ const PitchModule = () => {
         improvements: [],
         best_part: "Not evaluated yet.",
         worse_part: "Critical areas will appear here.",
-        updatedAt: null
+        updatedAt: null,
+        hasStarted: false
     });
     const [isLoadingLatest, setIsLoadingLatest] = useState(true);
     const [isDrafting, setIsDrafting] = useState(false);
+    const [hasStartedLocal, setHasStartedLocal] = useState(localStorage.getItem(`pitch_started_global`) === 'true');
 
     // Load pitch from backend when component mounts
     useEffect(() => {
-        const fetchLatestPitch = async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                setIsLoadingLatest(false);
-                return;
-            }
-
+        const fetchLatestPitch = async (user) => {
+            setIsLoadingLatest(true);
             try {
                 const response = await fetch(API_ENDPOINTS.PITCH_LATEST(user.uid));
                 if (response.ok) {
@@ -73,15 +70,28 @@ const PitchModule = () => {
                             feedback: data.feedback || "Good progress!",
                             strengths: data.strengths || [],
                             improvements: data.improvements || [],
-                            best_part: data.strengths?.[0] || "Found some key points.",
-                            worse_part: data.improvements?.[0] || "Minor areas to improve.",
-                            updatedAt: data.updatedAt
+                            best_part: data.best_part || "Found some key points.",
+                            worse_part: data.worse_part || "Minor areas to improve.",
+                            updatedAt: data.updatedAt,
+                            hasStarted: data.hasStarted || true
                         });
-                        setHasEvaluated(true);
+                        if (data.hasStarted || data.pitchContent) {
+                            localStorage.setItem(`pitch_started_global`, 'true');
+                            setHasStartedLocal(true);
+                        }
+                        // If we have content but score is 0, we still want to show the drafting zone
+                        if (data.pitchContent && (data.overallScore === 0 || !data.overallScore)) {
+                            setIsDrafting(true);
+                            setHasEvaluated(false);
+                        } else if (data.overallScore > 0) {
+                            setHasEvaluated(true);
+                        }
                         // Also sync with textarea if ref is ready
                         if (textareaRef.current) {
                             textareaRef.current.innerHTML = data.pitchContent || "";
                         }
+                    } else {
+                        setHasEvaluated(false);
                     }
                 }
             } catch (error) {
@@ -93,8 +103,11 @@ const PitchModule = () => {
 
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
-                fetchLatestPitch();
+                fetchLatestPitch(user);
             } else {
+                // If we explicitly have null, the user is not logged in
+                // But we usually wait a bit for Firebase to initialize
+                // However, for this UI, if they aren't logged in, they see empty state
                 setIsLoadingLatest(false);
             }
         });
@@ -318,10 +331,13 @@ const PitchModule = () => {
     };
 
     const handleEvaluate = async () => {
-        setIsDrafting(false); // No longer just drafting
+        setIsDrafting(false);
         const result = await analyzePitch(pitchText);
         if (result) {
-            setEvaluation({
+            localStorage.setItem(`pitch_started_global`, 'true');
+            setHasStartedLocal(true);
+            setEvaluation(prev => ({
+                ...prev,
                 score: result.score,
                 clarityScore: result.clarityScore,
                 confidenceScore: result.confidenceScore,
@@ -331,8 +347,9 @@ const PitchModule = () => {
                 improvements: result.improvements,
                 best_part: result.best_part,
                 worse_part: result.worse_part,
-                updatedAt: new Date().toISOString()
-            });
+                updatedAt: new Date().toISOString(),
+                hasStarted: true
+            }));
             setHasEvaluated(true);
         }
     };
@@ -438,7 +455,7 @@ const PitchModule = () => {
                                     <p className="text-slate-500 font-medium">Loading your pitch data...</p>
                                 </div>
                             </div>
-                        ) : !hasEvaluated && !isDrafting && pitchText.replace(/<[^>]*>/g, '').trim() === "" ? (
+                        ) : !hasEvaluated && !isDrafting && (pitchText.replace(/<[^>]*>/g, '').trim() === "" && !evaluation.hasStarted && !hasStartedLocal) ? (
                             <div className="flex-1 flex items-center justify-center p-8">
                                 <div className="max-w-md w-full bg-white p-10 rounded-3xl shadow-xl border border-slate-100 text-center">
                                     <div className="size-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-400">
@@ -449,7 +466,21 @@ const PitchModule = () => {
                                         Start by typing or recording your 3-minute pitch. Our AI will provide instant feedback on your clarity, confidence, and structure.
                                     </p>
                                     <button
-                                        onClick={() => setIsDrafting(true)}
+                                        onClick={async () => {
+                                            setIsDrafting(true);
+                                            setHasStartedLocal(true);
+                                            localStorage.setItem(`pitch_started_global`, 'true');
+                                            const user = auth.currentUser;
+                                            if (user) {
+                                                try {
+                                                    await fetch(API_ENDPOINTS.PITCH_START, {
+                                                        method: 'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({ userId: user.uid, grantId })
+                                                    });
+                                                } catch (e) { console.error("Error calling start:", e); }
+                                            }
+                                        }}
                                         className="w-full py-4 bg-[#40484f] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#40484f]/90 transition-all shadow-lg shadow-[#40484f]/20"
                                     >
                                         Practice your first pitch
@@ -512,7 +543,8 @@ const PitchModule = () => {
                                                 if (textareaRef.current) textareaRef.current.innerHTML = '';
                                                 setHasEvaluated(false);
                                                 setIsDrafting(false);
-                                                setEvaluation({
+                                                setEvaluation(prev => ({
+                                                    ...prev,
                                                     score: 0,
                                                     clarityScore: 0,
                                                     confidenceScore: 0,
@@ -521,8 +553,9 @@ const PitchModule = () => {
                                                     strengths: [],
                                                     improvements: [],
                                                     best_part: "Not evaluated yet.",
-                                                    worse_part: "Critical areas will appear here."
-                                                });
+                                                    worse_part: "Critical areas will appear here.",
+                                                    hasStarted: true // Keep it started
+                                                }));
                                             }}
                                             className="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1"
                                         >

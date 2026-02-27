@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import { db } from "./src/firebase-admin.js";
+import { COLLECTIONS } from "./src/firestore/collections.js";
 import { analyzeAndRecordPitch, improvePitchWithAI } from "./src/pitchAnalysisService.js";
 import { initializeUserCredits, checkInUser } from "./src/creditService.js";
 import { getCategorizedGrants } from "./src/matchingEngine.js";
@@ -9,6 +10,38 @@ import { getCategorizedGrants } from "./src/matchingEngine.js";
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// ... (rest of the top part)
+
+/**
+ * POST /api/pitch/start
+ * Marks that a user has started their first pitch practice.
+ */
+app.post("/api/pitch/start", async (req, res) => {
+    const { userId, grantId } = req.body;
+    if (!userId) return res.status(400).json({ error: "userId is required" });
+
+    try {
+        const docRef = db.collection(COLLECTIONS.USER_PITCHES).doc(userId);
+        const doc = await docRef.get();
+
+        // Only create if it doesn't exist yet to avoid overwriting real data with a placeholder
+        if (!doc.exists) {
+            await docRef.set({
+                userId,
+                grantId: grantId || "initial",
+                pitchContent: "",
+                overallScore: 0,
+                hasStarted: true,
+                updatedAt: new Date().toISOString()
+            });
+        }
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Start Pitch Error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
 process.on('uncaughtException', (err) => {
     console.error('💥 [CRITICAL] Uncaught Exception:', err);
@@ -157,7 +190,17 @@ app.get("/api/pitch/:userId", async (req, res) => {
         if (!pitchDoc.exists) {
             return res.json(null);
         }
-        res.json(pitchDoc.data());
+        const data = pitchDoc.data();
+
+        // Convert Firestore Timestamps to ISO strings for the frontend
+        if (data.updatedAt && typeof data.updatedAt.toDate === 'function') {
+            data.updatedAt = data.updatedAt.toDate().toISOString();
+        }
+        if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+            data.createdAt = data.createdAt.toDate().toISOString();
+        }
+
+        res.json(data);
     } catch (error) {
         console.error("Fetch Pitch Error:", error);
         res.status(500).json({ error: error.message });

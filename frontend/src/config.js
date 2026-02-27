@@ -5,6 +5,7 @@ export const API_ENDPOINTS = {
     GRANTS: (userId) => `${API_BASE_URL}/api/grants/${userId}`,
     PITCH_ANALYZE: `${API_BASE_URL}/api/pitch/analyze`,
     PITCH_IMPROVE: `${API_BASE_URL}/api/pitch/improve`,
+    PITCH_START: `${API_BASE_URL}/api/pitch/start`,
     PITCH_LATEST: (userId) => `${API_BASE_URL}/api/pitch/${userId}`,
     CREDITS_INITIALIZE: `${API_BASE_URL}/api/credits/initialize`,
     USERS: `${API_BASE_URL}/api/users`
