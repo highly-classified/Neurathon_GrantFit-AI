@@ -1,5 +1,5 @@
 import React from 'react';
-import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
+import { Github, Linkedin, Mail } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -23,10 +23,10 @@ const Footer = () => {
               Empowering researchers and founders with AI-driven grant matching and pitch readiness tools. Turn your vision into funded reality.
             </p>
             <div className="flex space-x-6 mt-6">
-              <SocialLink href="#" icon={<Twitter className="h-6 w-6" />} />
-              <SocialLink href="#" icon={<Github className="h-6 w-6" />} />
-              <SocialLink href="#" icon={<Linkedin className="h-6 w-6" />} />
-              <SocialLink href="mailto:contact@grantfit.ai" icon={<Mail className="h-6 w-6" />} />
+
+              <SocialLink href="https://github.com/highly-classified/Neurathon_GrantFit-AI" icon={<Github className="h-6 w-6" />} />
+              <SocialLink href="https://www.linkedin.com/in/sandhyadayanithi/" icon={<Linkedin className="h-6 w-6" />} />
+              <SocialLink href="mailto:teamtechdivas@gmail.com" icon={<Mail className="h-6 w-6" />} />
             </div>
           </div>
 
@@ -35,8 +35,8 @@ const Footer = () => {
             <ul className="mt-4 space-y-4">
               <FooterLink href="#features">Features</FooterLink>
               <FooterLink href="#how-it-works">How it Works</FooterLink>
-              <FooterLink href="#pricing">Pricing</FooterLink>
-              <FooterLink href="#grants">Browse Grants</FooterLink>
+              <FooterLink href="#">Pricing</FooterLink>
+              <FooterLink href="#">Browse Grants</FooterLink>
             </ul>
           </div>
 

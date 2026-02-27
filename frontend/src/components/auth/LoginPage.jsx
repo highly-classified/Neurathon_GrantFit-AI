@@ -76,8 +76,8 @@ const LoginPage = () => {
     return (
         <div className="min-h-screen bg-[#40484F] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
              {/* Background Elements */}
-            <div className="absolute top-0 left-0 w-96 h-96 bg-[var(--color-secondary)]/10 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-[float_6s_ease-in-out_infinite]" />
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-[var(--color-primary)]/10 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-[float_6s_ease-in-out_infinite_reverse]" />
+            <div className="absolute top-0 left-0 w-96 h-96 bg-[var(--color-secondary)]/10 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-[float_6s_ease-in-out_infinite]" />
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-[var(--color-primary)]/10 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-[float_6s_ease-in-out_infinite_reverse]" />
 
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -86,7 +86,7 @@ const LoginPage = () => {
                 className="sm:mx-auto sm:w-full sm:max-w-md relative z-10"
             >
                 <div className="flex justify-center">
-                    <div className="bg-[var(--color-primary)] p-3 rounded-xl shadow-lg shadow-[var(--color-primary)]/20 flex items-center justify-center">
+                    <div className="bg-[var(--color-primary)] p-3 rounded-xl shadow-md shadow-[var(--color-primary)]/20 flex items-center justify-center">
                          <img 
                             src="/logo-white.png" 
                             alt="GrantFit AI Logo" 
@@ -108,7 +108,7 @@ const LoginPage = () => {
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10"
             >
-                <div className="bg-[var(--color-surface)] py-8 px-4 shadow-xl shadow-gray-200 border border-gray-100 sm:rounded-2xl sm:px-10">
+                <div className="bg-[var(--color-surface)] py-8 px-4 shadow-lg shadow-gray-200 border border-gray-100 sm:rounded-2xl sm:px-10">
                     
                     {error && (
                         <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4 rounded-md flex items-start">

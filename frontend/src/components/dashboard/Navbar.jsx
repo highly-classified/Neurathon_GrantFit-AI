@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
+import { auth } from '../../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const Navbar = () => {
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
+  const [currentUser, setCurrentUser] = useState(auth.currentUser);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Get user profile for avatar
   const getUserProfile = () => {
@@ -18,11 +28,17 @@ const Navbar = () => {
   };
 
   const profile = getUserProfile();
-  const displayName = profile?.displayName || 'Guest User';
+  const displayName = profile?.displayName || currentUser?.displayName || currentUser?.email || 'Guest User';
 
   const getInitials = (name) => {
-    if (!name) return 'GU';
-    const parts = name.trim().split(' ');
+    if (!name || name === 'Guest User') return 'GU';
+    
+    // If it's an email address, use the first letter of the email
+    if (name.includes('@')) {
+      return name.substring(0, 2).toUpperCase();
+    }
+
+    const parts = name.trim().split(/[ -]/);
     if (parts.length >= 2) {
       return (parts[0][0] + parts[1][0]).toUpperCase();
     }

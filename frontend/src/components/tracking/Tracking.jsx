@@ -23,7 +23,6 @@ const Tracking = () => {
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
   const navigate = useNavigate();
 
   const staticApplications = [
@@ -174,10 +173,8 @@ const Tracking = () => {
   };
 
   const filteredApps = apps.filter(app => {
-    const matchesSearch = (app.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    return (app.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (app.organizer || '').toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || app.status === statusFilter;
-    return matchesSearch && matchesStatus;
   });
 
   const stats = {
@@ -216,68 +213,44 @@ const Tracking = () => {
         </div>
 
         {/* Dashboard Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { label: 'Total Applications', value: stats.total, icon: FileText, color: 'slate' },
-            { label: 'Successfully Applied', value: stats.applied, icon: CheckCircle2, color: 'emerald' },
-            { label: 'Under Review', value: stats.underReview, icon: Clock, color: 'blue' },
-          ].map((stat, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 hover:border-slate-300 transition-all cursor-default group"
-            >
-              <div className={`size-12 rounded-2xl flex items-center justify-center transition-colors ${stat.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' :
-                stat.color === 'blue' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600'
-                }`}>
-                <stat.icon size={24} />
-              </div>
-              <div>
-                <p className="text-xs font-black uppercase tracking-wider text-slate-400 mb-0.5">{stat.label}</p>
-                <h3 className="text-2xl font-black text-slate-900">{stat.value}</h3>
-              </div>
-            </motion.div>
-          ))}
+        <div className="flex justify-start">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 hover:border-slate-300 transition-all cursor-default group max-w-sm w-full"
+          >
+            <div className="size-12 rounded-2xl flex items-center justify-center transition-colors bg-slate-50 text-slate-600">
+              <FileText size={24} />
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-wider text-slate-400 mb-0.5">Total Applications</p>
+              <h3 className="text-2xl font-black text-slate-900">{stats.total}</h3>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Filters & Search */}
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
-          <div className="relative w-full md:w-96 group">
+        {/* Search */}
+        <div className="flex bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
+          <div className="relative w-full group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
             <input
               type="text"
               placeholder="Search by grant or organizer..."
-              className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-slate-100 outline-none transition-all"
+              className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-slate-100 outline-none transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </div>
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-            {['All', 'Applied', 'Under Review', 'Declined'].map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setStatusFilter(filter)}
-                className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${statusFilter === filter
-                  ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10'
-                  : 'bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 border border-slate-100'
-                  }`}
-              >
-                {filter}
-              </button>
-            ))}
           </div>
         </div>
 
         {/* Application List */}
         <div className="space-y-4">
-          <div className="grid grid-cols-[2.5fr_1.5fr_1fr_1fr_0.5fr] gap-4 px-8 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+          <div className="grid grid-cols-[2fr_1.2fr_1fr_1fr_1.5fr] gap-4 px-8 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
             <div>Grant Opportunity</div>
             <div>Organizer</div>
-            <div>Deadline</div>
-            <div>Status</div>
-            <div className="text-right">Action</div>
+            <div className="text-center">Deadline</div>
+            <div className="text-center">Status</div>
+            <div className="text-center">Action</div>
           </div>
 
           <AnimatePresence mode="popLayout">
@@ -290,7 +263,7 @@ const Tracking = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.98 }}
                   transition={{ duration: 0.2 }}
-                  className="grid grid-cols-[2.5fr_1.5fr_1fr_1fr_0.5fr] gap-4 items-center px-8 py-5 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-0.5 transition-all group"
+                  className="grid grid-cols-[2fr_1.2fr_1fr_1fr_1.5fr] gap-4 items-center px-8 py-5 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-0.5 transition-all group"
                 >
                   <div className="flex flex-col">
                     <span className="text-base font-bold text-slate-900 leading-tight group-hover:text-slate-700">{app.name || app.eventName}</span>
@@ -302,21 +275,21 @@ const Tracking = () => {
 
                   <div className="text-sm text-slate-600 font-bold">{app.organizer}</div>
 
-                  <div className="flex flex-col">
+                  <div className="flex flex-col items-center text-center">
                     <span className="text-sm font-bold text-slate-900">{app.deadline || 'N/A'}</span>
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-tight mt-0.5">
                       {app.daysLeft || 'Recently Applied'}
                     </span>
                   </div>
 
-                  <div>
+                  <div className="flex justify-center">
                     <span className={getStatusStyles(app.status)}>
                       <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       {app.status}
                     </span>
                   </div>
 
-                  <div className="flex justify-end gap-3">
+                  <div className="flex justify-center gap-3">
                     <button
                       onClick={() => navigate(`/pitch/${app.grantId || app.id}`)}
                       className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-blue-500 hover:text-blue-600 transition-all p-2.5 hover:bg-blue-50 rounded-xl"

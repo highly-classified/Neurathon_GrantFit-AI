@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import { db } from "./src/firebase-admin.js";
+import { COLLECTIONS, buildUserGrantKey } from "./src/firestore/collections.js";
 import { analyzeAndRecordPitch, improvePitchWithAI } from "./src/pitchAnalysisService.js";
 import { initializeUserCredits, checkInUser, upgradeUserPlan } from "./src/creditService.js";
 import Stripe from "stripe";
@@ -66,6 +67,40 @@ app.post("/api/webhook/stripe", express.raw({ type: 'application/json' }), async
 });
 
 app.use(express.json());
+
+// ... (rest of the top part)
+
+/**
+ * POST /api/pitch/start
+ * Marks that a user has started their first pitch practice.
+ */
+app.post("/api/pitch/start", async (req, res) => {
+    const { userId, grantId } = req.body;
+    if (!userId) return res.status(400).json({ error: "userId is required" });
+    if (!grantId) return res.status(400).json({ error: "grantId is required" });
+
+    try {
+        const pitchId = buildUserGrantKey(userId, grantId);
+        const docRef = db.collection(COLLECTIONS.USER_PITCHES).doc(pitchId);
+        const doc = await docRef.get();
+
+        // Only create if it doesn't exist yet to avoid overwriting real data with a placeholder
+        if (!doc.exists) {
+            await docRef.set({
+                userId,
+                grantId,
+                pitchContent: "",
+                overallScore: 0,
+                hasStarted: true,
+                updatedAt: new Date().toISOString()
+            });
+        }
+        res.json({ success: true, pitchId });
+    } catch (error) {
+        console.error("Start Pitch Error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
 process.on('uncaughtException', (err) => {
     console.error('💥 [CRITICAL] Uncaught Exception:', err);
@@ -249,6 +284,37 @@ app.post("/api/create-checkout-session", async (req, res) => {
         res.json({ url: session.url });
     } catch (error) {
         console.error("Stripe Session Error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * GET /api/pitch/:userId/:grantId
+ * Returns the latest stored pitch and evaluation for a specific user and grant
+ */
+app.get("/api/pitch/:userId/:grantId", async (req, res) => {
+    const { userId, grantId } = req.params;
+    if (!userId || !grantId) return res.status(400).json({ error: "userId and grantId are required" });
+
+    try {
+        const pitchId = buildUserGrantKey(userId, grantId);
+        const pitchDoc = await db.collection(COLLECTIONS.USER_PITCHES).doc(pitchId).get();
+        if (!pitchDoc.exists) {
+            return res.json(null);
+        }
+        const data = pitchDoc.data();
+
+        // Convert Firestore Timestamps to ISO strings for the frontend
+        if (data.updatedAt && typeof data.updatedAt.toDate === 'function') {
+            data.updatedAt = data.updatedAt.toDate().toISOString();
+        }
+        if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+            data.createdAt = data.createdAt.toDate().toISOString();
+        }
+
+        res.json(data);
+    } catch (error) {
+        console.error("Fetch Pitch Error:", error);
         res.status(500).json({ error: error.message });
     }
 });

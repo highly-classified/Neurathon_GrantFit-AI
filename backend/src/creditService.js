@@ -4,7 +4,8 @@ import { COLLECTIONS } from "./firestore/collections.js";
 
 const DEFAULT_REGISTRATION_CREDITS = 10;
 const PITCH_ANALYSIS_COST = 1;
-const GRANT_MATCHING_COST = 5;
+const PITCH_IMPROVE_COST = 5;
+const GRANT_MATCHING_COST = 0; // Free as requested
 
 /**
  * Helper to log credit activity.
@@ -64,6 +65,12 @@ export async function addCredits(userId, type, amount, projectName = "—") {
     });
 }
 
+export const COSTS = {
+    PITCH_ANALYSIS: PITCH_ANALYSIS_COST,
+    PITCH_IMPROVE: PITCH_IMPROVE_COST,
+    GRANT_MATCHING: GRANT_MATCHING_COST
+};
+
 /**
  * Deducts credits from the user's balance (e.g., Pitch Practice).
  */
@@ -86,7 +93,7 @@ export async function deductCredits(userId, amount = PITCH_ANALYSIS_COST, projec
             last_updated: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        await logActivity(transaction, userId, "Pitch Practice", -amount, projectName);
+        await logActivity(transaction, userId, "Pitch Activity", -amount, projectName);
 
         return { success: true, remaining: currentBalance - amount };
     });
@@ -96,28 +103,8 @@ export async function deductCredits(userId, amount = PITCH_ANALYSIS_COST, projec
  * Deducts credits for grant matching/filtering.
  */
 export async function deductCreditsForMatching(userId) {
-    const creditsRef = db.collection(COLLECTIONS.CREDITS).doc(userId);
-
-    return db.runTransaction(async (transaction) => {
-        const creditsDoc = await transaction.get(creditsRef);
-        if (!creditsDoc.exists) {
-            throw new Error("User credits not initialized");
-        }
-
-        const currentBalance = creditsDoc.data().analyze_credits || 0;
-        if (currentBalance < GRANT_MATCHING_COST) {
-            throw new Error("INSUFFICIENT_CREDITS");
-        }
-
-        transaction.update(creditsRef, {
-            analyze_credits: currentBalance - GRANT_MATCHING_COST,
-            last_updated: admin.firestore.FieldValue.serverTimestamp()
-        });
-
-        await logActivity(transaction, userId, "Grant Discovery", -GRANT_MATCHING_COST, "—");
-
-        return { success: true, remaining: currentBalance - GRANT_MATCHING_COST };
-    });
+    // Free as per request
+    return { success: true, remaining: 10 };
 }
 
 /**
@@ -149,16 +136,22 @@ export async function checkInUser(userId) {
             return { success: false, message: "Already checked in today", checkInAwarded: false };
         }
 
-        const newBalance = (data.analyze_credits || 0) + 1;
+        // Create a new balance logic: Reset to 10 daily
+        // If they have > 10 somehow, we don't reduce it (optional), but "refill" implies going back up to max.
+        // User asked: "max credit each day is 10". So we cap at 10 or set to 10.
+        // Interpretation: If below 10, set to 10. If above, keep it? Or strict reset to 10?
+        // "Credits should always refresh each day and the max credit each day is 10" -> Implies a reset to 10.
+        const newBalance = 10;
+
         transaction.update(creditsRef, {
             analyze_credits: newBalance,
             last_check_in: admin.firestore.FieldValue.serverTimestamp(),
             last_updated: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        await logActivity(transaction, userId, "Daily Check-in", 1);
+        await logActivity(transaction, userId, "Daily Check-in", 10 - (data.analyze_credits || 0)); // Log the difference added
 
-        return { success: true, message: "Check-in successful! +1 credit added.", checkInAwarded: true, new_balance: newBalance };
+        return { success: true, message: "Daily credits refreshed to 10.", checkInAwarded: true, new_balance: newBalance };
     });
 }
 
