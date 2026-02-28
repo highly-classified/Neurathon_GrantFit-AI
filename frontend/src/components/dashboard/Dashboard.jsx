@@ -71,12 +71,21 @@ const Dashboard = () => {
         setIsLoading(false);
         // DO NOT fetchMatches(false) here. We want to rely purely on the cached data until explicitly refreshed
       } catch (e) {
-        fetchMatches(true);
+        localStorage.removeItem(CACHE_KEY);
+        setIsLoading(false);
       }
     } else {
-      fetchMatches(true);
+      // If there's no local cache, we must fetch from the backend.
+      // The backend will check its Firestore cache first before hitting Gemini.
+      const needsRefresh = localStorage.getItem('needs_grant_refresh');
+      if (needsRefresh === 'true') {
+        localStorage.removeItem('needs_grant_refresh');
+        fetchMatches(true, true); // Force AI refresh since profile changed
+      } else {
+        fetchMatches(true, false); // Just fetch DB cache or hard-filtered fallback
+      }
     }
-  }, [authChecked, user]);
+  }, [authChecked, user, CACHE_KEY]);
 
   const formatCurrency = (amount) => {
     if (!amount) return "TBD";
