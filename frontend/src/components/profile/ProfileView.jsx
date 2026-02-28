@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import { API_ENDPOINTS } from '../../config';
 import {
   User,
   Mail,
@@ -36,7 +37,7 @@ const ProfileView = () => {
           // Try Firestore first
           const docRef = doc(db, 'users', user.uid);
           const docSnap = await getDoc(docRef);
-          
+
           if (docSnap.exists()) {
             const data = docSnap.data();
             setProfile(data);
@@ -101,12 +102,25 @@ const ProfileView = () => {
       const docRef = doc(db, 'users', user.uid);
       await updateDoc(docRef, formData);
 
+      // Check if idea or domain changed to invalidate cache
+      if (profile.idea !== formData.idea || profile.domain !== formData.domain) {
+        console.log("Idea or domain changed, invalidating grant cache...");
+        localStorage.removeItem(`grant_matches_${user.uid}`);
+        localStorage.setItem('needs_grant_refresh', 'true');
+
+        try {
+          await fetch(API_ENDPOINTS.INVALIDATE_CACHE(user.uid), { method: 'POST' });
+        } catch (cacheErr) {
+          console.warn("Failed to invalidate backend cache", cacheErr);
+        }
+      }
+
       setProfile(formData);
       setIsEditing(false);
-      
+
       // Update local storage as well for redundancy/cache
       localStorage.setItem('userProfile', JSON.stringify(formData));
-      
+
     } catch (error) {
       console.error("Error updating profile:", error);
       alert("Failed to save profile changes. Please try again.");
@@ -145,7 +159,7 @@ const ProfileView = () => {
                     {getInitials(profile.displayName)}
                   </span>
                   {!isEditing && (
-                    <div 
+                    <div
                       onClick={() => setIsEditing(true)}
                       className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
                     >
@@ -153,10 +167,10 @@ const ProfileView = () => {
                     </div>
                   )}
                 </div>
-                
+
                 {isEditing ? (
                   <div className="w-full mb-4 space-y-3">
-                     <input
+                    <input
                       type="text"
                       name="displayName"
                       value={formData.displayName}
@@ -164,7 +178,7 @@ const ProfileView = () => {
                       placeholder="Full Name"
                       className="w-full p-2 border border-slate-200 rounded-lg text-center font-bold text-slate-900 focus:ring-2 focus:ring-[#40484f] outline-none"
                     />
-                     <input
+                    <input
                       type="text"
                       name="role"
                       value={formData.role}
@@ -263,35 +277,35 @@ const ProfileView = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
                 {/* Helper function to render fields */}
                 {[
-                    { label: 'Domain / Industry', name: 'domain', icon: Globe },
-                    { label: 'Funding Requirement', name: 'fundingRequirement', icon: DollarSign, type: 'number', prefix: '$', suffix: ' USD' },
-                    { label: 'Citizenship', name: 'citizenship', icon: MapPin },
-                    { label: 'Primary Role', name: 'role', icon: Briefcase }, // Duplicate field, but kept for layout consistency if needed, or remove. 
-                    // Note: Role is already editable in the left card. 
-                    // Let's keep it consistent: editing it here updates the same state.
-                    { label: 'Gender', name: 'gender', icon: User },
-                    { label: 'Age', name: 'age', icon: Calendar, suffix: ' Years' },
+                  { label: 'Domain / Industry', name: 'domain', icon: Globe },
+                  { label: 'Funding Requirement', name: 'fundingRequirement', icon: DollarSign, type: 'number', prefix: '$', suffix: ' USD' },
+                  { label: 'Citizenship', name: 'citizenship', icon: MapPin },
+                  { label: 'Primary Role', name: 'role', icon: Briefcase }, // Duplicate field, but kept for layout consistency if needed, or remove. 
+                  // Note: Role is already editable in the left card. 
+                  // Let's keep it consistent: editing it here updates the same state.
+                  { label: 'Gender', name: 'gender', icon: User },
+                  { label: 'Age', name: 'age', icon: Calendar, suffix: ' Years' },
                 ].map((field) => (
-                    <div key={field.name} className="space-y-2">
-                        <label className="text-[10px] font-black text-[#40484f] uppercase tracking-[0.2em] block">{field.label}</label>
-                        <div className={`flex items-center gap-4 p-4 ${isEditing ? 'bg-slate-50 border border-slate-200' : 'bg-slate-100'} rounded-2xl transition-all`}>
-                            <field.icon className="text-[#40484f] size-5 flex-shrink-0" />
-                            {isEditing ? (
-                                <input
-                                    type={field.type || "text"}
-                                    name={field.name}
-                                    value={formData[field.name]}
-                                    onChange={handleChange}
-                                    className="bg-transparent w-full font-bold text-slate-900 outline-none placeholder-slate-400"
-                                    placeholder={field.label}
-                                />
-                            ) : (
-                                <span className="font-bold text-slate-700 truncate">
-                                    {field.prefix}{field.name === 'fundingRequirement' ? Number(profile[field.name]).toLocaleString() : profile[field.name]}{field.suffix}
-                                </span>
-                            )}
-                        </div>
+                  <div key={field.name} className="space-y-2">
+                    <label className="text-[10px] font-black text-[#40484f] uppercase tracking-[0.2em] block">{field.label}</label>
+                    <div className={`flex items-center gap-4 p-4 ${isEditing ? 'bg-slate-50 border border-slate-200' : 'bg-slate-100'} rounded-2xl transition-all`}>
+                      <field.icon className="text-[#40484f] size-5 flex-shrink-0" />
+                      {isEditing ? (
+                        <input
+                          type={field.type || "text"}
+                          name={field.name}
+                          value={formData[field.name]}
+                          onChange={handleChange}
+                          className="bg-transparent w-full font-bold text-slate-900 outline-none placeholder-slate-400"
+                          placeholder={field.label}
+                        />
+                      ) : (
+                        <span className="font-bold text-slate-700 truncate">
+                          {field.prefix}{field.name === 'fundingRequirement' ? Number(profile[field.name]).toLocaleString() : profile[field.name]}{field.suffix}
+                        </span>
+                      )}
                     </div>
+                  </div>
                 ))}
               </div>
 
@@ -305,19 +319,19 @@ const ProfileView = () => {
                 </div>
                 <div className={`bg-slate-50 p-8 rounded-[32px] border ${isEditing ? 'border-slate-300' : 'border-slate-100'} relative overflow-hidden transition-all`}>
                   {!isEditing && <div className="absolute top-0 right-0 w-32 h-32 bg-white/50 rounded-full -mr-16 -mt-16 blur-2xl"></div>}
-                  
+
                   {isEditing ? (
                     <textarea
-                        name="idea"
-                        value={formData.idea}
-                        onChange={handleChange}
-                        rows={4}
-                        className="w-full bg-transparent border-none outline-none text-slate-600 font-medium leading-relaxed italic resize-none p-0 focus:ring-0"
-                        placeholder="Describe your innovative research vision..."
+                      name="idea"
+                      value={formData.idea}
+                      onChange={handleChange}
+                      rows={4}
+                      className="w-full bg-transparent border-none outline-none text-slate-600 font-medium leading-relaxed italic resize-none p-0 focus:ring-0"
+                      placeholder="Describe your innovative research vision..."
                     />
                   ) : (
                     <p className="text-slate-600 font-medium leading-relaxed italic relative z-10">
-                        "{profile.idea || "Your innovative research vision will appear here after you update your profile."}"
+                      "{profile.idea || "Your innovative research vision will appear here after you update your profile."}"
                     </p>
                   )}
                 </div>

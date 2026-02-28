@@ -118,9 +118,13 @@ export async function checkInUser(userId) {
         const creditsDoc = await transaction.get(creditsRef);
 
         if (!creditsDoc.exists) {
-            // If user somehow doesn't have credits doc, initialize first
-            // Registration already gives 10, so we count that as the check-in for day 1
-            await initializeUserCredits(userId);
+            // Initialize user credits inline to avoid nested transaction error
+            transaction.set(creditsRef, {
+                user_id: userId,
+                analyze_credits: DEFAULT_REGISTRATION_CREDITS,
+                last_updated: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            await logActivity(transaction, userId, "First Registration", DEFAULT_REGISTRATION_CREDITS);
             return { success: true, message: "Initialized with registration credits", checkInAwarded: false };
         }
 
@@ -172,7 +176,7 @@ export async function upgradeUserPlan(userId, planType) {
 
     return db.runTransaction(async (transaction) => {
         const creditsDoc = await transaction.get(creditsRef);
-        
+
         let currentBalance = 0;
         if (creditsDoc.exists) {
             currentBalance = creditsDoc.data().analyze_credits || 0;
@@ -185,7 +189,7 @@ export async function upgradeUserPlan(userId, planType) {
         }
 
         const creditsToAdd = planType === 'pro' ? 100 : planType === 'plus' ? 500 : 0;
-        
+
         transaction.set(creditsRef, {
             user_id: userId,
             analyze_credits: currentBalance + creditsToAdd,

@@ -7,6 +7,7 @@ export const COLLECTIONS = {
   PITCH_ATTEMPT_COUNTERS: "pitch_attempt_counters",
   ACTIVITY_LOGS: "activity_logs",
   USER_PITCHES: "user_pitches",
+  USER_GRANTS_CACHE: "user_grants_cache",
 };
 
 export const USER_ROLES = new Set(["researcher", "startup"]);
