@@ -57,7 +57,7 @@ export async function getCategorizedGrants(userId, forceRefresh = false) {
 
     // Step 3: Limit AI soft filtering to top 5 most relevant (per user request)
     const limitedMatches = sortedMatches.slice(0, 5);
-    console.log(`[MATCH-TRACE] Top 5 candidates for AI: ${limitedMatches.map(m => m.id).join(", ")}`);
+    console.log(`[MATCH-TRACE] Top 5 candidates: ${limitedMatches.map(m => m.id).join(", ")}`);
 
     try {
         // Run AI scoring in parallel for speed
@@ -67,8 +67,8 @@ export async function getCategorizedGrants(userId, forceRefresh = false) {
                 return { org, preferenceScore, isFallback: false };
             } catch (err) {
                 console.warn(`[MATCH-WARN] AI scoring failed for ${org.id}, falling back to keyword relevance:`, err.message);
-                // Graceful Degradation: Use a moderate static score if AI fails
-                return { org, preferenceScore: 0.6, isFallback: true };
+                // Proper fallback: since they are top keyword matches, they are highly eligible
+                return { org, preferenceScore: 0.85, isFallback: true };
             }
         });
 
@@ -102,7 +102,8 @@ export async function getCategorizedGrants(userId, forceRefresh = false) {
         categorized.eligible = limitedMatches.map(org => ({
             ...org,
             match_score: 1.0,
-            confidence_tag: "Relevance Match (Critical Fallback)"
+            confidence_tag: "Relevance Match (Critical Fallback)",
+            is_fallback: true
         }));
         categorized.partially_eligible = [];
     }

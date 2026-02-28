@@ -118,7 +118,7 @@ USER PROFILE
 | **Database** | Firebase Firestore (real-time) |
 | **Auth** | Firebase Authentication (Email + Google OAuth) |
 | **Storage** | Firebase Storage (proposal uploads) |
-| **AI** | Google Gemini 2.5 Flash (`gemini-2.5-flash`) |
+| **AI** | Google Gemini 2.5 Flash (`gemini-2.5-pro`) |
 | **AI Caching** | JSON file-based persistent cache (`ai_cache.json`) |
 | **PDF Generation** | jsPDF (client-side) |
 | **Animations** | GSAP + ScrollTrigger (landing page Masonry) |

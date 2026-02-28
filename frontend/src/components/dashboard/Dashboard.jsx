@@ -75,12 +75,14 @@ const Dashboard = () => {
         setIsLoading(false);
       }
     } else {
+      // If there's no local cache, we must fetch from the backend.
+      // The backend will check its Firestore cache first before hitting Gemini.
       const needsRefresh = localStorage.getItem('needs_grant_refresh');
       if (needsRefresh === 'true') {
         localStorage.removeItem('needs_grant_refresh');
-        fetchMatches(true);
+        fetchMatches(true, true); // Force AI refresh since profile changed
       } else {
-        setIsLoading(false); // Stop loading, but do NOT fetch
+        fetchMatches(true, false); // Just fetch DB cache or hard-filtered fallback
       }
     }
   }, [authChecked, user, CACHE_KEY]);
