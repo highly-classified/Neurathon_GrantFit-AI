@@ -32,6 +32,8 @@ import { auth } from '../../firebase';
 const PitchModule = () => {
     const { grantId } = useParams();
     const [pitchText, setPitchText] = useState("");
+    const [lastEvaluatedText, setLastEvaluatedText] = useState("");
+    const [toastMessage, setToastMessage] = useState(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [hasEvaluated, setHasEvaluated] = useState(false);
     const [showGuidelines, setShowGuidelines] = useState(false);
@@ -62,6 +64,7 @@ const PitchModule = () => {
                     const data = await response.json();
                     if (data) {
                         setPitchText(data.pitchContent || "");
+                        setLastEvaluatedText(data.pitchContent || "");
                         setEvaluation({
                             score: data.overallScore || 0,
                             clarityScore: data.clarityScore || 0,
@@ -331,9 +334,42 @@ const PitchModule = () => {
     };
 
     const handleEvaluate = async () => {
+        // Simple exact match first
+        if (pitchText === lastEvaluatedText && pitchText !== "") {
+            setToastMessage("Make some changes to your pitch to calculate the score again");
+            setTimeout(() => setToastMessage(null), 3000);
+            return;
+        }
+
+        // More robust HTML stripping via a temporary DOM element to handle things like &nbsp; vs space
+        const stripHTML = (html) => {
+            const tmp = document.createElement("DIV");
+            tmp.innerHTML = html;
+            // Also normalize whitespace and newlines
+            return (tmp.textContent || tmp.innerText || "").replace(/\s+/g, ' ').trim();
+        };
+
+        const currentClean = stripHTML(pitchText);
+        const prevClean = stripHTML(lastEvaluatedText);
+
+        console.log("Evaluating pitch change:", { currentClean, prevClean, rawCurrent: pitchText, rawPrev: lastEvaluatedText });
+
+        if (currentClean === "") {
+            setToastMessage("Please enter a pitch before calculating the score");
+            setTimeout(() => setToastMessage(null), 3000);
+            return;
+        }
+
+        if (currentClean === prevClean) {
+            setToastMessage("Make some changes to your pitch to calculate the score again");
+            setTimeout(() => setToastMessage(null), 3000);
+            return;
+        }
+
         setIsDrafting(false);
         const result = await analyzePitch(pitchText);
         if (result) {
+            setLastEvaluatedText(pitchText);
             localStorage.setItem(`pitch_started_${grantId}`, 'true');
             setHasStartedLocal(true);
             setEvaluation(prev => ({
@@ -683,6 +719,20 @@ const PitchModule = () => {
                     </div>
                 </main>
             </div>
+
+            <AnimatePresence>
+                {toastMessage && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 50 }}
+                        className="fixed bottom-8 right-8 z-[200] rounded-2xl bg-slate-900 border border-slate-700 text-white px-6 py-4 shadow-2xl flex items-center gap-3"
+                    >
+                        <AlertTriangle className="size-5 text-amber-500" />
+                        <p className="text-sm font-bold">{toastMessage}</p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <AnimatePresence>
                 {isVoiceModalOpen && (
