@@ -8,8 +8,9 @@ const API_KEY = process.env.GOOGLE_GENAI_API_KEY;
 const DRY_RUN = process.env.G_DRY_RUN === "true";
 
 // Initialize Gemini
+
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
-const model = genAI ? genAI.getGenerativeModel({ model: "gemini-2.5-Pro" }) : null;
+const model = genAI ? genAI.getGenerativeModel({ model: "gemini-2.5-flash" }) : null;
 
 /**
  * Loads the persistent cache from disk.
