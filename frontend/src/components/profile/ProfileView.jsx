@@ -106,6 +106,7 @@ const ProfileView = () => {
       if (profile.idea !== formData.idea || profile.domain !== formData.domain) {
         console.log("Idea or domain changed, invalidating grant cache...");
         localStorage.removeItem(`grant_matches_${user.uid}`);
+        localStorage.setItem('needs_grant_refresh', 'true');
 
         try {
           await fetch(API_ENDPOINTS.INVALIDATE_CACHE(user.uid), { method: 'POST' });

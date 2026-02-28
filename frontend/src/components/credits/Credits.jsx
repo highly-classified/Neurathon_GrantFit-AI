@@ -167,21 +167,7 @@ const Credits = () => {
         setLoading(false);
       });
 
-      // 3. Trigger Daily Check-in
-      const handleCheckIn = async () => {
-        try {
-          const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
-          await fetch(`${API_BASE_URL}/api/credits/check-in`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: user.uid })
-          });
-        } catch (e) {
-          console.error("Check-in Trigger Error:", e);
-        }
-      };
-
-      handleCheckIn();
+      // Removed redundant checkInUser call to prevent Firestore contention.
 
       return () => {
         unsubCredits();

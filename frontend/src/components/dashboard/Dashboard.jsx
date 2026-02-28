@@ -71,12 +71,19 @@ const Dashboard = () => {
         setIsLoading(false);
         // DO NOT fetchMatches(false) here. We want to rely purely on the cached data until explicitly refreshed
       } catch (e) {
-        fetchMatches(true);
+        localStorage.removeItem(CACHE_KEY);
+        setIsLoading(false);
       }
     } else {
-      fetchMatches(true);
+      const needsRefresh = localStorage.getItem('needs_grant_refresh');
+      if (needsRefresh === 'true') {
+        localStorage.removeItem('needs_grant_refresh');
+        fetchMatches(true);
+      } else {
+        setIsLoading(false); // Stop loading, but do NOT fetch
+      }
     }
-  }, [authChecked, user]);
+  }, [authChecked, user, CACHE_KEY]);
 
   const formatCurrency = (amount) => {
     if (!amount) return "TBD";
