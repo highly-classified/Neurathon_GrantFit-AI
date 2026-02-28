@@ -4,13 +4,28 @@ import { callGemini } from "./aiService.js";
 
 /**
  * Categorizes grants into 'eligible', 'may_be_eligible', and 'ineligible' for a user.
+ * Caches the result in Firestore to avoid recalculating unnecessarily.
  */
-export async function getCategorizedGrants(userId) {
+export async function getCategorizedGrants(userId, forceRefresh = false) {
     const userDoc = await db.collection(COLLECTIONS.USERS).doc(userId).get();
     if (!userDoc.exists) {
         throw new Error("User profile not found");
     }
     const user = userDoc.data();
+
+    // Check DB Cache first
+    if (!forceRefresh) {
+        try {
+            const cacheDoc = await db.collection(COLLECTIONS.USER_GRANTS_CACHE).doc(userId).get();
+            if (cacheDoc.exists) {
+                const cacheData = cacheDoc.data();
+                console.log(`[MATCH-TRACE] Returning cached grants from database for user: ${userId}`);
+                return cacheData.categorized;
+            }
+        } catch (err) {
+            console.warn(`[MATCH-WARN] Failed to read grant cache for ${userId}:`, err.message);
+        }
+    }
 
     // Fetch all organizers (grants)
     const organizersSnapshot = await db.collection(COLLECTIONS.ORGANIZERS).get();
@@ -90,6 +105,16 @@ export async function getCategorizedGrants(userId) {
             confidence_tag: "Relevance Match (Critical Fallback)"
         }));
         categorized.partially_eligible = [];
+    }
+
+    try {
+        await db.collection(COLLECTIONS.USER_GRANTS_CACHE).doc(userId).set({
+            categorized,
+            updatedAt: new Date().toISOString()
+        });
+        console.log(`[MATCH-TRACE] Saved new categorized grants cache for user: ${userId}`);
+    } catch (err) {
+        console.warn(`[MATCH-WARN] Failed to save grant cache for ${userId}:`, err.message);
     }
 
     return categorized;

@@ -8,7 +8,8 @@ export const API_ENDPOINTS = {
     PITCH_START: `${API_BASE_URL}/api/pitch/start`,
     PITCH_LATEST: (userId, grantId) => `${API_BASE_URL}/api/pitch/${userId}/${grantId}`,
     CREDITS_INITIALIZE: `${API_BASE_URL}/api/credits/initialize`,
-    USERS: `${API_BASE_URL}/api/users`
+    USERS: `${API_BASE_URL}/api/users`,
+    INVALIDATE_CACHE: (userId) => `${API_BASE_URL}/api/users/${userId}/invalidate-cache`
 };
 
 export default API_BASE_URL;

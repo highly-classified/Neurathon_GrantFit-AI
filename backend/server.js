@@ -16,7 +16,7 @@ app.use(cors());
 app.post("/api/webhook/stripe", express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-    
+
     let event;
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -35,22 +35,22 @@ app.post("/api/webhook/stripe", express.raw({ type: 'application/json' }), async
     // Handle the checkout.session.completed event
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
-        
+
         const userId = session.client_reference_id;
-        
+
         // Retrieve line items to know what plan they bought
         try {
             const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
             if (lineItems && lineItems.data && lineItems.data.length > 0) {
                 const priceId = lineItems.data[0].price.id;
-                
+
                 let planType = null;
                 if (priceId === process.env.STRIPE_PRICE_ID_PRO) {
                     planType = 'pro';
                 } else if (priceId === process.env.STRIPE_PRICE_ID_PLUS) {
                     planType = 'plus';
                 }
-                
+
                 if (planType && userId) {
                     await upgradeUserPlan(userId, planType);
                     console.log(`✅ Granted ${planType} credits to user ${userId}`);
@@ -171,14 +171,32 @@ app.post("/api/credits/check-in", async (req, res) => {
 /**
  * GET /api/grants/:userId
  * Returns soft-filtered grants categorized as 'eligible' or 'partially_eligible'
+ * Accepts ?forceRefresh=true to bypass DB cache
  */
 app.get("/api/grants/:userId", async (req, res) => {
     const { userId } = req.params;
+    const forceRefresh = req.query.forceRefresh === 'true';
     try {
-        const result = await getCategorizedGrants(userId);
+        const result = await getCategorizedGrants(userId, forceRefresh);
         res.json(result);
     } catch (error) {
         console.error("Matching Error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * POST /api/users/:userId/invalidate-cache
+ * Clears the user's grant cache in Firestore (used when profile idea/domain changes)
+ */
+app.post("/api/users/:userId/invalidate-cache", async (req, res) => {
+    const { userId } = req.params;
+    try {
+        await db.collection(COLLECTIONS.USER_GRANTS_CACHE).doc(userId).delete();
+        console.log(`[CACHE] Invalidated grant cache for user: ${userId}`);
+        res.json({ success: true, message: "Cache invalidated successfully" });
+    } catch (error) {
+        console.error("Cache Invalidation Error:", error);
         res.status(500).json({ error: error.message });
     }
 });

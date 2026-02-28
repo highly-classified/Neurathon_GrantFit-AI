@@ -31,7 +31,7 @@ const Dashboard = () => {
   const userId = user?.uid || "user_postman_01"; // Fallback for safety
   const CACHE_KEY = `grant_matches_${userId}`;
 
-  const fetchMatches = async (forceSkeletons = false) => {
+  const fetchMatches = async (forceSkeletons = false, forceRefresh = false) => {
     // Only show loading spinner if we have NO data at all
     const hasCache = !!localStorage.getItem(CACHE_KEY);
     if (!hasCache || forceSkeletons === true) {
@@ -42,7 +42,11 @@ const Dashboard = () => {
 
     setError(null);
     try {
-      const response = await fetch(API_ENDPOINTS.GRANTS(userId));
+      const url = forceRefresh
+        ? `${API_ENDPOINTS.GRANTS(userId)}?forceRefresh=true`
+        : API_ENDPOINTS.GRANTS(userId);
+
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch matches');
       const data = await response.json();
 
@@ -65,7 +69,7 @@ const Dashboard = () => {
       try {
         setMatches(JSON.parse(cachedData));
         setIsLoading(false);
-        fetchMatches(false);
+        // DO NOT fetchMatches(false) here. We want to rely purely on the cached data until explicitly refreshed
       } catch (e) {
         fetchMatches(true);
       }
@@ -149,7 +153,7 @@ const Dashboard = () => {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => fetchMatches(true)}
+              onClick={() => fetchMatches(true, true)}
               disabled={isLoading || isRefreshing}
               className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-[#0f172a] text-sm font-bold rounded-xl hover:bg-gray-50 shadow-sm transition-all focus:ring-2 focus:ring-gray-100 disabled:opacity-50"
             >
